@@ -67,4 +67,37 @@ RSpec.describe 'Users', type: :request do
       end
     end
   end
+
+  describe 'PUT /v1/users/:username' do
+    let(:lebron) { create(:user, username: 'lebron') }
+    let(:boogie) { create(:user, username: 'boogie', first_name: 'Demarcus') }
+
+    before do
+      login_as(lebron)
+    end
+
+    context 'lebron updating his own account' do
+      it 'is accepted' do
+        put "/v1/users/#{lebron.username}",
+            headers: { "Authorization": "Bearer #{user_token}" },
+            params: { user: { first_name: 'King' } }
+        lebron.reload
+        expect(response).to have_http_status(:accepted)
+        expect(JSON.parse(response.body)['user']['data']['first_name']).to eq('King')
+        expect(lebron.first_name).to eq('King')
+      end
+    end
+
+    context "lebron attempting to update boogie's account" do
+      it 'is unauthorized' do
+        put "/v1/users/#{boogie.username}",
+            headers: { "Authorization": "Bearer #{user_token}" },
+            params: { user: { first_name: 'Booger' } }
+
+        expect(response).to have_http_status(:unauthorized)
+        boogie.reload
+        expect(boogie.first_name).to eq('Demarcus')
+      end
+    end
+  end
 end

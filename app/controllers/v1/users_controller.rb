@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class V1::UsersController < ApplicationController
-  before_action :authenticated_user, except: [:create]
+  before_action :pundit_user, except: [:create]
   def show
     @user = User.find_by(username: params[:username])
     if @user
@@ -19,6 +19,20 @@ class V1::UsersController < ApplicationController
       render :user, status: :created
     else
       render json: { message: 'Cannot create user', errors: @user.errors }, status: :unprocessable_entity
+    end
+  end
+
+  def update
+    @user = User.find_by(username: params[:username])
+    authorize @user
+    if @user.update(user_params)
+      render :user, status: :accepted
+    else
+      render json: {
+        message: 'Cannot process update',
+        errors: @user.errors
+      },
+             status: :unprocessable_entity
     end
   end
 

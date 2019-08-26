@@ -72,9 +72,7 @@ RSpec.describe 'Users', type: :request do
     let(:lebron) { create(:user, username: 'lebron') }
     let(:boogie) { create(:user, username: 'boogie', first_name: 'Demarcus') }
 
-    before do
-      login_as(lebron)
-    end
+    before { login_as(lebron) }
 
     context 'lebron updating his own account' do
       it 'is accepted' do
@@ -97,6 +95,31 @@ RSpec.describe 'Users', type: :request do
         expect(response).to have_http_status(:unauthorized)
         boogie.reload
         expect(boogie.first_name).to eq('Demarcus')
+      end
+    end
+  end
+
+  describe 'DELETE /v1/users/:username' do
+    let(:cesar) { create(:user, username: 'cesar') }
+    let(:pompey) { create(:user, username: 'pompey') }
+
+    before { login_as(cesar) }
+
+    context 'cesar deleting his own account' do
+      it 'is successfully processed' do
+        delete "/v1/users/#{cesar.username}",
+               headers: { "Authorization": "Bearer #{user_token}" }
+
+        expect(response).to have_http_status(:accepted)
+      end
+    end
+
+    context "cesar deleting pompey's account" do
+      it 'is not successful' do
+        delete "/v1/users/#{pompey.username}",
+               headers: { "Authorization": "Bearer #{user_token}" }
+
+        expect(response).to have_http_status(:unauthorized)
       end
     end
   end

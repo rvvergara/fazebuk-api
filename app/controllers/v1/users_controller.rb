@@ -36,6 +36,17 @@ class V1::UsersController < ApplicationController
     end
   end
 
+  def destroy
+    @user = User.find_by(username: params[:username])
+    authorize @user
+
+    if @user.destroy
+      render json: { message: 'Account deleted' }, status: :accepted
+    else
+      render json: { message: 'Cannot find user' }, status: :unprocessable_entity
+    end
+  end
+
   private
 
   def user_params

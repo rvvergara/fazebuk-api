@@ -29,4 +29,9 @@ group :development do
   gem 'spring-commands-rspec'
   gem 'spring-watcher-listen', '~> 2.0.0'
 end
+
+group :test do
+  gem 'pundit-matchers', '~> 1.6.0'
+end
+
 gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class V1::UsersController < ApplicationController
+  before_action :authenticated_user
   def show
     @user = User.find_by(username: params[:username])
     if @user

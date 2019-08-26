@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class V1::UsersController < ApplicationController
-  before_action :authenticated_user
+  before_action :authenticated_user, except: [:create]
   def show
     @user = User.find_by(username: params[:username])
     if @user
@@ -16,7 +16,7 @@ class V1::UsersController < ApplicationController
 
     if @user.save
       @token = JsonWebToken.encode(@user.data)
-      render json: @user.data.merge(token: @token), status: :created
+      render :user, status: :created
     else
       render json: { message: 'Cannot create user', errors: @user.errors }, status: :unprocessable_entity
     end

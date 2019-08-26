@@ -1,24 +1,79 @@
-# README
+# fazebuk-api -> JSON API Facebook Clone
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+[![standard-readme compliant](https://img.shields.io/badge/standard--readme-OK-green.svg?style=flat-square)](https://github.com/RichardLitt/standard-readme)
 
-Things you may want to cover:
+> JSON API app built using Ruby on Rails
 
-* Ruby version
+> App generated using [this](https://github.com/rvvergara/rails-templates/tree/master/api_template) custom Rails Template
 
-* System dependencies
+Version 1 Features:
 
-* Configuration
+- User account creation and update
+- Token authentication using `devise` and `jwt`
+- Request authorization using `pundit`
+- Database search using `pg_search`
+- Model and request specs using `rspec-rails` and `factory_bot_rails`
 
-* Database creation
+Pipeline:
 
-* Database initialization
+- Login using facebook -> thru omniauth
 
-* How to run the test suite
+## Background
 
-* Services (job queues, cache servers, search engines, etc.)
+Previously I co-worked on a [project](https://github.com/dipto0321/facialbook) that built a full-stack Rails [Facebook clone](https://facials.herokuapp.com/). While that was fun to build, there were lots of limitations posed by my skills in working with JavaScript on Rails. Further, I wanted to utilize the power of React but didn't want to put all logic for Rails and React in one huge application. For this reason I decided to create a shadow application that splits the front and backend.
 
-* Deployment instructions
+## Table of Contents
 
-* ...
+- [fazebuk-api](#fazebuk-api)
+  - [Table of Contents](#table-of-contents)
+  - [Technologies used](#main-technologies-used)
+  - [Install](#install)
+  - [Usage](#usage)
+  - [API](#api)
+  - [Maintainers](#maintainers)
+  - [Contributing](#contributing)
+  - [License](#license)
+
+## Main Technologies used
+
+- Ruby on Rails
+- PostgreSQL
+- Devise
+- JWT
+- Pundit
+- Jbuilder
+- PG Search (for search capability)
+- RSpec
+- FactoryBot
+
+## Install
+
+Follow these steps:
+
+- clone this repo
+- `cd fazebuk-api`
+- `bundle`
+
+## Usage
+
+```
+rails s
+```
+
+Goto `localhost:3000`
+
+Use either `httpie` on the terminal or Postman to do requests
+
+## Maintainer
+
+[Ryan](https://github.com/rvvergara)
+
+## Contributing
+
+[Ryan](https://github.com/rvvergara)
+
+PRs accepted.
+
+## License
+
+MIT © 2019 Ryan Vergara

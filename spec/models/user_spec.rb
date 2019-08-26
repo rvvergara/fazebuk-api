@@ -18,4 +18,11 @@ RSpec.describe User, type: :model do
       end
     end
   end
+
+  describe '#data method' do
+    let(:george) { create(:user, username: 'george') }
+    it 'returns a json data for george' do
+      expect(george.data['username']).to eq('george')
+    end
+  end
 end

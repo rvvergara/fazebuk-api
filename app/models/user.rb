@@ -7,6 +7,7 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable
 
   validates :first_name, :last_name, :username, presence: true
+  validates :username, uniqueness: true
 
   def data
     User.all.as_json.find do |user|

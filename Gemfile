@@ -7,6 +7,7 @@ gem 'pg', '>= 0.18', '< 2.0'
 gem 'puma', '~> 3.11'
 gem 'bootsnap', '>= 1.1.0', require: false
 gem 'devise'
+gem 'active_model_serializers'
 gem 'pundit'
 gem 'jwt'
 gem 'jbuilder', '~> 2.5'

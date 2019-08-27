@@ -54,6 +54,36 @@ Follow these steps:
 - `cd fazebuk-api`
 - `bundle`
 
+**Set up credentials**
+
+In the terminal run:
+
+```
+$ EDITOR="<code editor name> --wait" rails credentials:edit
+```
+
+it will open up a `<filename>.credentials.yml`. In this file include the ff lines:
+
+```ruby
+db:
+ username: <your local postgres username>
+ password: <your local postgres password>
+```
+
+Save and close file. The following message should be shown in the terminal after saving and closing:
+
+```
+New credentials encrypted and saved.
+```
+
+**Set up database**
+
+Run:
+
+```
+$ rails db:setup
+```
+
 ## Usage
 
 ```

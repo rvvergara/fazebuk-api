@@ -29,5 +29,7 @@ class User < ApplicationRecord
     return user if user
 
     User.create(data)
+  rescue StandardError => e
+    e.to_json
   end
 end

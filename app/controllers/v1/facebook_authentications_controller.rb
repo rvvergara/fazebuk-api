@@ -3,13 +3,13 @@
 class V1::FacebookAuthenticationsController < ApplicationController
   def create
     facebook_access_token = params.require(:access_token)
-    user = User.find_or_create_with_facebook(facebook_access_token)
-    if user.class == User
-      render json: user.to_json, status: :ok
+    @facebook_data = User.find_or_create_with_facebook(facebook_access_token)
+    if @facebook_data.class == User
+      data = @facebook_data.data
+      @token = JsonWebToken.encode(data)
+      render :user, status: :ok
     else
-      error_message = user.split(',')[3].split(':')
-      error_json = { error_message[0].to_sym => error_message[1] }
-      render json: error_json, status: :unprocessable_entity
+      render json: @facebook_data, status: :unprocessable_entity
     end
   end
 end

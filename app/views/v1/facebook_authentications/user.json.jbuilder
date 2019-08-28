@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
 json.user do
-  json.data @user
+  json.data @facebook_data
   json.token @token
 end

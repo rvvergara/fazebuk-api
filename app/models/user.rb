@@ -9,6 +9,11 @@ class User < ApplicationRecord
   validates :first_name, :last_name, :username, presence: true
   validates :username, uniqueness: true
 
+  has_many :active_friendships, foreign_key: :active_friend_id, dependent: :destroy, class_name: 'Friendship'
+  has_many :passive_friendships, foreign_key: :passive_friend_id, dependent: :destroy, class_name: 'Friendship'
+  has_many :active_friends, through: :passive_friendships, source: :active_friend, dependent: :destroy
+  has_many :passive_friends, through: :active_friendships, source: :passive_friend, dependent: :destroy
+
   def data
     User.all.as_json.find do |user|
       user['username'] == username

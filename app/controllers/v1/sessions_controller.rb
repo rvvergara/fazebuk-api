@@ -2,7 +2,7 @@
 
 class V1::SessionsController < ApplicationController
   def create
-    @user = User.find_by(email: params[:email_or_username]) || User.find_by(username: params[:email_or_username])
+    @user = User.find_by(email: params[:email])
     if @user &.valid_password?(params[:password])
       data = @user.data
       @token = JsonWebToken.encode(data)

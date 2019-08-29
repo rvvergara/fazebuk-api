@@ -25,7 +25,7 @@ class V1::FriendshipsController < ApplicationController
     if @friendship
       authorize @friendship
       @friendship.confirm
-      render json: { message: 'Friend request confirmed!' }
+      render json: { message: 'Friend request confirmed!' }, status: :accepted
     else
       render json: { message: 'Cannot find friendship' }, status: 404
     end

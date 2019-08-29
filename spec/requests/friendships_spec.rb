@@ -7,13 +7,12 @@ RSpec.describe 'Friendships', type: :request do
   let(:hermione) { create(:user, username: 'hermione') }
   let(:goku) { create(:user, username: 'goku') }
 
-  before do
-    [harry, hermione].each do |friend|
-      create(:friendship, active_friend: goku, passive_friend: friend, confirmed: true)
-    end
-  end
-
   describe 'GET /v1/users/:user_username/friends' do
+    before do
+      [harry, hermione].each do |friend|
+        create(:friendship, active_friend: goku, passive_friend: friend, confirmed: true)
+      end
+    end
     context 'goku logs on to check his friends' do
       it 'gives him an array of json data of his friends' do
         login_as(goku)
@@ -22,6 +21,46 @@ RSpec.describe 'Friendships', type: :request do
 
         expect(JSON.parse(response.body).size).to be(2)
         expect(response).to have_http_status(:ok)
+      end
+    end
+  end
+
+  describe 'POST /v1/users/:user_username/friendships' do
+    context 'harry adds hermione as friend' do
+      it 'adds to friendships record' do
+        login_as(harry)
+        expect do
+          post "/v1/users/#{harry.username}/friendships",
+               headers: { "Authorization": "Bearer #{user_token}" },
+               params: { user_username: hermione }
+        end.to change(Friendship, :count).by(1)
+      end
+    end
+  end
+
+  describe 'PUT /v1/friendships/:id' do
+    let(:friendship) { create(:friendship, active_friend: hermione, passive_friend: goku) }
+
+    context "goku confirms hermione's friend request" do
+      before do
+        login_as(goku)
+
+        put "/v1/friendships/#{friendship.id}",
+            headers: { "Authorization": "Bearer #{user_token}" }
+        friendship.reload
+        goku.reload
+      end
+
+      it 'sends a success response' do
+        expect(response).to have_http_status(:accepted)
+      end
+
+      it 'updates friendship.confirmed to true' do
+        expect(friendship.confirmed).to be(true)
+      end
+
+      it "adds hermione in goku's friends list" do
+        expect(goku.friends).to include(hermione)
       end
     end
   end

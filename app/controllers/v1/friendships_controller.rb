@@ -2,6 +2,7 @@
 
 class V1::FriendshipsController < ApplicationController
   before_action :pundit_user
+  before_action :find_friendship, only: %i[update destroy]
 
   def index
     @user = User.find_by(username: params[:user_username])
@@ -21,15 +22,29 @@ class V1::FriendshipsController < ApplicationController
   end
 
   def update
-    @friendship = Friendship.find_by(id: params[:id])
-    if @friendship
-      authorize @friendship
-      @friendship.confirm
-      render json: { message: 'Friend request confirmed!' }, status: :accepted
+    @friendship.confirm
+    render json: { message: 'Friend request confirmed!' }, status: :accepted
+  end
+
+  def destroy
+    @friendship.destroy
+    if @friendship.confirmed
+      render json: { message: 'Friendship deleted' }
     else
-      render json: { message: 'Cannot find friendship' }, status: 404
+      message = @friendship.active_friend == @current_user ? 'Cancelled friend request' : 'Rejected friend request'
+      render json: { message: message }
     end
   end
 
-  def destroy; end
+  private
+
+  def find_friendship
+    @friendship = Friendship.find_by(id: params[:id])
+    if @friendship
+      authorize @friendship
+    else
+      render json: { message: 'Cannot find friendship' }, status: 404
+      return
+    end
+  end
 end

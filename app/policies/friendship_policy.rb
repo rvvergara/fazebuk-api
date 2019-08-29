@@ -5,6 +5,11 @@ class FriendshipPolicy < ApplicationPolicy
     @user == @record.passive_friend
   end
 
+  def destroy?
+    @user == @record.passive_friend ||
+      @user == @record.active_friend
+  end
+
   class Scope < Scope
     def resolve
       scope.all

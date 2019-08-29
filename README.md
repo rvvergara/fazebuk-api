@@ -100,7 +100,7 @@ Use either `httpie` on the terminal or Postman to do requests
 1. User Creation
 
 ```bash
-$ http POST :3000/v1/users user:='{"username":"john123", "email":"example@email.org", "first_name":"John", "last_name":"Doe", "password":"password", "password_confirmation":"password"}'
+$ http POST :3000/v1/users user:='{"username":"john123", "email":"johnny_bravo@email.org", "first_name":"John", "last_name":"Doe", "password":"password", "password_confirmation":"password"}'
 ```
 
 2. User data update
@@ -117,11 +117,11 @@ $ http PUT :3000/v1/users/john123 user:='{"first_name":"Johnny the Great"}'
 $ http DELETE :3000/v1/users/john123
 ```
 
-4. Signing in a user
+4. Signing in a user through email and password
 
 ```bash
-# assuming username is john123 and password is 'password'
-$ http POST :3000/v1/sessions email_or_username=john123 password=password
+# assuming user email is johnny_bravo@email.com and password is 'password'
+$ http POST :3000/v1/sessions email=johnny_bravo@email.com password=password
 ```
 
 ## Maintainer

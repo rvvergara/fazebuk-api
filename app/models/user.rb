@@ -41,4 +41,24 @@ class User < ApplicationRecord
       message[0].to_sym => message[1]
     }
   end
+
+  def friends
+    added_friends = active_friendships.where(confirmed: true).map(&:passive_friend)
+
+    adding_friends = passive_friendships.where(confirmed: true).map(&:active_friend)
+
+    added_friends + adding_friends
+  end
+
+  def pending_received_requests
+    passive_friendships.where(confirmed: false)
+  end
+
+  def pending_sent_requests
+    active_friendships.where(confirmed: false)
+  end
+
+  def mutual_friends_with(other_user)
+    friends & other_user.friends
+  end
 end

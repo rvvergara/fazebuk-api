@@ -2,28 +2,13 @@
 
 require 'rails_helper'
 
-RSpec.describe FriendshipsPolicy, type: :policy do
-  let(:user) { User.new }
+RSpec.describe FriendshipPolicy, type: :policy do
+  let(:ryan) { create(:user, username: 'rvvergara') }
+  let(:anna) { create(:user, username: 'anna') }
+  let(:friendship) { create(:friendship, active_friend: ryan, passive_friend: anna) }
 
-  subject { described_class }
-
-  permissions '.scope' do
-    pending "add some examples to (or delete) #{__FILE__}"
-  end
-
-  permissions :show? do
-    pending "add some examples to (or delete) #{__FILE__}"
-  end
-
-  permissions :create? do
-    pending "add some examples to (or delete) #{__FILE__}"
-  end
-
-  permissions :update? do
-    pending "add some examples to (or delete) #{__FILE__}"
-  end
-
-  permissions :destroy? do
-    pending "add some examples to (or delete) #{__FILE__}"
+  context "anna confirms ryan's request" do
+    subject { FriendshipPolicy.new(anna, friendship) }
+    it { is_expected.to permit_action(:update) }
   end
 end

@@ -20,7 +20,16 @@ class V1::FriendshipsController < ApplicationController
     end
   end
 
-  def update; end
+  def update
+    @friendship = Friendship.find_by(id: params[:id])
+    if @friendship
+      authorize @friendship
+      @friendship.confirm
+      render json: { message: 'Friend request confirmed!' }
+    else
+      render json: { message: 'Cannot find friendship' }, status: 404
+    end
+  end
 
   def destroy; end
 end

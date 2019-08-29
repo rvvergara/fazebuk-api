@@ -1,0 +1,28 @@
+# frozen_string_literal: true
+
+require 'rails_helper'
+
+RSpec.describe 'Friendships', type: :request do
+  let(:harry) { create(:user, username: 'harry') }
+  let(:hermione) { create(:user, username: 'hermione') }
+  let(:goku) { create(:user, username: 'goku') }
+
+  before do
+    [harry, hermione].each do |friend|
+      create(:friendship, active_friend: goku, passive_friend: friend, confirmed: true)
+    end
+  end
+
+  describe 'GET /v1/users/:user_username/friends' do
+    context 'goku logs on to check his friends' do
+      it 'gives him an array of json data of his friends' do
+        login_as(goku)
+        get "/v1/users/#{goku.username}/friends",
+            headers: { "Authorization": "Bearer #{user_token}" }
+
+        expect(JSON.parse(response.body).size).to be(2)
+        expect(response).to have_http_status(:ok)
+      end
+    end
+  end
+end

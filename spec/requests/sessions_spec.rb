@@ -8,7 +8,7 @@ RSpec.describe 'Sessions', type: :request do
     context 'correct credentials' do
       before do
         post '/v1/sessions', params: {
-          email_or_username: john.username,
+          email: john.email,
           password: 'password'
         }
       end

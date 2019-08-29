@@ -48,15 +48,15 @@ RSpec.describe User, type: :model do
       end
     end
 
-    describe "anna's last #pending_sent_requests" do
-      it 'has mike as the receiver' do
-        expect(anna.pending_sent_requests.last.passive_friend).to eq(mike)
+    describe "anna's last #pending_sent_requests_to" do
+      it 'is mike' do
+        expect(anna.pending_sent_requests_to.last).to eq(mike)
       end
     end
 
-    describe "mike's last #pending_received_requests" do
-      it 'has anna as the sender' do
-        expect(mike.pending_received_requests.last.active_friend).to eq(anna)
+    describe "mike's last #pending_received_requests_from" do
+      it 'is anna' do
+        expect(mike.pending_received_requests_from.last).to eq(anna)
       end
     end
 

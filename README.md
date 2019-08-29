@@ -124,6 +124,13 @@ $ http DELETE :3000/v1/users/john123
 $ http POST :3000/v1/sessions email=johnny_bravo@email.com password=password
 ```
 
+5. Signing in a user through Facebook/User creation (if user doesn't exist yet)
+
+```bash
+# for this to work we should have a Facebook access_token
+$ http GET :3000/v1/auth/facebook?access_token=<facebook access token here>
+```
+
 ## Maintainer
 
 [Ryan](https://github.com/rvvergara)

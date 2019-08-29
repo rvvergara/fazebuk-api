@@ -2,9 +2,8 @@
 
 FactoryBot.define do
   factory :friendship do
-    active_friend_id { '' }
-    passive_friend_id { '' }
-    status { false }
-    combined_ids { 'MyString' }
+    association :active_friend, factory: :user
+    association :passive_friend, factory: :user
+    confirmed { false }
   end
 end

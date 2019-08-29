@@ -7,7 +7,7 @@ class Friendship < ApplicationRecord
   validates :confirmed, presence: true, on: :update
   validates :combined_ids, presence: true, uniqueness: true
 
-  after_initialize :concatenate_ids
+  before_validation :concatenate_ids
 
   def confirm
     update(confirmed: true)

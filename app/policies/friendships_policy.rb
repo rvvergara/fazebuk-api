@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 class FriendshipsPolicy < ApplicationPolicy
-  class Scope < Scope    
+  class Scope < Scope
     def resolve
       scope.all
     end

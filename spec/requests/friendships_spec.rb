@@ -64,4 +64,47 @@ RSpec.describe 'Friendships', type: :request do
       end
     end
   end
+
+  describe 'DELETE /v1/friendships/:id' do
+    let(:friendship) { create(:friendship, active_friend: harry, passive_friend: goku) }
+
+    context 'Goku accepts friendship but later on deletes it' do
+      before do
+        login_as(goku)
+        friendship.confirm
+        delete "/v1/friendships/#{friendship.id}",
+               headers: { "Authorization": "Bearer #{user_token}" }
+      end
+      it 'sends a success response' do
+        expect(response).to have_http_status(:accepted)
+      end
+      it "sends a response with 'Friendship deleted' message" do
+        expect(JSON.parse(response.body)['message']).to match('Friendship deleted')
+      end
+    end
+
+    context 'Goku rejects the friend request' do
+      before do
+        login_as(goku)
+        delete "/v1/friendships/#{friendship.id}",
+               headers: { "Authorization": "Bearer #{user_token}" }
+      end
+
+      it "sends a response with message 'Rejected friend request'" do
+        expect(JSON.parse(response.body)['message']).to match('Rejected friend request')
+      end
+    end
+
+    context 'Mike cancels the friend request' do
+      before do
+        login_as(harry)
+        delete "/v1/friendships/#{friendship.id}",
+               headers: { "Authorization": "Bearer #{user_token}" }
+      end
+
+      it "sends a response with message 'Rejected friend request'" do
+        expect(JSON.parse(response.body)['message']).to match('Cancelled friend request')
+      end
+    end
+  end
 end

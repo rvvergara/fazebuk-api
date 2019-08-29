@@ -29,10 +29,10 @@ class V1::FriendshipsController < ApplicationController
   def destroy
     @friendship.destroy
     if @friendship.confirmed
-      render json: { message: 'Friendship deleted' }
+      render json: { message: 'Friendship deleted' }, status: :accepted
     else
       message = @friendship.active_friend == @current_user ? 'Cancelled friend request' : 'Rejected friend request'
-      render json: { message: message }
+      render json: { message: message }, status: :accepted
     end
   end
 

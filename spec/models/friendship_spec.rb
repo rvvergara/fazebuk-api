@@ -3,5 +3,29 @@
 require 'rails_helper'
 
 RSpec.describe Friendship, type: :model do
-  pending "add some examples to (or delete) #{__FILE__}"
+  let(:ryto) { create(:user, username: 'ryto') }
+  let(:james) { create(:user, username: 'james') }
+
+  before do
+    @friendship = create(:friendship, active_friend: ryto, passive_friend: james)
+  end
+
+  describe 'validations' do
+    context 'james creates a duplicate friendship with ryto' do
+      it 'is invalid' do
+        duplicate_friendship = build(:friendship, active_friend: james, passive_friend: ryto)
+
+        duplicate_friendship.valid?
+
+        expect(duplicate_friendship.errors['combined_ids']).to include('has already been taken')
+      end
+    end
+  end
+
+  describe '#confirm' do
+    it 'confirms the friendship between james and ryto' do
+      @friendship.confirm
+      expect(@friendship.confirmed).to eq(true)
+    end
+  end
 end

@@ -4,8 +4,7 @@ class Friendship < ApplicationRecord
   belongs_to :active_friend, class_name: 'User'
   belongs_to :passive_friend, class_name: 'User'
 
-  validates :confirmed, presence: true, on: :update
-  validates :combined_ids, presence: true, uniqueness: true
+  validates :combined_ids, uniqueness: true
 
   before_validation :concatenate_ids
 

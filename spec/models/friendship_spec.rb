@@ -20,6 +20,16 @@ RSpec.describe Friendship, type: :model do
         expect(duplicate_friendship.errors['combined_ids']).to include('has already been taken')
       end
     end
+
+    context 'james sends himself a friend request' do
+      it 'is invalid' do
+        self_friendship = build(:friendship, active_friend: james, passive_friend: james)
+
+        self_friendship.valid?
+
+        expect(self_friendship.errors['active_friend']).to include('You cannot send yourself a friend request')
+      end
+    end
   end
 
   describe '#confirm' do

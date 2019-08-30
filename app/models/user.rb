@@ -47,24 +47,6 @@ class User < ApplicationRecord
       .or(User.where(id: passive_friendships.pluck(:active_friend_id)))
   end
 
-  def friends_with_tags(other_user)
-    other_user.friends.map do |friend|
-      # Check if friend is a mutual friend
-      is_mutual_friend = mutual_friends_with(other_user).include?(friend) && friend != self && other_user != self
-
-      # Check if friend has a sent request
-      received_request_from_this_user = pending_received_requests_from.include?(friend)
-
-      # Check if friend has a received request
-      sent_request_to_this_user = pending_sent_requests_to.include?(friend)
-
-      friend.as_json
-        .merge(is_mutual_friend: is_mutual_friend)
-        .merge(received_request_from_this_user: received_request_from_this_user)
-        .merge(sent_request_to_this_user: sent_request_to_this_user)
-    end
-  end
-
   def pending_received_requests_from
     User.where(
       id: passive_friendships
@@ -82,6 +64,26 @@ class User < ApplicationRecord
   end
 
   def mutual_friends_with(other_user)
-    friends & other_user.friends
+    User
+      .where(id: friends.pluck(:id))
+      .where(id: other_user.friends.pluck(:id))
+  end
+
+  def friends_with_tags(other_user)
+    other_user.friends.map do |friend|
+      # Check if friend is a mutual friend
+      is_mutual_friend = mutual_friends_with(other_user).include?(friend) && friend != self && other_user != self
+
+      # Check if friend has a sent request
+      received_request_from_this_user = pending_received_requests_from.include?(friend)
+
+      # Check if friend has a received request
+      sent_request_to_this_user = pending_sent_requests_to.include?(friend)
+
+      friend.as_json
+        .merge(is_mutual_friend: is_mutual_friend)
+        .merge(received_request_from_this_user: received_request_from_this_user)
+        .merge(sent_request_to_this_user: sent_request_to_this_user)
+    end
   end
 end

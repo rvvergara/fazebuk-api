@@ -11,7 +11,7 @@ class V1::FriendshipsController < ApplicationController
   end
 
   def create
-    @passive_friend = User.find_by(username: params[:user_username])
+    @passive_friend = User.find_by(username: params[:friend_requested])
     @friendship = @current_user.active_friendships.build(passive_friend: @passive_friend)
 
     if @friendship.save

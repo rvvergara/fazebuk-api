@@ -25,12 +25,12 @@ RSpec.describe 'Friendships', type: :request do
     end
   end
 
-  describe 'POST /v1/users/:user_username/friendships' do
+  describe 'POST /v1/friendships?friend_requested=:username' do
     context 'harry adds hermione as friend' do
       it 'adds to friendships record' do
         login_as(harry)
         expect do
-          post "/v1/users/#{hermione.username}/friendships",
+          post "/v1/friendships?friend_requested=#{hermione.username}",
                headers: { "Authorization": "Bearer #{user_token}" }
         end.to change(Friendship, :count).by(1)
       end

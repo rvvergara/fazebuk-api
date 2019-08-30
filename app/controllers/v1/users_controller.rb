@@ -15,7 +15,7 @@ class V1::UsersController < ApplicationController
     @user = User.new(user_params)
 
     if @user.save
-      @token = JsonWebToken.encode(@user.data)
+      @token = JsonWebToken.encode(@user.attributes)
       render :user, status: :created
     else
       render json: { message: 'Cannot create user', errors: @user.errors }, status: :unprocessable_entity

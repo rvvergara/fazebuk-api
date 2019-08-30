@@ -14,12 +14,6 @@ class User < ApplicationRecord
   has_many :active_friends, through: :passive_friendships, source: :active_friend, dependent: :destroy
   has_many :passive_friends, through: :active_friendships, source: :passive_friend, dependent: :destroy
 
-  def data
-    User.all.as_json.find do |user|
-      user['username'] == username
-    end
-  end
-
   def self.find_or_create_with_facebook(token)
     graph = Koala::Facebook::API.new(token)
     profile = graph.get_object('me', fields: %w[email first_name middle_name last_name])

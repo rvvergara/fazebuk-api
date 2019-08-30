@@ -43,11 +43,8 @@ class User < ApplicationRecord
   end
 
   def friends
-    added_friends = active_friendships.where(confirmed: true).map(&:passive_friend)
-
-    adding_friends = passive_friendships.where(confirmed: true).map(&:active_friend)
-
-    added_friends + adding_friends
+    User.where(id: active_friendships.pluck(:passive_friend_id))
+      .or(User.where(id: passive_friendships.pluck(:active_friend_id)))
   end
 
   def friends_with_tags(other_user)
@@ -69,13 +66,19 @@ class User < ApplicationRecord
   end
 
   def pending_received_requests_from
-    passive_friendships.where(confirmed: false)
-      .map(&:active_friend)
+    User.where(
+      id: passive_friendships
+        .where(confirmed: false)
+        .pluck(:active_friend_id)
+    )
   end
 
   def pending_sent_requests_to
-    active_friendships.where(confirmed: false)
-      .map(&:passive_friend)
+    User.where(
+      id: active_friendships
+        .where(confirmed: false)
+        .pluck(:passive_friend_id)
+    )
   end
 
   def mutual_friends_with(other_user)

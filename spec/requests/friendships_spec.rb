@@ -30,9 +30,8 @@ RSpec.describe 'Friendships', type: :request do
       it 'adds to friendships record' do
         login_as(harry)
         expect do
-          post "/v1/users/#{harry.username}/friendships",
-               headers: { "Authorization": "Bearer #{user_token}" },
-               params: { user_username: hermione }
+          post "/v1/users/#{hermione.username}/friendships",
+               headers: { "Authorization": "Bearer #{user_token}" }
         end.to change(Friendship, :count).by(1)
       end
     end

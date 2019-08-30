@@ -37,8 +37,8 @@ class User < ApplicationRecord
   end
 
   def friends
-    User.where(id: active_friendships.pluck(:passive_friend_id))
-      .or(User.where(id: passive_friendships.pluck(:active_friend_id)))
+    User.where(id: active_friendships.where(confirmed: true).pluck(:passive_friend_id))
+      .or(User.where(id: passive_friendships.where(confirmed: true).pluck(:active_friend_id)))
   end
 
   def pending_received_requests_from

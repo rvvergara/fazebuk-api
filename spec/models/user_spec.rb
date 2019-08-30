@@ -63,8 +63,8 @@ RSpec.describe User, type: :model do
       it "returns an array that includes george's data" do
         expect(ryto.friends_with_tags(anna).last['id']).to eq(george.id)
       end
-      it "returns an array with a hash that shows george as ryto's and anna's mutual friends" do
-        expect(ryto.friends_with_tags(anna).first[:is_mutual_friend]).to be(true)
+      it "returns an array with a hash that shows george as ryto's friend" do
+        expect(ryto.friends_with_tags(anna).first[:is_already_a_friend]).to be(true)
       end
     end
   end

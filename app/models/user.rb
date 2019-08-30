@@ -63,21 +63,23 @@ class User < ApplicationRecord
       .where(id: other_user.friends.pluck(:id))
   end
 
+  def user_with_tag(viewed_user)
+    # Check if viewed_user has a sent request
+    received_request_from_this_user = pending_received_requests_from.include?(viewed_user)
+    # Check if viewed_user has a received request
+    sent_request_to_this_user = pending_sent_requests_to.include?(viewed_user)
+    # Check if viewed_user is already a friend.
+    is_already_a_friend = friends.include?(viewed_user)
+
+    viewed_user.attributes
+      .merge(received_request_from_this_user: received_request_from_this_user)
+      .merge(sent_request_to_this_user: sent_request_to_this_user)
+      .merge(is_already_a_friend: is_already_a_friend)
+  end
+
   def friends_with_tags(other_user)
     other_user.friends.map do |friend|
-      # Check if friend is a mutual friend
-      is_mutual_friend = mutual_friends_with(other_user).include?(friend) && friend != self && other_user != self
-
-      # Check if friend has a sent request
-      received_request_from_this_user = pending_received_requests_from.include?(friend)
-
-      # Check if friend has a received request
-      sent_request_to_this_user = pending_sent_requests_to.include?(friend)
-
-      friend.as_json
-        .merge(is_mutual_friend: is_mutual_friend)
-        .merge(received_request_from_this_user: received_request_from_this_user)
-        .merge(sent_request_to_this_user: sent_request_to_this_user)
+      user_with_tag(friend)
     end
   end
 end

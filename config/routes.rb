@@ -7,7 +7,7 @@ Rails.application.routes.draw do
     resources :users, param: :username, only: [:show, :create, :update, :destroy]
     get '/auth/facebook', to: 'facebook_authentications#create'
     resources :users, param: :username, only: [:show, :create, :update, :destroy] do
-      get '/friends', to: 'users/friends#all_friends'
+      resources :friends, only: [:index], module: :users
       get '/mutual_friends', to: 'users/friends#mutual_friends'
     end
     resources :friendships, only: [:create, :update, :destroy]

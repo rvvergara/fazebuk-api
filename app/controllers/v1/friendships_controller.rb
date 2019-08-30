@@ -4,12 +4,6 @@ class V1::FriendshipsController < ApplicationController
   before_action :pundit_user
   before_action :find_friendship, only: %i[update destroy]
 
-  def index
-    @user = User.find_by(username: params[:user_username])
-    @friends = @current_user.friends_with_tags(@user)
-    render :friends, status: :ok
-  end
-
   def create
     @passive_friend = User.find_by(username: params[:friend_requested])
     @friendship = @current_user.active_friendships.build(passive_friend: @passive_friend)

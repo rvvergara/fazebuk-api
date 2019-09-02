@@ -164,14 +164,21 @@ $ http DELETE :3000/v1/friendships/<friendship_id> "Authorization: Bearer <mildr
 10. Checking a user's list of friends
 
 ```bash
+# friends are listed 10 each per page
+# to check first 10 friends either include query parameter '?page=<page>' or simply
 $ http GET :3000/v1/users/<username of user>/friends "Authorization: Bearer <your token here>"
+
+# to check next 10 friends (on page 2)
+$ http GET :3000/v1/users/<username of user>/friends?page=2 "Authorization: Bearer <your token here>"
 ```
 
 11. Checking your mutual friends with another user
 
 ```bash
 # assuming you wanna see your mutual friends with mildred
-$ http GET :3000/v1/users/mildred/mutual_friends "Authorization: Bearer <your token here>"
+# mutual friends are listed 10 per page. you can either specify page=1
+# but to check succeeding mutual friends you must specify which page
+$ http GET :3000/v1/users/mildred/mutual_friends?page=<page you wanna see> "Authorization: Bearer <your token here>"
 ```
 
 ## Maintainer

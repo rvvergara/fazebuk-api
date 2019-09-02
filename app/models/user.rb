@@ -6,6 +6,8 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
 
+  default_scope { order(created_at: :asc)}
+
   validates :first_name, :last_name, :username, presence: true
   validates :username, uniqueness: true
 

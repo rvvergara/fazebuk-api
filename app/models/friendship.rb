@@ -4,6 +4,8 @@ class Friendship < ApplicationRecord
   belongs_to :active_friend, class_name: 'User'
   belongs_to :passive_friend, class_name: 'User'
 
+  default_scope { order(created_at: :asc) }
+
   validates :combined_ids, uniqueness: true
 
   before_validation :concatenate_ids

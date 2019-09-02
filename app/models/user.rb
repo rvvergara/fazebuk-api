@@ -81,9 +81,14 @@ class User < ApplicationRecord
 
   # A user's set of friends in the perspective
   # of the current user
-  def friends_with_tags(current_user)
-    friends.map do |friend|
-      current_user.user_with_tag(friend)
+  def friends_with_tags(current_user, page)
+    offset = (page.to_i - 1) * 10
+    friends
+      .limit(10)
+      .offset(offset)
+      .map do |friend|
+      current_user
+        .user_with_tag(friend)
     end
   end
 end

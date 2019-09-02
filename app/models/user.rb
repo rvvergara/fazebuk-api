@@ -77,9 +77,11 @@ class User < ApplicationRecord
       .merge(is_already_a_friend: is_already_a_friend)
   end
 
-  def friends_with_tags(other_user)
-    other_user.friends.map do |friend|
-      user_with_tag(friend)
+  # A user's set of friends in the perspective
+  # of the current user
+  def friends_with_tags(current_user)
+    friends.map do |friend|
+      current_user.user_with_tag(friend)
     end
   end
 end

@@ -5,7 +5,7 @@ class V1::Users::FriendsController < ApplicationController
 
   def index
     @user = User.find_by(username: params[:user_username])
-    @friends = @current_user.friends_with_tags(@user)
+    @friends = @user.friends_with_tags(@current_user)
     render :friends, status: :ok
   end
 end

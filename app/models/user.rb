@@ -6,7 +6,7 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
 
-  default_scope { order(created_at: :asc)}
+  default_scope { order(created_at: :asc) }
 
   validates :first_name, :last_name, :username, presence: true
   validates :username, uniqueness: true
@@ -59,10 +59,13 @@ class User < ApplicationRecord
     )
   end
 
-  def mutual_friends_with(other_user)
+  def mutual_friends_with(other_user, page)
+    offset = (page.to_i - 1) * 10
     User
       .where(id: friends.pluck(:id))
       .where(id: other_user.friends.pluck(:id))
+      .limit(10)
+      .offset(offset)
   end
 
   def user_with_tag(viewed_user)

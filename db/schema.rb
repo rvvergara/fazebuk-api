@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_08_31_023200) do
+ActiveRecord::Schema.define(version: 2019_09_03_083350) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -26,6 +26,14 @@ ActiveRecord::Schema.define(version: 2019_08_31_023200) do
     t.index ["active_friend_id"], name: "index_friendships_on_active_friend_id"
     t.index ["combined_ids"], name: "index_friendships_on_combined_ids", unique: true
     t.index ["passive_friend_id"], name: "index_friendships_on_passive_friend_id"
+  end
+
+  create_table "posts", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "author_id"
+    t.uuid "postable_id"
+    t.text "content"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -50,4 +58,6 @@ ActiveRecord::Schema.define(version: 2019_08_31_023200) do
 
   add_foreign_key "friendships", "users", column: "active_friend_id"
   add_foreign_key "friendships", "users", column: "passive_friend_id"
+  add_foreign_key "posts", "users", column: "author_id"
+  add_foreign_key "posts", "users", column: "postable_id"
 end

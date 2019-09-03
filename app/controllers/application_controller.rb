@@ -23,4 +23,8 @@ class ApplicationController < ActionController::API
       render json: { message: 'Unauthorized access' }, status: :unauthorized
     end
   end
+
+  def set_page
+    params[:page] || '1'
+  end
 end

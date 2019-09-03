@@ -55,16 +55,16 @@ RSpec.describe User, type: :model do
 
     describe "ryto's #mutual_friends_with(anna)" do
       it 'includes george' do
-        expect(ryto.mutual_friends_with(anna, 1)).to include(george)
+        expect(ryto.mutual_friends_with(anna, 1, 10)).to include(george)
       end
     end
 
     describe "ryto's #friends_with_tags(anna)" do
       it "returns an array that includes george's data" do
-        expect(anna.friends_with_tags(ryto, '1').last['id']).to eq(george.id)
+        expect(anna.friends_with_tags(ryto, '1', 10).last['id']).to eq(george.id)
       end
       it "returns an array with a hash that shows george as ryto's friend" do
-        expect(anna.friends_with_tags(ryto, '1').first[:is_already_a_friend]).to be(true)
+        expect(anna.friends_with_tags(ryto, '1', 10).first[:is_already_a_friend]).to be(true)
       end
     end
   end

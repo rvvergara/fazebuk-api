@@ -8,7 +8,8 @@ class V1::Users::FriendsController < ApplicationController
 
   def index
     @user = User.find_by(username: params[:user_username])
-    @friends = @user.friends_with_tags(@current_user, @page)
+    records_per_page = 10
+    @friends = @user.friends_with_tags(@current_user, @page, records_per_page)
     render :friends, status: :ok
   end
 end

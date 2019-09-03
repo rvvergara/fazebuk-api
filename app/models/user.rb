@@ -57,12 +57,12 @@ class User < ApplicationRecord
     )
   end
 
-  def mutual_friends_with(other_user, page)
-    offset = (page.to_i - 1) * 10
+  def mutual_friends_with(other_user, page, per_page)
+    offset = (page.to_i - 1) * per_page
     User
       .where(id: friends.pluck(:id))
       .where(id: other_user.friends.pluck(:id))
-      .limit(10)
+      .limit(per_page)
       .offset(offset)
   end
 
@@ -82,10 +82,10 @@ class User < ApplicationRecord
 
   # A user's set of friends in the perspective
   # of the current user
-  def friends_with_tags(current_user, page)
-    offset = (page.to_i - 1) * 10
+  def friends_with_tags(current_user, page, per_page)
+    offset = (page.to_i - 1) * per_page
     friends
-      .limit(10)
+      .limit(per_page)
       .offset(offset)
       .map do |friend|
       current_user

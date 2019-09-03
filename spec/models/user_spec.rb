@@ -58,6 +58,19 @@ RSpec.describe User, type: :model do
         expect(ryto.mutual_friends_with(anna, 1, 10)).to include(george)
       end
     end
+
+    describe "ryto's #paginated_friends method" do
+      context 'page 1 with 2 results per page' do
+        it 'shows mike and george' do
+          expect(ryto.paginated_friends(1, 2)).to match([mike, george])
+        end
+      end
+      context 'page 2 with 2 results per page' do
+        it 'returns an empty collection' do
+          expect(ryto.paginated_friends(2, 2).size).to be(0)
+        end
+      end
+    end
   end
 
   describe 'associations' do

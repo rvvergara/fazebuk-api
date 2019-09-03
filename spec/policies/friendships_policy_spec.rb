@@ -7,13 +7,13 @@ RSpec.describe FriendshipPolicy, type: :policy do
   let(:mary) { create(:user, username: 'mary') }
   let(:friendship) { create(:friendship, active_friend: kurt, passive_friend: mary) }
 
-  context 'mary can either confirm or reject the request' do
+  context 'policy for actions for a friend request receiver' do
     subject { FriendshipPolicy.new(mary, friendship) }
     it { is_expected.to permit_action(:update) }
     it { is_expected.to permit_action(:destroy) }
   end
 
-  context 'kurt can cancel the request' do
+  context 'policy for actions for a friend request sender' do
     subject { FriendshipPolicy.new(kurt, friendship) }
     it { is_expected.to permit_action(:destroy) }
   end

@@ -87,5 +87,18 @@ RSpec.describe User, type: :model do
           .with_foreign_key(:passive_friend_id)
       }
     end
+
+    describe 'authored_posts and received_posts' do
+      it {
+        should have_many(:authored_posts)
+          .with_foreign_key(:author_id)
+          .dependent(:destroy)
+      }
+      it {
+        should have_many(:received_posts)
+          .with_foreign_key(:postable_id)
+          .dependent(:destroy)
+      }
+    end
   end
 end

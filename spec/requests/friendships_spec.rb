@@ -22,6 +22,20 @@ RSpec.describe 'Friendships', type: :request do
   describe 'PUT /v1/friendships/:id' do
     let(:friendship) { create(:friendship, active_friend: hermione, passive_friend: goku) }
 
+    context 'friendship record cannot be found' do
+      it 'responds with a 404 error' do
+        login_as(goku)
+        friendship_id = "#{friendship.id}123"
+        put "/v1/friendships/#{friendship_id}",
+            headers: {
+              "Authorization": "Bearer #{user_token}"
+            }
+
+        expect(response).to have_http_status(404)
+        expect(JSON.parse(response.body)['message']).to match('Cannot find resource')
+      end
+    end
+
     context "goku confirms hermione's friend request" do
       before do
         login_as(goku)

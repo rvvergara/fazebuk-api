@@ -34,11 +34,14 @@ class V1::FriendshipsController < ApplicationController
 
   def find_friendship
     @friendship = Friendship.find_by(id: params[:id])
-    if @friendship
-      authorize @friendship
+    authorize_resource(@friendship)
+  end
+
+  def authorize_resource(resource)
+    if resource
+      authorize resource
     else
-      render json: { message: 'Cannot find friendship' }, status: 404
-      return
+      render json: { message: 'Cannot find resource' }, status: 404
     end
   end
 end

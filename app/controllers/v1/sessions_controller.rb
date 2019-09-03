@@ -4,7 +4,7 @@ class V1::SessionsController < ApplicationController
   def create
     @user = User.find_by(email: params[:email])
     if @user &.valid_password?(params[:password])
-      data = @user.attributes
+      data = @user.shown_attributes
       @token = JsonWebToken.encode(data)
       render :user, status: :ok
     else

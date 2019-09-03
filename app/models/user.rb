@@ -65,6 +65,19 @@ class User < ApplicationRecord
       .limit(per_page).offset(offset)
   end
 
+  def shown_attributes
+    {
+      id: id,
+      username: username,
+      email: email,
+      first_name: first_name,
+      middle_name: middle_name,
+      last_name: last_name,
+      bio: bio,
+      birthday: birthday
+    }
+  end
+
   def user_with_tag(viewed_user)
     # Check if viewed_user has a sent request
     received_request_from_this_user = pending_received_requests_from.include?(viewed_user)
@@ -90,20 +103,5 @@ class User < ApplicationRecord
       current_user
         .user_with_tag(friend)
     end
-  end
-
-  private
-
-  def shown_attributes
-    {
-      id: id,
-      username: username,
-      email: email,
-      first_name: first_name,
-      middle_name: middle_name,
-      last_name: last_name,
-      bio: bio,
-      birthday: birthday
-    }
   end
 end

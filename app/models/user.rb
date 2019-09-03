@@ -73,7 +73,7 @@ class User < ApplicationRecord
     # Check if viewed_user is already a friend.
     is_already_a_friend = friends.include?(viewed_user)
 
-    viewed_user.attributes
+    viewed_user.shown_attributes
       .merge(received_request_from_this_user: received_request_from_this_user)
       .merge(sent_request_to_this_user: sent_request_to_this_user)
       .merge(is_already_a_friend: is_already_a_friend)
@@ -90,5 +90,20 @@ class User < ApplicationRecord
       current_user
         .user_with_tag(friend)
     end
+  end
+
+  private
+
+  def shown_attributes
+    {
+      id: id,
+      username: username,
+      email: email,
+      first_name: first_name,
+      middle_name: middle_name,
+      last_name: last_name,
+      bio: bio,
+      birthday: birthday
+    }
   end
 end

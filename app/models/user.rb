@@ -65,19 +65,6 @@ class User < ApplicationRecord
       .limit(per_page).offset(offset)
   end
 
-  def shown_attributes
-    {
-      id: id,
-      username: username,
-      email: email,
-      first_name: first_name,
-      middle_name: middle_name,
-      last_name: last_name,
-      bio: bio,
-      birthday: birthday
-    }
-  end
-
   def paginated_friends(page, per_page)
     offset = (page.to_i - 1) * per_page
     friends

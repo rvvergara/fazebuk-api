@@ -59,11 +59,10 @@ class User < ApplicationRecord
 
   def mutual_friends_with(other_user, page, per_page)
     offset = (page.to_i - 1) * per_page
-    User
-      .where(id: friends.pluck(:id))
-      .where(id: other_user.friends.pluck(:id))
-      .limit(per_page)
-      .offset(offset)
+    friends
+      .where(id: other_user.friends
+          .pluck(:id))
+      .limit(per_page).offset(offset)
   end
 
   def user_with_tag(viewed_user)

@@ -13,8 +13,6 @@ class User < ApplicationRecord
 
   has_many :active_friendships, foreign_key: :active_friend_id, dependent: :destroy, class_name: 'Friendship'
   has_many :passive_friendships, foreign_key: :passive_friend_id, dependent: :destroy, class_name: 'Friendship'
-  has_many :active_friends, through: :passive_friendships, source: :active_friend, dependent: :destroy
-  has_many :passive_friends, through: :active_friendships, source: :passive_friend, dependent: :destroy
 
   def self.find_or_create_with_facebook(token)
     graph = Koala::Facebook::API.new(token)

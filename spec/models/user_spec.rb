@@ -83,21 +83,5 @@ RSpec.describe User, type: :model do
           .with_foreign_key(:passive_friend_id)
       }
     end
-
-    describe 'active_friends and passive_friends' do
-      it {
-        should have_many(:active_friends)
-          .through(:passive_friendships)
-          .source(:active_friend)
-          .dependent(:destroy)
-      }
-
-      it {
-        should have_many(:passive_friends)
-          .through(:active_friendships)
-          .source(:passive_friend)
-          .dependent(:destroy)
-      }
-    end
   end
 end

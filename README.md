@@ -40,6 +40,7 @@ Previously I co-worked on a [project](https://github.com/dipto0321/facialbook) t
 - PostgreSQL
 - Devise
 - JWT
+- Koala
 - Pundit
 - Jbuilder
 - PG Search (for search capability)
@@ -93,6 +94,42 @@ rails s
 Goto `localhost:3000`
 
 Use either `httpie` on the terminal or Postman to do requests
+
+**Endpoints (all examples use httpie)**
+
+1. User Creation
+
+```bash
+$ http POST :3000/v1/users user:='{"username":"john123", "email":"johnny_bravo@email.org", "first_name":"John", "last_name":"Doe", "password":"password", "password_confirmation":"password"}'
+```
+
+2. User data update
+
+```bash
+# assuming username is john123
+$ http PUT :3000/v1/users/john123 user:='{"first_name":"Johnny the Great"}'
+```
+
+3. Deleting user
+
+```bash
+# assuming username is john123
+$ http DELETE :3000/v1/users/john123
+```
+
+4. Signing in a user through email and password
+
+```bash
+# assuming user email is johnny_bravo@email.com and password is 'password'
+$ http POST :3000/v1/sessions email=johnny_bravo@email.com password=password
+```
+
+5. Signing in a user through Facebook/User creation (if user doesn't exist yet)
+
+```bash
+# for this to work we should have a Facebook access_token
+$ http GET :3000/v1/auth/facebook?access_token=<facebook access token here>
+```
 
 ## Maintainer
 

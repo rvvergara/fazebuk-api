@@ -14,4 +14,26 @@ class User < ApplicationRecord
       user['username'] == username
     end
   end
+
+  def self.find_or_create_with_facebook(token)
+    graph = Koala::Facebook::API.new(token)
+    profile = graph.get_object('me', fields: %w[email first_name middle_name last_name])
+    data = {
+      email: profile['email'],
+      first_name: profile['first_name'],
+      middle_name: profile['middle_name'],
+      last_name: profile['last_name'],
+      username: profile['id'],
+      password: SecureRandom.urlsafe_base64
+    }
+    user = User.find_by(email: profile['email'])
+    return user if user
+
+    User.create(data)
+  rescue StandardError => e
+    message = e.to_json.split(',')[2].split(':')
+    {
+      message[0].to_sym => message[1]
+    }
+  end
 end

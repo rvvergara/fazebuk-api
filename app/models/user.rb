@@ -78,30 +78,10 @@ class User < ApplicationRecord
     }
   end
 
-  def user_with_tag(viewed_user)
-    # Check if viewed_user has a sent request
-    received_request_from_this_user = pending_received_requests_from.include?(viewed_user)
-    # Check if viewed_user has a received request
-    sent_request_to_this_user = pending_sent_requests_to.include?(viewed_user)
-    # Check if viewed_user is already a friend.
-    is_already_a_friend = friends.include?(viewed_user)
-
-    viewed_user.shown_attributes
-      .merge(received_request_from_this_user: received_request_from_this_user)
-      .merge(sent_request_to_this_user: sent_request_to_this_user)
-      .merge(is_already_a_friend: is_already_a_friend)
-  end
-
-  # A user's set of friends in the perspective
-  # of the current user
-  def friends_with_tags(current_user, page, per_page)
+  def paginated_friends(page, per_page)
     offset = (page.to_i - 1) * per_page
     friends
       .limit(per_page)
       .offset(offset)
-      .map do |friend|
-      current_user
-        .user_with_tag(friend)
-    end
   end
 end

@@ -1,5 +1,10 @@
 Rails.application.routes.draw do
   namespace :v1 do
+    namespace :users do
+      get 'newsfeed_posts/index'
+    end
+  end
+  namespace :v1 do
     get 'facebook_authentications/create'
   end
   namespace :v1, defaults: { format: :json } do
@@ -12,5 +17,6 @@ Rails.application.routes.draw do
       resources :timeline_posts, only: [:index], module: :users
     end
     resources :friendships, only: [:create, :update, :destroy]
+    resources :newsfeed_posts, only: [:index], module: :users
   end
 end

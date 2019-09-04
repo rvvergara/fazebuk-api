@@ -28,6 +28,10 @@ class ApplicationController < ActionController::API
     params[:page] || '1'
   end
 
+  def max_page(count, records_per_page)
+    (count / records_per_page.to_f).ceil
+  end
+
   def shown_attributes(user)
     {
       id: user.id,

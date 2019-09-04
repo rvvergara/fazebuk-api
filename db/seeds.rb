@@ -87,16 +87,82 @@ end
   mike.passive_friendships.create(active_friend: User.find_by(username: "user#{n+9}"))
 end
 
-2.times do |n|
+4.times do |n|
   anna.active_friendships.create(passive_friend: User.find_by(username: "user#{n+9}"), confirmed: true)
   anna.passive_friendships.create(active_friend: User.find_by(username: "user#{n+13}"), confirmed: true)
   anna.active_friendships.create(passive_friend: User.find_by(username: "user#{n+1}"))
   anna.passive_friendships.create(active_friend: User.find_by(username: "user#{n+5}"))
 end
 
-2.times do |n|
+4.times do |n|
   george.active_friendships.create(passive_friend: User.find_by(username: "user#{n+13}"), confirmed: true)
   george.passive_friendships.create(active_friend: User.find_by(username: "user#{n+9}"), confirmed: true)
   george.active_friendships.create(passive_friend: User.find_by(username: "user#{n+5}"))
   george.passive_friendships.create(active_friend: User.find_by(username: "user#{n+1}"))
+end
+
+# Set authored and received posts for ryto
+5.times do |n|
+  ryto.authored_posts.create(
+    postable: ryto.friends[n],
+    content: Faker::Lorem.paragraph(sentence_count: 3)
+  )
+end
+
+5.times do |n|
+  ryto.received_posts.create(
+    author: ryto.friends[n+5],
+    content: Faker::Lorem.paragraph(sentence_count: 3)
+  )
+end
+
+# Set authored and received posts for mike
+5.times do |n|
+  mike.authored_posts.create(
+    postable: mike.friends[n],
+    content: Faker::Lorem.paragraph(sentence_count: 3)
+  )
+end
+
+4.times do |n|
+  mike.received_posts.create(
+    author: mike.friends[n+5],
+    content: Faker::Lorem.paragraph(sentence_count: 3)
+  )
+end
+
+# Set authored and received posts for anna
+5.times do |n|
+  anna.authored_posts.create(
+    postable: anna.friends[n],
+    content: Faker::Lorem.paragraph(sentence_count: 3)
+  )
+end
+
+4.times do |n|
+  anna.received_posts.create(
+    author: anna.friends[n+5],
+    content: Faker::Lorem.paragraph(sentence_count: 3)
+  )
+end
+
+# Set authored and received posts for george
+4.times do |n|
+  george.authored_posts.create(
+    postable: george.friends[n],
+    content: Faker::Lorem.paragraph(sentence_count: 3)
+  )
+end
+
+4.times do |n|
+  george.received_posts.create(
+    author: george.friends[n+5],
+    content: Faker::Lorem.paragraph(sentence_count: 3)
+  )
+end
+
+# Set authored and received posts for other users
+User.where('username NOT IN (?)', ['ryto', 'mike', 'anna', 'george']).each do |user|
+  user.authored_posts.create(postable: user.friends[0], content: Faker::Lorem.paragraph(sentence_count: 3))
+  user.received_posts.create(author: user.friends[1], content: Faker::Lorem.paragraph(sentence_count: 3))
 end

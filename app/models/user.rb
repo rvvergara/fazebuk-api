@@ -76,9 +76,12 @@ class User < ApplicationRecord
 
   # Post related methods
   # posts shown on a user's page/timeline/profile
-  def timeline_posts(page, per_page)
-    authored_posts
-      .or(received_posts)
+  def timeline_posts
+    authored_posts.or(received_posts)
+  end
+
+  def paginated_timeline_posts(page, per_page)
+    timeline_posts
       .limit(per_page)
       .offset(offset(page, per_page))
   end

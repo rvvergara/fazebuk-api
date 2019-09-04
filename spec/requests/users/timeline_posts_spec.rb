@@ -7,7 +7,7 @@ RSpec.describe 'Users::TimelinePosts', type: :request do
     let(:richie) { create(:user, username: 'richie') }
     let(:abel) { create(:user, username: 'abel') }
     before do
-      create(:friendship, active_friend: richie, passive_friend: abel)
+      create(:friendship, active_friend: richie, passive_friend: abel, confirmed: true)
       @post1 = create(:post, author: richie, postable: abel, content: Faker::Lorem.paragraph(sentence_count: 3))
       @post2 = create(:post, author: abel, postable: richie, content: Faker::Lorem.paragraph(sentence_count: 3))
       login_as(richie)

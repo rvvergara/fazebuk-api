@@ -118,9 +118,16 @@ RSpec.describe User, type: :model do
     end
 
     describe '#timeline_posts' do
-      it 'shows posts received and authored by user' do
-        expect(archer.timeline_posts).to include(@post1)
-        expect(archer.timeline_posts).to include(@post2)
+      context 'posts per page is 2 and on page 1' do
+        it 'shows post1 and post2' do
+          expect(archer.timeline_posts(1, 2)).to include(@post1)
+          expect(archer.timeline_posts(1, 2)).to include(@post2)
+        end
+      end
+      context 'posts per page' do
+        it 'shows an empty collection' do
+          expect(archer.timeline_posts(2, 2).empty?).to be(true)
+        end
       end
     end
 

@@ -69,17 +69,18 @@ class User < ApplicationRecord
   end
 
   def paginated_friends(page, per_page)
-    offset = (page.to_i - 1) * per_page
     friends
       .limit(per_page)
-      .offset(offset)
+      .offset(offset(page, per_page))
   end
 
   # Post related methods
-
   # posts shown on a user's page/timeline/profile
-  def timeline_posts
-    authored_posts.or(received_posts)
+  def timeline_posts(page, per_page)
+    authored_posts
+      .or(received_posts)
+      .limit(per_page)
+      .offset(offset(page, per_page))
   end
 
   # posts shown on the newsfeed

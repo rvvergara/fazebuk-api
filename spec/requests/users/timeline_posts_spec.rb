@@ -37,6 +37,25 @@ RSpec.describe 'Users::TimelinePosts', type: :request do
           expect(json_response['message']).to include('Cannot find user')
         end
       end
+
+      context 'page params within max_pages' do
+        it 'responds with timeline posts for that page' do
+          get "/v1/users/#{abel.username}/timeline_posts?page=1",
+              headers: { "Authorization": "Bearer #{user_token}" }
+
+          json_response = JSON.parse(response.body)
+          expect(json_response['timeline_posts'].count).to be(2)
+        end
+      end
+
+      context 'page param bigger than max_pages' do
+        it 'responds with a message of no more posts' do
+          get "/v1/users/#{abel.username}/timeline_posts?page=5",
+              headers: { "Authorization": "Bearer #{user_token}" }
+
+          expect(JSON.parse(response.body)['message']).to match('No more timeline posts to show')
+        end
+      end
     end
   end
 end

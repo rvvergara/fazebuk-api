@@ -6,14 +6,13 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
 
+  default_scope { order(created_at: :asc) }
+
   validates :first_name, :last_name, :username, presence: true
   validates :username, uniqueness: true
 
-  def data
-    User.all.as_json.find do |user|
-      user['username'] == username
-    end
-  end
+  has_many :active_friendships, foreign_key: :active_friend_id, dependent: :destroy, class_name: 'Friendship'
+  has_many :passive_friendships, foreign_key: :passive_friend_id, dependent: :destroy, class_name: 'Friendship'
 
   def self.find_or_create_with_facebook(token)
     graph = Koala::Facebook::API.new(token)
@@ -35,5 +34,41 @@ class User < ApplicationRecord
     {
       message[0].to_sym => message[1]
     }
+  end
+
+  def friends
+    User.where(id: active_friendships.where(confirmed: true).pluck(:passive_friend_id))
+      .or(User.where(id: passive_friendships.where(confirmed: true).pluck(:active_friend_id)))
+  end
+
+  def pending_received_requests_from
+    User.where(
+      id: passive_friendships
+        .where(confirmed: false)
+        .pluck(:active_friend_id)
+    )
+  end
+
+  def pending_sent_requests_to
+    User.where(
+      id: active_friendships
+        .where(confirmed: false)
+        .pluck(:passive_friend_id)
+    )
+  end
+
+  def mutual_friends_with(other_user, page, per_page)
+    offset = (page.to_i - 1) * per_page
+    friends
+      .where(id: other_user.friends
+          .pluck(:id))
+      .limit(per_page).offset(offset)
+  end
+
+  def paginated_friends(page, per_page)
+    offset = (page.to_i - 1) * per_page
+    friends
+      .limit(per_page)
+      .offset(offset)
   end
 end

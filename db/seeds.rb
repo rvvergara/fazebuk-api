@@ -1,7 +1,102 @@
-# This file should contain all the record creation needed to seed the database with its default values.
-# The data can then be loaded with the rails db:seed command (or created alongside the database with db:setup).
-#
-# Examples:
-#
-#   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
-#   Character.create(name: 'Luke', movie: movies.first)
+ryto = User.create(
+  email: 'ryto@gmail.com',
+  username: 'ryto',
+  password: 'password',
+  first_name: 'Ryto',
+  last_name: 'Verkar',
+  birthday: Faker::Date.birthday(min_age: 18, max_age: 65),
+  gender: 'male',
+  bio: Faker::Lorem.paragraph(sentence_count: 3)
+)
+
+mike = User.create(
+  email: 'mike@gmail.com',
+  username: 'mike',
+  password: 'password',
+  first_name: 'Mike',
+  last_name: 'Jordan',
+  birthday: Faker::Date.birthday(min_age: 18, max_age: 65),
+  gender: 'male',
+  bio: Faker::Lorem.paragraph(sentence_count: 3)
+)
+
+anna = User.create(
+  email: 'anna@gmail.com',
+  username: 'anna',
+  password: 'password',
+  first_name: 'Anna',
+  last_name: 'Banana',
+  birthday: Faker::Date.birthday(min_age: 18, max_age: 65),
+  gender: 'female',
+  bio: Faker::Lorem.paragraph(sentence_count: 3)
+)
+
+george = User.create(
+  email: 'george@gmail.com',
+  username: 'george',
+  password: 'password',
+  first_name: 'George',
+  last_name: 'Washington',
+  birthday: Faker::Date.birthday(min_age: 18, max_age: 65),
+  gender: 'male',
+  bio: Faker::Lorem.paragraph(sentence_count: 3)
+)
+
+ryto.active_friendships.create(passive_friend: anna, confirmed: true)
+mike.active_friendships.create(passive_friend: ryto, confirmed: true)
+anna.active_friendships.create(passive_friend: mike)
+george.active_friendships.create(passive_friend: anna)
+
+8.times do |n|
+  User.create(
+    email: "user#{n+1}@gmail.com",
+    username: "user#{n+1}",
+    password: 'password',
+    first_name: Faker::Name.male_first_name,
+    last_name: Faker::Name.last_name,
+    birthday: Faker::Date.birthday(min_age: 18, max_age: 65),
+    gender: 'male',
+    bio: Faker::Lorem.paragraph(sentence_count: 3)
+  )
+end
+
+8.times do |n|
+  User.create(
+    email: "user#{n+9}@gmail.com",
+    username: "user#{n+9}",
+    password: 'password',
+    first_name: Faker::Name.female_first_name,
+    last_name: Faker::Name.last_name,
+    birthday: Faker::Date.birthday(min_age: 18, max_age: 65),
+    gender: 'female',
+    bio: Faker::Lorem.paragraph(sentence_count: 3)
+  )
+end
+
+4.times do |n|
+  ryto.active_friendships.create(passive_friend: User.find_by(username: "user#{n+1}"), confirmed: true)
+  ryto.passive_friendships.create(active_friend: User.find_by(username: "user#{n+5}"), confirmed: true)
+  ryto.active_friendships.create(passive_friend: User.find_by(username: "user#{n+9}"))
+  ryto.passive_friendships.create(active_friend: User.find_by(username: "user#{n+13}"))
+end
+
+4.times do |n|
+  mike.active_friendships.create(passive_friend: User.find_by(username: "user#{n+5}"), confirmed: true)
+  mike.passive_friendships.create(active_friend: User.find_by(username: "user#{n+1}"), confirmed: true)
+  mike.active_friendships.create(passive_friend: User.find_by(username: "user#{n+13}"))
+  mike.passive_friendships.create(active_friend: User.find_by(username: "user#{n+9}"))
+end
+
+2.times do |n|
+  anna.active_friendships.create(passive_friend: User.find_by(username: "user#{n+9}"), confirmed: true)
+  anna.passive_friendships.create(active_friend: User.find_by(username: "user#{n+13}"), confirmed: true)
+  anna.active_friendships.create(passive_friend: User.find_by(username: "user#{n+1}"))
+  anna.passive_friendships.create(active_friend: User.find_by(username: "user#{n+5}"))
+end
+
+2.times do |n|
+  george.active_friendships.create(passive_friend: User.find_by(username: "user#{n+13}"), confirmed: true)
+  george.passive_friendships.create(active_friend: User.find_by(username: "user#{n+9}"), confirmed: true)
+  george.active_friendships.create(passive_friend: User.find_by(username: "user#{n+5}"))
+  george.passive_friendships.create(active_friend: User.find_by(username: "user#{n+1}"))
+end

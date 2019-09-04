@@ -23,4 +23,22 @@ class ApplicationController < ActionController::API
       render json: { message: 'Unauthorized access' }, status: :unauthorized
     end
   end
+
+  def set_page
+    params[:page] || '1'
+  end
+
+  def shown_attributes(user)
+    {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      first_name: user.first_name,
+      middle_name: user.middle_name,
+      last_name: user.last_name,
+      bio: user.bio,
+      birthday: user.birthday,
+      gender: user.gender
+    }
+  end
 end

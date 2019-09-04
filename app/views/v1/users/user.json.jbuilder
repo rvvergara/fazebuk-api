@@ -1,6 +1,3 @@
 # frozen_string_literal: true
 
-json.user do
-  json.data @user
-  json.token @token
-end
+json.partial! 'v1/shared/user', user: @user

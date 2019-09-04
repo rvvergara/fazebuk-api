@@ -33,6 +33,7 @@ end
 
 group :test do
   gem 'pundit-matchers', '~> 1.6.0'
+  gem 'shoulda-matchers'
 end
 
 gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]

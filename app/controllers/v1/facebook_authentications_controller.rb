@@ -5,7 +5,7 @@ class V1::FacebookAuthenticationsController < ApplicationController
     facebook_access_token = params.require(:access_token)
     @facebook_data = User.find_or_create_with_facebook(facebook_access_token)
     if @facebook_data.class == User
-      data = @facebook_data.data
+      data = shown_attributes(@facebook_data)
       @token = JsonWebToken.encode(data)
       render :user, status: :ok
     else

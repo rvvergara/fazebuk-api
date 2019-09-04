@@ -10,11 +10,23 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_08_26_014002) do
+ActiveRecord::Schema.define(version: 2019_08_31_023200) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
+
+  create_table "friendships", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "active_friend_id", null: false
+    t.uuid "passive_friend_id", null: false
+    t.boolean "confirmed", default: false, null: false
+    t.string "combined_ids"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["active_friend_id"], name: "index_friendships_on_active_friend_id"
+    t.index ["combined_ids"], name: "index_friendships_on_combined_ids", unique: true
+    t.index ["passive_friend_id"], name: "index_friendships_on_passive_friend_id"
+  end
 
   create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "email", default: "", null: false
@@ -36,4 +48,6 @@ ActiveRecord::Schema.define(version: 2019_08_26_014002) do
     t.index ["username"], name: "index_users_on_username", unique: true
   end
 
+  add_foreign_key "friendships", "users", column: "active_friend_id"
+  add_foreign_key "friendships", "users", column: "passive_friend_id"
 end

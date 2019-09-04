@@ -4,7 +4,7 @@ module Helpers
   module Authentication
     def login_as(user)
       post '/v1/sessions', params: {
-        email_or_username: user.username,
+        email: user.email,
         password: user.password
       }
     end

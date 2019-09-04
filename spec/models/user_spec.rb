@@ -87,8 +87,24 @@ RSpec.describe User, type: :model do
           .with_foreign_key(:passive_friend_id)
       }
     end
+  end
 
-    describe 'authored_posts and received_posts' do
+  describe 'posts related methods' do
+    let(:archer) { create(:user, username: 'archer') }
+    let(:william) { create(:user, username: 'william') }
+    let(:austin) { create(:user, username: 'austin') }
+
+    before do
+      create(:friendship, active_friend: archer, passive_friend: austin, confirmed: true)
+      create(:friendship, active_friend: william, passive_friend: archer, confirmed: true)
+      create(:friendship, active_friend: austin, passive_friend: william, confirmed: true)
+      @post1 = create(:post, author: archer, postable: austin)
+      @post2 = create(:post, postable: archer, author: william)
+      @post3 = create(:post, author: william, postable: austin)
+      @post4 = create(:post, author: austin, postable: william)
+    end
+
+    describe '#authored_posts and #received_posts' do
       it {
         should have_many(:authored_posts)
           .with_foreign_key(:author_id)
@@ -99,6 +115,19 @@ RSpec.describe User, type: :model do
           .with_foreign_key(:postable_id)
           .dependent(:destroy)
       }
+    end
+
+    describe '#timeline_posts' do
+      it 'shows posts received and authored by user' do
+        expect(archer.timeline_posts).to include(@post1)
+        expect(archer.timeline_posts).to include(@post2)
+      end
+    end
+
+    describe '#newsfeed_posts' do
+      it 'shows timeline_posts of user and timeline_posts of his friends' do
+        expect(archer.newsfeed_posts.count).to be(4)
+      end
     end
   end
 end

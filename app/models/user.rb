@@ -38,6 +38,7 @@ class User < ApplicationRecord
     }
   end
 
+  # Friendship related methods
   def friends
     User.where(id: active_friendships.where(confirmed: true).pluck(:passive_friend_id))
       .or(User.where(id: passive_friendships.where(confirmed: true).pluck(:active_friend_id)))
@@ -72,5 +73,20 @@ class User < ApplicationRecord
     friends
       .limit(per_page)
       .offset(offset)
+  end
+
+  # Post related methods
+
+  # posts shown on a user's page/timeline/profile
+  def timeline_posts
+    authored_posts.or(received_posts)
+  end
+
+  # posts shown on the newsfeed
+  def newsfeed_posts
+    feed_ids = friends.ids.concat([id])
+    Post
+      .where('author_id IN (:feed_ids) OR postable_id IN (:feed_ids)',
+             feed_ids: feed_ids)
   end
 end

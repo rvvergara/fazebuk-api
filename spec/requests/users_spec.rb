@@ -14,7 +14,7 @@ RSpec.describe 'Users', type: :request do
       it 'returns a good response' do
         get "/v1/users/#{alfred.username}", headers: { "Authorization": "Bearer #{@token}" }
         expect(response).to have_http_status(:ok)
-        expect(JSON.parse(response.body)['user']['username']).to eq(alfred.username)
+        expect(JSON.parse(response.body)['username']).to eq(alfred.username)
       end
     end
 
@@ -81,7 +81,7 @@ RSpec.describe 'Users', type: :request do
             params: { user: { first_name: 'King' } }
         lebron.reload
         expect(response).to have_http_status(:accepted)
-        expect(JSON.parse(response.body)['user']['first_name']).to eq('King')
+        expect(JSON.parse(response.body)['first_name']).to eq('King')
         expect(lebron.first_name).to eq('King')
       end
     end

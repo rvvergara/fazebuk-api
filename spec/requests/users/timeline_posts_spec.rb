@@ -19,7 +19,12 @@ RSpec.describe 'Users::TimelinePosts', type: :request do
             headers: { "Authorization": "Bearer #{user_token}" }
 
         expect(response).to have_http_status(:ok)
-        expect(JSON.parse(response.body)['timeline_posts'].count).to be(2)
+        json_response = JSON.parse(response.body)
+        timeline_posts_keys = json_response['timeline_posts']
+          .map(&:keys).uniq.first
+        expect(json_response['timeline_posts'].count).to be(2)
+        expect(timeline_posts_keys)
+          .to match(%w[id author author_url posted_to postable_url content created_at updated_at])
       end
 
       context 'user does not exist' do
@@ -28,7 +33,8 @@ RSpec.describe 'Users::TimelinePosts', type: :request do
               headers: { "Authorization": "Bearer #{user_token}" }
 
           expect(response).to have_http_status(404)
-          expect(JSON.parse(response.body)['message']).to include('Cannot find user')
+          json_response = JSON.parse(response.body)
+          expect(json_response['message']).to include('Cannot find user')
         end
       end
     end

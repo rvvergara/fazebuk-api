@@ -132,8 +132,20 @@ RSpec.describe User, type: :model do
     end
 
     describe '#newsfeed_posts' do
-      it 'shows timeline_posts of user and timeline_posts of his friends' do
-        expect(archer.newsfeed_posts.count).to be(4)
+      context 'page 1 of newsfeed' do
+        it 'shows @posts 4 and 3' do
+          page1_posts = archer.newsfeed_posts(1, 2)
+          expect(page1_posts[0].content).to eq(@post4.content)
+          expect(page1_posts[1].content).to eq(@post3.content)
+        end
+      end
+
+      context 'page 2 of newsfeed' do
+        it 'shows posts 2 and 1' do
+          page2_posts = archer.newsfeed_posts(2, 2)
+          expect(page2_posts[0].content).to eq(@post2.content)
+          expect(page2_posts[1].content).to eq(@post1.content)
+        end
       end
     end
   end

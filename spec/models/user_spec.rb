@@ -131,10 +131,10 @@ RSpec.describe User, type: :model do
       end
     end
 
-    describe '#newsfeed_posts' do
+    describe '#paginated_newsfeed_posts' do
       context 'page 1 of newsfeed' do
         it 'shows @posts 4 and 3' do
-          page1_posts = archer.newsfeed_posts(1, 2)
+          page1_posts = archer.paginated_newsfeed_posts(1, 2)
           expect(page1_posts[0].content).to eq(@post4.content)
           expect(page1_posts[1].content).to eq(@post3.content)
         end
@@ -142,7 +142,7 @@ RSpec.describe User, type: :model do
 
       context 'page 2 of newsfeed' do
         it 'shows posts 2 and 1' do
-          page2_posts = archer.newsfeed_posts(2, 2)
+          page2_posts = archer.paginated_newsfeed_posts(2, 2)
           expect(page2_posts[0].content).to eq(@post2.content)
           expect(page2_posts[1].content).to eq(@post1.content)
         end

@@ -84,11 +84,15 @@ class User < ApplicationRecord
   end
 
   # posts shown on the newsfeed
-  def newsfeed_posts(page, per_page)
+  def newsfeed_posts
     feed_ids = friends.ids.concat([id])
     Post
       .where('author_id IN (:feed_ids) OR postable_id IN (:feed_ids)',
              feed_ids: feed_ids)
+  end
+
+  def paginated_newsfeed_posts(page, per_page)
+    newsfeed_posts
       .limit(per_page)
       .offset(offset(page, per_page))
   end

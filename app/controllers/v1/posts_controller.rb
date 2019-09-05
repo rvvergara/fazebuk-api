@@ -5,6 +5,7 @@ class V1::PostsController < ApplicationController
 
   def create
     @postable = User.find_by(username: params[:post][:postable])
+
     if @postable
       post_params = { content: permitted_params[:content], postable: @postable }
       @post = @current_user.authored_posts.build(post_params)
@@ -14,7 +15,7 @@ class V1::PostsController < ApplicationController
         render json: { message: 'Cannot create post', errors: @post.errors }, status: :unprocessable_entity
       end
     else
-      render json: { message: 'User does not exist' }
+      render json: { message: 'User does not exist' }, status: 404
     end
   end
 

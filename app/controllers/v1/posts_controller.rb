@@ -18,6 +18,8 @@ class V1::PostsController < ApplicationController
 
   def update
     if @post && @postable
+      @post.postable_param = post_params[:postable]
+      authorize @post
       if @post.update(post_params)
         render :update, status: :accepted
       else

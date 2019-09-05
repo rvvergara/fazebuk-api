@@ -18,5 +18,6 @@ Rails.application.routes.draw do
     end
     resources :friendships, only: [:create, :update, :destroy]
     resources :newsfeed_posts, only: [:index], module: :users
+    resources :posts, only: [:create, :update, :destroy]
   end
 end

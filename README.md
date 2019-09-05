@@ -126,7 +126,7 @@ $ http POST :3000/v1/sessions email=johnny_bravo@email.com password=password
 
 5. Signing in a user through Facebook/User creation (if user doesn't exist yet)
 
-````bash
+```bash
 # for this to work we should have a Facebook access_token
 $ http GET :3000/v1/auth/facebook?access_token=<facebook access token here>
 ### Friendship endpoints
@@ -138,7 +138,7 @@ $ http GET :3000/v1/auth/facebook?access_token=<facebook access token here>
 # assuming you are logged in and has a token generated from signing in
 # assuming username of user to send request to is 'mildred'
 $ http POST :3000/v1/friendships?friend_requested=mildred "Authorization: Bearer <your user token here>"
-````
+```
 
 7. Cancelling a friend request
 

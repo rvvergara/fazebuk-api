@@ -130,6 +130,7 @@ $ http POST :3000/v1/sessions email=johnny_bravo@email.com password=password
 # for this to work we should have a Facebook access_token
 $ http GET :3000/v1/auth/facebook?access_token=<facebook access token here>
 ### Friendship endpoints
+```
 
 6. Sending a friend request
 

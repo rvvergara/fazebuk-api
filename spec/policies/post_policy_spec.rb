@@ -3,27 +3,25 @@
 require 'rails_helper'
 
 RSpec.describe PostPolicy, type: :policy do
-  let(:user) { User.new }
+  let(:james) { create(:user, username: 'james') }
+  let(:mario) { create(:user, username: 'mario') }
+  let(:post) { create(:post, author: james, postable: mario) }
 
-  subject { described_class }
+  describe 'policy for a post update' do
+    subject { PostPolicy.new(james, post) }
 
-  permissions '.scope' do
-    pending "add some examples to (or delete) #{__FILE__}"
-  end
+    context 'updating the post on the right user timeline' do
+      it do
+        post.postable_param = mario
+        is_expected.to permit_action(:update)
+      end
+    end
 
-  permissions :show? do
-    pending "add some examples to (or delete) #{__FILE__}"
-  end
-
-  permissions :create? do
-    pending "add some examples to (or delete) #{__FILE__}"
-  end
-
-  permissions :update? do
-    pending "add some examples to (or delete) #{__FILE__}"
-  end
-
-  permissions :destroy? do
-    pending "add some examples to (or delete) #{__FILE__}"
+    context 'updating post on the wrong user timeline' do
+      it do
+        post.postable_param = james
+        is_expected.to_not permit_action(:update)
+      end
+    end
   end
 end

@@ -18,8 +18,8 @@ RSpec.describe 'Users::Friends', type: :request do
         login_as(goku)
         get "/v1/users/#{goku.username}/friends",
             headers: { "Authorization": "Bearer #{user_token}" }
-
-        expect(JSON.parse(response.body).size).to be(2)
+        json_response = JSON.parse(response.body)
+        expect(json_response['friends'].size).to be(2)
         expect(response).to have_http_status(:ok)
       end
     end

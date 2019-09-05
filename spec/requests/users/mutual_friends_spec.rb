@@ -16,10 +16,11 @@ RSpec.describe 'Users::Friends', type: :request do
     context 'harry visits his mutual friends with hermione page' do
       it 'returns an array w/ goku in it' do
         login_as(harry)
-        get "/v1/users/#{harry.username}/mutual_friends",
+        get "/v1/users/#{hermione.username}/mutual_friends",
             headers: { "Authorization": "Bearer #{user_token}" }
 
-        expect(JSON.parse(response.body).size).to be(2)
+        json_response = JSON.parse(response.body)
+        expect(json_response['mutual_friends'].size).to be(1)
         expect(response).to have_http_status(:ok)
       end
     end

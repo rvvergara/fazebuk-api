@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
 class V1::PostsController < ApplicationController
-  before_action :pundit_user, :set_postable
+  before_action :pundit_user
+  before_action :set_postable, except: [:destroy]
   before_action :set_post, except: [:create]
+
   def create
     if @postable
       @post = @current_user.authored_posts.build(post_params)
@@ -30,7 +32,14 @@ class V1::PostsController < ApplicationController
     end
   end
 
-  def destroy; end
+  def destroy
+    if @post
+      @post.destroy
+      render json: { message: 'Post deleted' }, status: :accepted
+    else
+      render json: { message: 'Post does not exist' }, status: 404
+    end
+  end
 
   private
 

@@ -145,4 +145,39 @@ RSpec.describe 'Posts', type: :request do
       end
     end
   end
+
+  describe 'DELETE /v1/posts/:id' do
+    let(:harvey) { create(:user) }
+    let(:louis) { create(:user) }
+
+    before do
+      login_as(harvey)
+    end
+
+    context 'post exists' do
+      it 'sends a success json response' do
+        post = create(:post, author: harvey, postable: louis)
+
+        delete "/v1/posts/#{post.id}",
+               headers: { "Authorization": "Bearer #{user_token}" }
+
+        json_response = JSON.parse(response.body)
+
+        expect(response).to have_http_status(202)
+        expect(json_response['message']).to match('Post deleted')
+      end
+    end
+
+    context 'post does not exist' do
+      it 'sends an error json response' do
+        delete '/v1/posts/123someId',
+               headers: { "Authorization": "Bearer #{user_token}" }
+
+        json_response = JSON.parse(response.body)
+
+        expect(response).to have_http_status(404)
+        expect(json_response['message']).to match('Post does not exist')
+      end
+    end
+  end
 end

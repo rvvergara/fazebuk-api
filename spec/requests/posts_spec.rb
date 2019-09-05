@@ -64,4 +64,85 @@ RSpec.describe 'Posts', type: :request do
       end
     end
   end
+
+  describe 'PUT /v1/posts/:id' do
+    let(:ragnar) { create(:user, username: 'ragnar') }
+    let(:bjorn) { create(:user, username: 'bjorn') }
+
+    before do
+      @post = create(:post, author: ragnar, postable: bjorn)
+      login_as(ragnar)
+    end
+
+    context 'post and postable exist' do
+      context 'content is present' do
+        it 'sends the updated post as json response' do
+          content = 'Updated content'
+          put "/v1/posts/#{@post.id}",
+              headers: { "Authorization": "Bearer #{user_token}" },
+              params: { post: {
+                postable: bjorn.username,
+                content: content
+              } }
+
+          json_response = JSON.parse(response.body)
+          expect(response).to have_http_status(:accepted)
+          expect(json_response.keys)
+            .to match(%w[id author author_url posted_to postable_url content created_at updated_at])
+          expect(json_response['content']).to eq(content)
+          expect(json_response['posted_to']).to eq(bjorn.username)
+        end
+      end
+
+      context 'content is missing' do
+        it 'sends an error json' do
+          put "/v1/posts/#{@post.id}",
+              headers: { "Authorization": "Bearer #{user_token}" },
+              params: { post: {
+                postable: bjorn.username,
+                content: nil
+              } }
+
+          json_response = JSON.parse(response.body)
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(json_response['message']).to match('Cannot update post')
+          expect(json_response['errors']['content'].first).to match("can't be blank")
+        end
+      end
+    end
+
+    context 'post or postable does not exist' do
+      context 'postable does not exist' do
+        it 'sends an error response' do
+          put "/v1/posts/#{@post.id}",
+              headers: { "Authorization": "Bearer #{user_token}" },
+              params: {
+                post: {
+                  postable: 'arnold',
+                  content: 'Updated content'
+                }
+              }
+          json_response = JSON.parse(response.body)
+          expect(response).to have_http_status(404)
+          expect(json_response['message']).to match('Post or user does not exist')
+        end
+      end
+
+      context 'post does not exist' do
+        it 'sends an error response' do
+          put '/v1/posts/another233id',
+              headers: { "Authorization": "Bearer #{user_token}" },
+              params: {
+                post: {
+                  postable: bjorn,
+                  content: 'Updated content'
+                }
+              }
+          json_response = JSON.parse(response.body)
+          expect(response).to have_http_status(404)
+          expect(json_response['message']).to match('Post or user does not exist')
+        end
+      end
+    end
+  end
 end

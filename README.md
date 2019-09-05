@@ -181,6 +181,48 @@ $ http GET :3000/v1/users/<username of user>/friends?page=2 "Authorization: Bear
 $ http GET :3000/v1/users/mildred/mutual_friends?page=<page you wanna see> "Authorization: Bearer <your token here>"
 ```
 
+12. Viewing your newsfeed posts
+
+```bash
+# assuming you are logged on and have a token
+# if page param isn't included then request will go to page 1
+$ http GET :3000/v1/newsfeed_posts?page=<which page you wish to view> "Authorization: Bearer <your token>"
+```
+
+13. Viewing a user's timeline posts
+
+```bash
+# assuming you are logged on and have a token
+# assuming you want to see timeline posts of rachel
+# if page param isnt included then response will default to page 1
+$ http GET :3000/v1/users/rachel/timeline_posts?page=<page to view> "Authorization: Bearer <your token>"
+```
+
+14. Posting on your or another user's timeline
+
+```bash
+# assuming you're logged on and have a token
+# assuming you are posting on kobe's timeline
+$ http POST :3000/v1/posts post:='{"postable"="kobe", "content":"Nice shot!"}' "Authorization: Bearer <your token>"
+# in the frontend if you wish to post on your newsfeed just input above your own username in the postable param
+```
+
+15. Updating your post
+
+```bash
+# assuming you are logged on and have a token
+# assuming you posted on jill's timeline and you are updating that post
+$ http PUT :3000/v1/posts/<id of post> post:='{"postable": "jill", "content": "This is an updated content"}' "Authorization: Bearer <your token here>"
+```
+
+16. Deleting your post
+
+```bash
+# assuming you are logged on and have a token
+# assuming you are the owner of the post (if not the response will be an error)
+$ http DELETE :3000/v1/posts/<id of post to be deleted> "Authorization: Bearer <your token>"
+```
+
 ## Maintainer
 
 [Ryan](https://github.com/rvvergara)

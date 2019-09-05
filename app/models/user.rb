@@ -60,11 +60,15 @@ class User < ApplicationRecord
     )
   end
 
-  def mutual_friends_with(other_user, page, per_page)
-    offset = (page.to_i - 1) * per_page
+  def mutual_friends_with(other_user)
     friends
       .where(id: other_user.friends
           .pluck(:id))
+  end
+
+  def paginated_mutual_friends_with(other_user, page, per_page)
+    offset = (page.to_i - 1) * per_page
+    mutual_friends_with(other_user)
       .limit(per_page).offset(offset)
   end
 

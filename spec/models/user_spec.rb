@@ -55,7 +55,7 @@ RSpec.describe User, type: :model do
 
     describe "ryto's #mutual_friends_with(anna)" do
       it 'includes george' do
-        expect(ryto.mutual_friends_with(anna, 1, 10)).to include(george)
+        expect(ryto.paginated_mutual_friends_with(anna, 1, 10)).to include(george)
       end
     end
 

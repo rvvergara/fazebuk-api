@@ -9,7 +9,7 @@ class V1::Users::MutualFriendsController < ApplicationController
   def index
     @user = User.find_by(username: params[:user_username])
     records_per_page = 10
-    @mutual_friends = @current_user.mutual_friends_with(@user, @page, records_per_page)
+    @mutual_friends = @current_user.paginated_mutual_friends_with(@user, @page, records_per_page)
     render :mutual_friends, status: :ok
   end
 end

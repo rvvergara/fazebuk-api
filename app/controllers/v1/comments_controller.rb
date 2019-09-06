@@ -30,7 +30,14 @@ class V1::CommentsController < ApplicationController
     end
   end
 
-  def destroy; end
+  def destroy
+    if @comment
+      @comment.destroy
+      render json: { message: 'Comment deleted' }, status: :accepted
+    else
+      render json: { message: 'Cannot find comment' }, status: 404
+    end
+  end
 
   private
 

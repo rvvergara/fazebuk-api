@@ -117,100 +117,169 @@ RSpec.describe 'Comments', type: :request do
     end
   end
 
-  describe 'PUT /v1/comments/:comment_id' do
+  describe 'PUT and DELETE requests' do
     before do
       @comment = create(:post_comment, commenter: dominic, commentable: @post)
       @reply = create(:comment_reply, commenter: laura, commentable: @comment)
     end
+    describe 'PUT /v1/comments/:id' do
+      context 'Commenter updates his comment' do
+        before { login_as(dominic) }
 
-    context 'Commenter updates his comment' do
-      before { login_as(dominic) }
+        context 'comment found' do
+          context 'comment body present' do
+            it 'sends the updated comment as response' do
+              put "/v1/comments/#{@comment.id}",
+                  headers: { "Authorization": "Bearer #{user_token}" },
+                  params: { comment: attributes_for(:post_comment, commenter: dominic, commentable: @post) }
 
-      context 'comment found' do
-        context 'comment body present' do
-          it 'sends the updated comment as response' do
-            put "/v1/comments/#{@comment.id}",
-                headers: { "Authorization": "Bearer #{user_token}" },
-                params: { comment: attributes_for(:post_comment, commenter: dominic, commentable: @post) }
+              json_response = JSON.parse(response.body)
+              expect(response).to have_http_status(:accepted)
+              expect(json_response['id']).to eq(@comment.id)
+              expect(json_response['commenter']).to eq(dominic.username)
+            end
+          end
 
-            json_response = JSON.parse(response.body)
-            expect(response).to have_http_status(:accepted)
-            expect(json_response['id']).to eq(@comment.id)
-            expect(json_response['commenter']).to eq(dominic.username)
+          context 'comment body missing' do
+            it 'sends an error response' do
+              put "/v1/comments/#{@comment.id}",
+                  headers: { "Authorization": "Bearer #{user_token}" },
+                  params: { comment: attributes_for(:post_comment, commentable: @post, commenter: dominic, body: nil) }
+
+              json_response = JSON.parse(response.body)
+
+              expect(response).to have_http_status(:unprocessable_entity)
+
+              expect(json_response['errors']['body']).to include("can't be blank")
+            end
           end
         end
 
-        context 'comment body missing' do
-          it 'sends an error response' do
-            put "/v1/comments/#{@comment.id}",
+        context 'comment not found' do
+          it 'sends a cannot found error response' do
+            put '/v1/comments/someLostCommentId',
                 headers: { "Authorization": "Bearer #{user_token}" },
-                params: { comment: attributes_for(:post_comment, commentable: @post, commenter: dominic, body: nil) }
+                params: { comment: attributes_for(:post_comment, commentable: @post, commenter: dominic) }
 
             json_response = JSON.parse(response.body)
 
-            expect(response).to have_http_status(:unprocessable_entity)
-
-            expect(json_response['errors']['body']).to include("can't be blank")
+            expect(response).to have_http_status(404)
+            expect(json_response['message']).to match('Cannot find comment')
           end
         end
       end
 
-      context 'comment not found' do
-        it 'sends a cannot found error response' do
-          put '/v1/comments/someLostCommentId',
-              headers: { "Authorization": "Bearer #{user_token}" },
-              params: { comment: attributes_for(:post_comment, commentable: @post, commenter: dominic) }
+      context 'Replier updates her reply' do
+        before { login_as(laura) }
 
-          json_response = JSON.parse(response.body)
+        context 'reply found' do
+          context 'reply body present' do
+            it 'sends the updated reply as response' do
+              put "/v1/comments/#{@reply.id}",
+                  headers: { "Authorization": "Bearer #{user_token}" },
+                  params: { comment: attributes_for(:comment_reply, commenter: laura, commentable: @comment) }
 
-          expect(response).to have_http_status(404)
-          expect(json_response['message']).to match('Cannot find comment')
+              json_response = JSON.parse(response.body)
+              expect(response).to have_http_status(:accepted)
+              expect(json_response['id']).to eq(@reply.id)
+              expect(json_response['commenter']).to eq(laura.username)
+            end
+          end
+
+          context 'reply body missing' do
+            it 'sends an error response' do
+              put "/v1/comments/#{@reply.id}",
+                  headers: { "Authorization": "Bearer #{user_token}" },
+                  params: { comment: attributes_for(:post_comment, commentable: @comment, commenter: laura, body: nil) }
+
+              json_response = JSON.parse(response.body)
+
+              expect(response).to have_http_status(:unprocessable_entity)
+
+              expect(json_response['errors']['body']).to include("can't be blank")
+            end
+          end
+        end
+
+        context 'comment not found' do
+          it 'sends a cannot found error response' do
+            put '/v1/comments/someLostCommentId',
+                headers: { "Authorization": "Bearer #{user_token}" },
+                params: { comment: attributes_for(:comment_reply, commentable: @comment, commenter: laura) }
+
+            json_response = JSON.parse(response.body)
+
+            expect(response).to have_http_status(404)
+            expect(json_response['message']).to match('Cannot find comment')
+          end
         end
       end
     end
 
-    context 'Replier updates her reply' do
-      before { login_as(laura) }
+    describe 'DELETE /v1/comments/:id' do
+      context 'deleting a post comment' do
+        before do
+          login_as(dominic)
+        end
 
-      context 'reply found' do
-        context 'reply body present' do
-          it 'sends the updated reply as response' do
-            put "/v1/comments/#{@reply.id}",
-                headers: { "Authorization": "Bearer #{user_token}" },
-                params: { comment: attributes_for(:comment_reply, commenter: laura, commentable: @comment) }
+        context 'comment found' do
+          it 'removes comment and reply from database' do
+            expect do
+              delete "/v1/comments/#{@comment.id}",
+                     headers: { "Authorization": "Bearer #{user_token}" }
+            end.to change(Comment, :count).by(-2)
+          end
+
+          it 'sends a success response' do
+            delete "/v1/comments/#{@comment.id}",
+                   headers: { "Authorization": "Bearer #{user_token}" }
 
             json_response = JSON.parse(response.body)
-            expect(response).to have_http_status(:accepted)
-            expect(json_response['id']).to eq(@reply.id)
-            expect(json_response['commenter']).to eq(laura.username)
+            expect(json_response['message']).to match('Comment deleted')
           end
         end
 
-        context 'reply body missing' do
-          it 'sends an error response' do
-            put "/v1/comments/#{@reply.id}",
-                headers: { "Authorization": "Bearer #{user_token}" },
-                params: { comment: attributes_for(:post_comment, commentable: @comment, commenter: laura, body: nil) }
+        context 'comment not found' do
+          it 'responds with an error json' do
+            delete '/v1/comments/someLostCommentId',
+                   headers: { "Authorization": "Bearer #{user_token}" }
 
-            json_response = JSON.parse(response.body)
-
-            expect(response).to have_http_status(:unprocessable_entity)
-
-            expect(json_response['errors']['body']).to include("can't be blank")
+            expect(response).to have_http_status(404)
+            expect(JSON.parse(response.body)['message']).to match('Cannot find comment')
           end
         end
       end
 
-      context 'comment not found' do
-        it 'sends a cannot found error response' do
-          put '/v1/comments/someLostCommentId',
-              headers: { "Authorization": "Bearer #{user_token}" },
-              params: { comment: attributes_for(:comment_reply, commentable: @comment, commenter: laura) }
+      context 'deleting a comment reply' do
+        before do
+          login_as(laura)
+        end
 
-          json_response = JSON.parse(response.body)
+        context 'comment found' do
+          it 'removes reply from database' do
+            expect do
+              delete "/v1/comments/#{@reply.id}",
+                     headers: { "Authorization": "Bearer #{user_token}" }
+            end.to change(Comment, :count).by(-1)
+          end
 
-          expect(response).to have_http_status(404)
-          expect(json_response['message']).to match('Cannot find comment')
+          it 'sends a success response' do
+            delete "/v1/comments/#{@reply.id}",
+                   headers: { "Authorization": "Bearer #{user_token}" }
+
+            json_response = JSON.parse(response.body)
+            expect(json_response['message']).to match('Comment deleted')
+          end
+        end
+
+        context 'reply not found' do
+          it 'responds with an error json' do
+            delete '/v1/comments/someLostCommentId',
+                   headers: { "Authorization": "Bearer #{user_token}" }
+
+            expect(response).to have_http_status(404)
+            expect(JSON.parse(response.body)['message']).to match('Cannot find comment')
+          end
         end
       end
     end

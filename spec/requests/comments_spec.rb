@@ -17,6 +17,18 @@ RSpec.describe 'Comments', type: :request do
 
     context 'post exists' do
       context 'comment body present' do
+        it 'adds comment to the database' do
+          expect do
+            post "/v1/posts/#{@post.id}/comments",
+                 headers: {
+                   "Authorization": "Bearer #{user_token}"
+                 },
+                 params: {
+                   comment: attributes_for(:post_comment, commenter: dominic)
+                 }
+          end.to change(Comment, :count).by(1)
+        end
+
         it 'sends the created comment as json response' do
           post "/v1/posts/#{@post.id}/comments",
                headers: {
@@ -74,6 +86,14 @@ RSpec.describe 'Comments', type: :request do
 
     context 'comment exists' do
       context 'reply body is present' do
+        it 'adds reply to the database' do
+          expect do
+            post "/v1/comments/#{@comment.id}/replies",
+                 headers: { "Authorization": "Bearer #{user_token}" },
+                 params: { reply: attributes_for(:comment_reply, commenter: laura, commentable: @comment) }
+          end.to change(Comment, :count).by(1)
+        end
+
         it 'sends the reply as json response' do
           post "/v1/comments/#{@comment.id}/replies",
                headers: { "Authorization": "Bearer #{user_token}" },
@@ -128,11 +148,23 @@ RSpec.describe 'Comments', type: :request do
 
         context 'comment found' do
           context 'comment body present' do
-            it 'sends the updated comment as response' do
+            before do
+              @updated_comment = 'Updated comment'
+
               put "/v1/comments/#{@comment.id}",
                   headers: { "Authorization": "Bearer #{user_token}" },
-                  params: { comment: attributes_for(:post_comment, commenter: dominic, commentable: @post) }
+                  params: { comment: attributes_for(
+                    :post_comment,
+                    commenter: dominic, commentable: @post, body: @updated_comment
+                  ) }
+            end
 
+            it 'updates the comment in the database' do
+              @comment.reload
+              expect(@comment.body).to eq(@updated_comment)
+            end
+
+            it 'sends the updated comment as response' do
               json_response = JSON.parse(response.body)
               expect(response).to have_http_status(:accepted)
               expect(json_response['id']).to eq(@comment.id)
@@ -174,11 +206,22 @@ RSpec.describe 'Comments', type: :request do
 
         context 'reply found' do
           context 'reply body present' do
-            it 'sends the updated reply as response' do
+            before do
+              @updated_reply = 'Updated reply'
               put "/v1/comments/#{@reply.id}",
                   headers: { "Authorization": "Bearer #{user_token}" },
-                  params: { comment: attributes_for(:comment_reply, commenter: laura, commentable: @comment) }
+                  params: { comment: attributes_for(
+                    :comment_reply,
+                    commenter: laura, commentable: @comment, body: @updated_reply
+                  ) }
+            end
 
+            it 'updates the reply on the database' do
+              @reply.reload
+              expect(@reply.body).to eq(@updated_reply)
+            end
+
+            it 'sends the updated reply as response' do
               json_response = JSON.parse(response.body)
               expect(response).to have_http_status(:accepted)
               expect(json_response['id']).to eq(@reply.id)

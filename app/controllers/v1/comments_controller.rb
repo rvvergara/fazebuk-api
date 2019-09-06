@@ -9,11 +9,11 @@ class V1::CommentsController < ApplicationController
       if @comment.save
         render :create, status: :created
       else
-        render json: { message: 'Cannot create comment', errors: @comment.errors }
+        render json: { message: 'Cannot create comment', errors: @comment.errors }, status: :unprocessable_entity
       end
     else
-      commentable_type = @commentable.type == 'Posts' ? 'post' : 'comment'
-      render json: { message: "Cannot find #{commentable_type}" }
+      commentable_type = params[:post_id] ? 'post' : 'comment'
+      render json: { message: "Cannot find #{commentable_type}" }, status: 404
     end
   end
 

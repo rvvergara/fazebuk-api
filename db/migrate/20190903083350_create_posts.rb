@@ -11,5 +11,7 @@ class CreatePosts < ActiveRecord::Migration[5.2]
     end
     add_foreign_key :posts, :users, column: :author_id
     add_foreign_key :posts, :users, column: :postable_id
+    add_index :posts, :author_id
+    add_index :posts, :postable_id
   end
 end

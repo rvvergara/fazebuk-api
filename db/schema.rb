@@ -34,6 +34,8 @@ ActiveRecord::Schema.define(version: 2019_09_03_083350) do
     t.text "content"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["author_id"], name: "index_posts_on_author_id"
+    t.index ["postable_id"], name: "index_posts_on_postable_id"
   end
 
   create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|

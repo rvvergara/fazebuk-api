@@ -86,6 +86,18 @@ RSpec.describe User, type: :model do
           .dependent(:destroy)
           .with_foreign_key(:passive_friend_id)
       }
+
+      it {
+        should have_many(:authored_posts)
+          .with_foreign_key(:author_id)
+          .dependent(:destroy)
+      }
+
+      it {
+        should have_many(:authored_comments)
+          .with_foreign_key(:commenter_id)
+          .dependent(:destroy)
+      }
     end
   end
 

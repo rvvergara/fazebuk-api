@@ -7,7 +7,7 @@ RSpec.describe Comment, type: :model do
     let(:marge) { create(:user) }
     let(:rolo) { create(:user) }
     let(:post) { create(:post, author: marge, postable: rolo) }
-    let(:comment) { build(:post_comment, author: rolo, commentable: post) }
+    let(:comment) { build(:post_comment, commenter: rolo, commentable: post) }
 
     context 'body present' do
       it 'is valid' do
@@ -26,7 +26,7 @@ RSpec.describe Comment, type: :model do
 
   describe 'associations' do
     it {
-      should belong_to(:author)
+      should belong_to(:commenter)
         .class_name('User')
     }
     it { should belong_to(:commentable) }

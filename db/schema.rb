@@ -19,12 +19,12 @@ ActiveRecord::Schema.define(version: 2019_09_06_063927) do
   create_table "comments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.text "body"
     t.uuid "commentable_id"
-    t.uuid "author_id"
+    t.uuid "commenter_id"
     t.string "commentable_type"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["author_id"], name: "index_comments_on_author_id"
     t.index ["commentable_id"], name: "index_comments_on_commentable_id"
+    t.index ["commenter_id"], name: "index_comments_on_commenter_id"
   end
 
   create_table "friendships", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -69,7 +69,7 @@ ActiveRecord::Schema.define(version: 2019_09_06_063927) do
     t.index ["username"], name: "index_users_on_username", unique: true
   end
 
-  add_foreign_key "comments", "users", column: "author_id"
+  add_foreign_key "comments", "users", column: "commenter_id"
   add_foreign_key "friendships", "users", column: "active_friend_id"
   add_foreign_key "friendships", "users", column: "passive_friend_id"
   add_foreign_key "posts", "users", column: "author_id"

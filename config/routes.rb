@@ -19,11 +19,11 @@ Rails.application.routes.draw do
     resources :newsfeed_posts, only: [:index], module: :users
     
     resources :posts, only: [:create, :update, :destroy] do
-      resources :comments, module: :posts, only: [:create, :update, :destroy]
+      resources :comments, module: :posts, only: [:create]
     end
     
-    resources :comments do
-      resources :replies, module: :comments, only: [:create, :update, :destroy]
+    resources :comments, only: [:update, :destroy] do
+      resources :replies, module: :comments, only: [:create]
     end
   end
 end

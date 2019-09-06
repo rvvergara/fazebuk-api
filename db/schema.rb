@@ -10,11 +10,22 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_09_03_083350) do
+ActiveRecord::Schema.define(version: 2019_09_06_063927) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
+
+  create_table "comments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.text "body"
+    t.uuid "commentable_id"
+    t.uuid "author_id"
+    t.string "commentable_type"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["author_id"], name: "index_comments_on_author_id"
+    t.index ["commentable_id"], name: "index_comments_on_commentable_id"
+  end
 
   create_table "friendships", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "active_friend_id", null: false
@@ -58,6 +69,7 @@ ActiveRecord::Schema.define(version: 2019_09_03_083350) do
     t.index ["username"], name: "index_users_on_username", unique: true
   end
 
+  add_foreign_key "comments", "users", column: "author_id"
   add_foreign_key "friendships", "users", column: "active_friend_id"
   add_foreign_key "friendships", "users", column: "passive_friend_id"
   add_foreign_key "posts", "users", column: "author_id"

@@ -99,11 +99,11 @@ end
 # Set comments on ryto's authored posts
 ryto.authored_posts.each_with_index do |post, index|
   comment = post.comments.create(
-    author: post.postable,
+    commenter: post.postable,
     body: Faker::Lorem.paragraph(sentence_count: 2)
   )
   reply = comment.replies.create(
-    author: ryto.friends[index],
+    commenter: ryto.friends[index],
     body: Faker::Lorem.paragraph(sentence_count: 2)
   )
 end
@@ -128,11 +128,11 @@ end
 # Set comments on mike's received posts
 mike.received_posts.each_with_index do |post, index|
   comment = post.comments.create(
-    author: mike,
+    commenter: mike,
     body: Faker::Lorem.paragraph(sentence_count: 2)
   )
   reply = comment.replies.create(
-    author: mike.friends[index],
+    commenter: mike.friends[index],
     body: Faker::Lorem.paragraph(sentence_count: 2)
   )
 end

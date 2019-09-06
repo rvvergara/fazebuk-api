@@ -3,8 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe 'Comments', type: :request do
-  let(:laura) { create(:user) }
-  let(:dominic) { create(:user) }
+  let(:laura) { create(:user, username: 'laura') }
+  let(:dominic) { create(:user, username: 'dominic') }
 
   before do
     @post = create(:post, author: laura, postable: dominic)
@@ -113,6 +113,105 @@ RSpec.describe 'Comments', type: :request do
         json_response = JSON.parse(response.body)
         expect(response).to have_http_status(404)
         expect(json_response['message']).to match('Cannot find comment')
+      end
+    end
+  end
+
+  describe 'PUT /v1/comments/:comment_id' do
+    before do
+      @comment = create(:post_comment, commenter: dominic, commentable: @post)
+      @reply = create(:comment_reply, commenter: laura, commentable: @comment)
+    end
+
+    context 'Commenter updates his comment' do
+      before { login_as(dominic) }
+
+      context 'comment found' do
+        context 'comment body present' do
+          it 'sends the updated comment as response' do
+            put "/v1/comments/#{@comment.id}",
+                headers: { "Authorization": "Bearer #{user_token}" },
+                params: { comment: attributes_for(:post_comment, commenter: dominic, commentable: @post) }
+
+            json_response = JSON.parse(response.body)
+            expect(response).to have_http_status(:accepted)
+            expect(json_response['id']).to eq(@comment.id)
+            expect(json_response['commenter']).to eq(dominic.username)
+          end
+        end
+
+        context 'comment body missing' do
+          it 'sends an error response' do
+            put "/v1/comments/#{@comment.id}",
+                headers: { "Authorization": "Bearer #{user_token}" },
+                params: { comment: attributes_for(:post_comment, commentable: @post, commenter: dominic, body: nil) }
+
+            json_response = JSON.parse(response.body)
+
+            expect(response).to have_http_status(:unprocessable_entity)
+
+            expect(json_response['errors']['body']).to include("can't be blank")
+          end
+        end
+      end
+
+      context 'comment not found' do
+        it 'sends a cannot found error response' do
+          put '/v1/comments/someLostCommentId',
+              headers: { "Authorization": "Bearer #{user_token}" },
+              params: { comment: attributes_for(:post_comment, commentable: @post, commenter: dominic) }
+
+          json_response = JSON.parse(response.body)
+
+          expect(response).to have_http_status(404)
+          expect(json_response['message']).to match('Cannot find comment')
+        end
+      end
+    end
+
+    context 'Replier updates her reply' do
+      before { login_as(laura) }
+
+      context 'reply found' do
+        context 'reply body present' do
+          it 'sends the updated reply as response' do
+            put "/v1/comments/#{@reply.id}",
+                headers: { "Authorization": "Bearer #{user_token}" },
+                params: { comment: attributes_for(:comment_reply, commenter: laura, commentable: @comment) }
+
+            json_response = JSON.parse(response.body)
+            expect(response).to have_http_status(:accepted)
+            expect(json_response['id']).to eq(@reply.id)
+            expect(json_response['commenter']).to eq(laura.username)
+          end
+        end
+
+        context 'reply body missing' do
+          it 'sends an error response' do
+            put "/v1/comments/#{@reply.id}",
+                headers: { "Authorization": "Bearer #{user_token}" },
+                params: { comment: attributes_for(:post_comment, commentable: @comment, commenter: laura, body: nil) }
+
+            json_response = JSON.parse(response.body)
+
+            expect(response).to have_http_status(:unprocessable_entity)
+
+            expect(json_response['errors']['body']).to include("can't be blank")
+          end
+        end
+      end
+
+      context 'comment not found' do
+        it 'sends a cannot found error response' do
+          put '/v1/comments/someLostCommentId',
+              headers: { "Authorization": "Bearer #{user_token}" },
+              params: { comment: attributes_for(:comment_reply, commentable: @comment, commenter: laura) }
+
+          json_response = JSON.parse(response.body)
+
+          expect(response).to have_http_status(404)
+          expect(json_response['message']).to match('Cannot find comment')
+        end
       end
     end
   end

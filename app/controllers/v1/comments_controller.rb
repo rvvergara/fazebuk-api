@@ -23,7 +23,7 @@ class V1::CommentsController < ApplicationController
       if @comment.update(update_params)
         render :update, status: :accepted
       else
-        render json: { message: 'Cannot update comment', errors: @comment.errors }
+        render json: { message: 'Cannot update comment', errors: @comment.errors }, status: :unprocessable_entity
       end
     else
       render json: { message: 'Cannot find comment' }, status: 404

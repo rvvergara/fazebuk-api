@@ -25,11 +25,11 @@ class ApplicationController < ActionController::API
   end
 
   def set_page
-    params[:page] || '1'
+    Pagination.page(params[:page])
   end
 
-  def max_page(count, records_per_page)
-    (count / records_per_page.to_f).ceil
+  def set_max_in_page(page, record_count, records_per_page)
+    Pagination.set_max_in_page(page, record_count, records_per_page)
   end
 
   def shown_attributes(user)

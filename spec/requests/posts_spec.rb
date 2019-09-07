@@ -102,7 +102,6 @@ RSpec.describe 'Posts', type: :request do
                 postable: bjorn.username,
                 content: nil
               } }
-
           json_response = JSON.parse(response.body)
           expect(response).to have_http_status(:unprocessable_entity)
           expect(json_response['message']).to match('Cannot update post')

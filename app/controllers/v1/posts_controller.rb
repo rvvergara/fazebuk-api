@@ -11,7 +11,7 @@ class V1::PostsController < ApplicationController
     if @post.save
       render :create, status: :created
     else
-      render json: { message: 'Cannot create post', errors: @post.errors }, status: :unprocessable_entity
+      render_error('Cannot create post', 422, @post.errors)
     end
   end
 
@@ -24,7 +24,7 @@ class V1::PostsController < ApplicationController
     if @post.update(post_params)
       render :update, status: :accepted
     else
-      render json: { message: 'Cannot update post', errors: @post.errors }, status: :unprocessable_entity
+      render_error('Cannot update post', 422, @post.errors)
     end
   end
 
@@ -44,9 +44,9 @@ class V1::PostsController < ApplicationController
   def set_postable
     postable = User.find_by(username: params[:post][:postable])
 
-    return postable if postable
+    render_error('User does not exist', 404) unless postable
 
-    render json: { message: 'User does not exist' }, status: 404
+    postable
   end
 
   def post_params
@@ -56,8 +56,14 @@ class V1::PostsController < ApplicationController
   def set_post
     post = @current_user.authored_posts.find_by(id: params[:id])
 
-    return post if post
+    render_error('Post does not exist', 404) unless post
 
-    render json: { message: 'Post does not exist' }, status: 404
+    post
+  end
+
+  def render_error(message, err_status, error_data = nil)
+    err_json = { message: message }
+    err_json = err_json.merge(errors: error_data) if error_data
+    render json: err_json, status: err_status
   end
 end

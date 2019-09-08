@@ -6,7 +6,7 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
 
-  default_scope { order(created_at: :asc) }
+  scope :order_created, -> { order(created_at: :asc) }
 
   validates :first_name, :last_name, :username, presence: true
   validates :username, uniqueness: true
@@ -40,24 +40,30 @@ class User < ApplicationRecord
 
   # Friendship related methods
   def friends
-    User.where(id: active_friendships.where(confirmed: true).pluck(:passive_friend_id))
-      .or(User.where(id: passive_friendships.where(confirmed: true).pluck(:active_friend_id)))
+    User
+      .order_created
+      .where(id: active_friendships.where(confirmed: true).pluck(:passive_friend_id))
+      .or(User.order_created.where(id: passive_friendships.where(confirmed: true).pluck(:active_friend_id)))
   end
 
   def pending_received_requests_from
-    User.where(
-      id: passive_friendships
-        .where(confirmed: false)
-        .pluck(:active_friend_id)
-    )
+    User
+      .order_created
+      .where(
+        id: passive_friendships
+          .where(confirmed: false)
+          .pluck(:active_friend_id)
+      )
   end
 
   def pending_sent_requests_to
-    User.where(
-      id: active_friendships
-        .where(confirmed: false)
-        .pluck(:passive_friend_id)
-    )
+    User
+      .order_created
+      .where(
+        id: active_friendships
+          .where(confirmed: false)
+          .pluck(:passive_friend_id)
+      )
   end
 
   def mutual_friends_with(other_user)
@@ -67,15 +73,15 @@ class User < ApplicationRecord
   end
 
   def paginated_mutual_friends_with(other_user, page, per_page)
-    offset = (page.to_i - 1) * per_page
     mutual_friends_with(other_user)
-      .limit(per_page).offset(offset)
+      .limit(per_page)
+      .offset(Pagination.offset(page, per_page))
   end
 
   def paginated_friends(page, per_page)
     friends
       .limit(per_page)
-      .offset(offset(page, per_page))
+      .offset(Pagination.offset(page, per_page))
   end
 
   # Post related methods
@@ -87,7 +93,7 @@ class User < ApplicationRecord
   def paginated_timeline_posts(page, per_page)
     timeline_posts
       .limit(per_page)
-      .offset(offset(page, per_page))
+      .offset(Pagination.offset(page, per_page))
   end
 
   # posts shown on the newsfeed
@@ -101,6 +107,6 @@ class User < ApplicationRecord
   def paginated_newsfeed_posts(page, per_page)
     newsfeed_posts
       .limit(per_page)
-      .offset(offset(page, per_page))
+      .offset(Pagination.offset(page, per_page))
   end
 end

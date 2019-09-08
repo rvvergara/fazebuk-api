@@ -3,8 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe 'Comments', type: :request do
-  let(:laura) { create(:user, username: 'laura') }
-  let(:dominic) { create(:user, username: 'dominic') }
+  let(:laura) { create(:female_user, username: 'laura') }
+  let(:dominic) { create(:male_user, username: 'dominic') }
 
   before do
     @post = create(:post, author: laura, postable: dominic)

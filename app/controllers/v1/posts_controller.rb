@@ -6,24 +6,24 @@ class V1::PostsController < ApplicationController
 
   def create
     set_postable
-    @post = pundit_user.authored_posts.build(post_params)
-    if @post.save
-      render :create, status: :created
+    post = pundit_user.authored_posts.build(post_params)
+    if post.save
+      render :create, locals: { post: post }, status: :created
     else
-      render_error('Cannot create post', 422, @post.errors)
+      render_error('Cannot create post', 422, post.errors)
     end
   end
 
   def update
     set_postable
-    @post = set_post
-    @post.postable_param = post_params[:postable]
-    authorize @post
+    post = set_post
+    post.postable_param = post_params[:postable]
+    authorize post
 
-    if @post.update(post_params)
-      render :update, status: :accepted
+    if post.update(post_params)
+      render :update, locals: { post: post }, status: :accepted
     else
-      render_error('Cannot update post', 422, @post.errors)
+      render_error('Cannot update post', 422, post.errors)
     end
   end
 

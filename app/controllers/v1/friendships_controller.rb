@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class V1::FriendshipsController < ApplicationController
-  before_action :find_friendship, only: %i[update destroy]
-
   def create
     passive_friend = User.find_by(username: params[:friend_requested])
     friendship = pundit_user.active_friendships.build(passive_friend: passive_friend)
@@ -15,16 +13,19 @@ class V1::FriendshipsController < ApplicationController
   end
 
   def update
-    @friendship.confirm
+    return unless find_friendship
+
+    find_friendship.confirm
     render json: { message: 'Friend request confirmed!' }, status: :accepted
   end
 
   def destroy
-    @friendship.destroy
-    if @friendship.confirmed
+    friendship = find_friendship
+    friendship.destroy
+    if friendship.confirmed
       render json: { message: 'Friendship deleted' }, status: :accepted
     else
-      message = @friendship.active_friend == pundit_user ? 'Cancelled friend request' : 'Rejected friend request'
+      message = friendship.active_friend == pundit_user ? 'Cancelled friend request' : 'Rejected friend request'
       render json: { message: message }, status: :accepted
     end
   end
@@ -32,15 +33,13 @@ class V1::FriendshipsController < ApplicationController
   private
 
   def find_friendship
-    @friendship = Friendship.find_by(id: params[:id])
-    authorize_resource(@friendship)
-  end
-
-  def authorize_resource(resource)
-    if resource
-      authorize resource
+    friendship = Friendship.find_by(id: params[:id])
+    if friendship
+      authorize friendship
+      return friendship
     else
       render json: { message: 'Cannot find resource' }, status: 404
+      return false
     end
   end
 end

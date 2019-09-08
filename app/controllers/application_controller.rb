@@ -25,7 +25,7 @@ class ApplicationController < ActionController::API
   end
 
   def set_page
-    Pagination.page(params[:page])
+    Pagination.page(params[:page]).to_i
   end
 
   def set_max_in_page(page, record_count, records_per_page)

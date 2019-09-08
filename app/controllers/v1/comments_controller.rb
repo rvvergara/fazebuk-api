@@ -42,10 +42,10 @@ class V1::CommentsController < ApplicationController
   private
 
   def update_params
-    params.require(:comment).permit(:body).merge(commenter: @current_user)
+    params.require(:comment).permit(:body).merge(commenter: pundit_user)
   end
 
   def set_comment
-    @comment = @current_user.authored_comments.find_by(id: params[:id])
+    @comment = pundit_user.authored_comments.find_by(id: params[:id])
   end
 end

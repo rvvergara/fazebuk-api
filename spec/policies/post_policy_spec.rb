@@ -3,8 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe PostPolicy, type: :policy do
-  let(:james) { create(:user, username: 'james') }
-  let(:mario) { create(:user, username: 'mario') }
+  let(:james) { create(:male_user, username: 'james') }
+  let(:mario) { create(:male_user, username: 'mario') }
   let(:post) { create(:post, author: james, postable: mario) }
 
   describe 'policy for a post update' do

@@ -4,9 +4,9 @@ require 'rails_helper'
 
 RSpec.describe 'Users::Newsfeeds', type: :request do
   describe '/v1/newsfeed_posts' do
-    let(:lydia) { create(:user, username: 'lydia') }
-    let(:emily) { create(:user, username: 'emily') }
-    let(:ariel) { create(:user, username: 'ariel') }
+    let(:lydia) { create(:female_user, username: 'lydia') }
+    let(:emily) { create(:female_user, username: 'emily') }
+    let(:ariel) { create(:male_user, username: 'ariel') }
     before do
       create(:friendship, active_friend: ariel, passive_friend: lydia, confirmed: true)
       create(:friendship, active_friend: lydia, passive_friend: emily, confirmed: true)

@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe 'Sessions', type: :request do
   describe '#create' do
-    let(:john) { create(:user, username: 'john', email: 'john@gmail.com') }
+    let(:john) { create(:male_user, username: 'john', email: 'john@gmail.com') }
     context 'correct credentials' do
       before do
         post '/v1/sessions', params: {

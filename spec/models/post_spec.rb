@@ -4,8 +4,8 @@ require 'rails_helper'
 
 RSpec.describe Post, type: :model do
   describe 'validation' do
-    let(:charlie) { create(:user, username: 'charlie') }
-    let(:kyle) { create(:user, username: 'kyle') }
+    let(:charlie) { create(:male_user, username: 'charlie') }
+    let(:kyle) { create(:male_user, username: 'kyle') }
     let(:post) { build(:post, author: charlie, postable: kyle) }
 
     context 'content present in post' do

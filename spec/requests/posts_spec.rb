@@ -4,8 +4,8 @@ require 'rails_helper'
 
 RSpec.describe 'Posts', type: :request do
   describe 'POST /v1/posts' do
-    let(:cleo) { create(:user, username: 'cleo') }
-    let(:julius) { create(:user, username: 'julius') }
+    let(:cleo) { create(:female_user, username: 'cleo') }
+    let(:julius) { create(:male_user, username: 'julius') }
 
     before do
       login_as(julius)
@@ -66,8 +66,8 @@ RSpec.describe 'Posts', type: :request do
   end
 
   describe 'PUT /v1/posts/:id' do
-    let(:ragnar) { create(:user, username: 'ragnar') }
-    let(:bjorn) { create(:user, username: 'bjorn') }
+    let(:ragnar) { create(:male_user, username: 'ragnar') }
+    let(:bjorn) { create(:male_user, username: 'bjorn') }
 
     before do
       @post = create(:post, author: ragnar, postable: bjorn)
@@ -146,8 +146,8 @@ RSpec.describe 'Posts', type: :request do
   end
 
   describe 'DELETE /v1/posts/:id' do
-    let(:harvey) { create(:user) }
-    let(:louis) { create(:user) }
+    let(:harvey) { create(:male_user) }
+    let(:louis) { create(:male_user) }
 
     before do
       login_as(harvey)

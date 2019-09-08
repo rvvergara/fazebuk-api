@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe User, type: :model do
   describe 'validations' do
-    let(:mike) { build(:user, first_name: 'Mike') }
+    let(:mike) { build(:male_user, first_name: 'Mike') }
     context 'complete basic info' do
       it 'is valid' do
         expect(mike).to be_valid
@@ -20,10 +20,10 @@ RSpec.describe User, type: :model do
   end
 
   describe 'friendship methods' do
-    let(:ryto) { create(:user, username: 'ryto') }
-    let(:mike) { create(:user, username: 'mike') }
-    let(:anna) { create(:user, username: 'anna') }
-    let(:george) { create(:user, username: 'george') }
+    let(:ryto) { create(:male_user, username: 'ryto') }
+    let(:mike) { create(:male_user, username: 'mike') }
+    let(:anna) { create(:female_user, username: 'anna') }
+    let(:george) { create(:male_user, username: 'george') }
 
     before do
       create(:friendship, active_friend_id: ryto.id, passive_friend_id: mike.id, confirmed: true)
@@ -90,9 +90,9 @@ RSpec.describe User, type: :model do
   end
 
   describe 'posts related methods' do
-    let(:archer) { create(:user, username: 'archer') }
-    let(:william) { create(:user, username: 'william') }
-    let(:austin) { create(:user, username: 'austin') }
+    let(:archer) { create(:male_user, username: 'archer') }
+    let(:william) { create(:male_user, username: 'william') }
+    let(:austin) { create(:male_user, username: 'austin') }
 
     before do
       create(:friendship, active_friend: archer, passive_friend: austin, confirmed: true)

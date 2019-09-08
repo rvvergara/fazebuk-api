@@ -100,6 +100,7 @@ class User < ApplicationRecord
   def newsfeed_posts
     feed_ids = friends.ids.concat([id])
     Post
+      .order_created
       .where('author_id IN (:feed_ids) OR postable_id IN (:feed_ids)',
              feed_ids: feed_ids)
   end

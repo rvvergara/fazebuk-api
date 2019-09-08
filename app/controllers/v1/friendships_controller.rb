@@ -33,7 +33,7 @@ class V1::FriendshipsController < ApplicationController
   private
 
   def find_friendship
-    friendship = Friendship.find_by(id: params[:id])
+    friendship = Friendship.order_created.find_by(id: params[:id])
     if friendship
       authorize friendship
       return friendship

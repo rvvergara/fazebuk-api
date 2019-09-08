@@ -1,12 +1,11 @@
 # frozen_string_literal: true
 
 class V1::FriendshipsController < ApplicationController
-  before_action :pundit_user
   before_action :find_friendship, only: %i[update destroy]
 
   def create
     @passive_friend = User.find_by(username: params[:friend_requested])
-    @friendship = @current_user.active_friendships.build(passive_friend: @passive_friend)
+    @friendship = pundit_user.active_friendships.build(passive_friend: @passive_friend)
 
     if @friendship.save
       render :create, status: :ok
@@ -25,7 +24,7 @@ class V1::FriendshipsController < ApplicationController
     if @friendship.confirmed
       render json: { message: 'Friendship deleted' }, status: :accepted
     else
-      message = @friendship.active_friend == @current_user ? 'Cancelled friend request' : 'Rejected friend request'
+      message = @friendship.active_friend == pundit_user ? 'Cancelled friend request' : 'Rejected friend request'
       render json: { message: message }, status: :accepted
     end
   end

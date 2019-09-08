@@ -1,13 +1,12 @@
 # frozen_string_literal: true
 
 class V1::PostsController < ApplicationController
-  before_action :pundit_user
   before_action :set_postable, except: [:destroy]
   before_action :set_post, except: [:create]
 
   def create
     set_postable
-    @post = @current_user.authored_posts.build(post_params)
+    @post = pundit_user.authored_posts.build(post_params)
     if @post.save
       render :create, status: :created
     else
@@ -54,7 +53,7 @@ class V1::PostsController < ApplicationController
   end
 
   def set_post
-    post = @current_user.authored_posts.find_by(id: params[:id])
+    post = pundit_user.authored_posts.find_by(id: params[:id])
 
     render_error('Post does not exist', 404) unless post
 

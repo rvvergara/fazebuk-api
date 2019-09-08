@@ -12,4 +12,8 @@ class Pagination
   def self.max_page(count, records_per_page)
     (count / records_per_page.to_f).ceil
   end
+
+  def self.offset(page, per_page)
+    (page.to_i - 1) * per_page
+  end
 end

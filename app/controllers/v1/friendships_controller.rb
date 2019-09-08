@@ -4,13 +4,13 @@ class V1::FriendshipsController < ApplicationController
   before_action :find_friendship, only: %i[update destroy]
 
   def create
-    @passive_friend = User.find_by(username: params[:friend_requested])
-    @friendship = pundit_user.active_friendships.build(passive_friend: @passive_friend)
+    passive_friend = User.find_by(username: params[:friend_requested])
+    friendship = pundit_user.active_friendships.build(passive_friend: passive_friend)
 
-    if @friendship.save
-      render :create, status: :ok
+    if friendship.save
+      render :create, locals: { passive_friend: passive_friend }, status: :ok
     else
-      render json: { message: 'Cannot send request', errors: @friendship.errors }
+      render json: { message: 'Cannot send request', errors: friendship.errors }
     end
   end
 

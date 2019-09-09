@@ -59,8 +59,8 @@ RSpec.describe 'Posts', type: :request do
              } }
 
         json_response = JSON.parse(response.body)
-        expect(response).to have_http_status(404)
-        expect(json_response['message']).to eq('User does not exist')
+        expect(response).to have_http_status(422)
+        expect(json_response['errors']['postable']).to include('must exist')
       end
     end
   end
@@ -122,8 +122,8 @@ RSpec.describe 'Posts', type: :request do
                 }
               }
           json_response = JSON.parse(response.body)
-          expect(response).to have_http_status(404)
-          expect(json_response['message']).to match('User does not exist')
+          expect(response).to have_http_status(422)
+          expect(json_response['errors']['postable']).to include('must exist')
         end
       end
 
@@ -139,7 +139,7 @@ RSpec.describe 'Posts', type: :request do
               }
           json_response = JSON.parse(response.body)
           expect(response).to have_http_status(404)
-          expect(json_response['message']).to match('User does not exist')
+          expect(json_response['message']).to match('Post does not exist')
         end
       end
     end

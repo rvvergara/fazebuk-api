@@ -1,11 +1,9 @@
 # frozen_string_literal: true
 
 class V1::PostsController < ApplicationController
-  before_action :set_postable, except: [:destroy]
   before_action :set_post, except: [:create]
 
   def create
-    set_postable
     post = pundit_user.authored_posts.build(post_params)
     if post.save
       render :create, locals: { post: post }, status: :created
@@ -15,10 +13,9 @@ class V1::PostsController < ApplicationController
   end
 
   def update
-    set_postable
     post = set_post
     post.postable_param = post_params[:postable]
-    authorize post
+    authorize post unless post.postable_param.nil?
 
     if post.update(post_params)
       render :update, locals: { post: post }, status: :accepted
@@ -41,11 +38,7 @@ class V1::PostsController < ApplicationController
   end
 
   def set_postable
-    postable = User.find_by(username: params[:post][:postable])
-
-    render_error('User does not exist', 404) unless postable
-
-    postable
+    User.find_by(username: params[:post][:postable])
   end
 
   def post_params

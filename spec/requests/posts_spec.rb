@@ -20,7 +20,7 @@ RSpec.describe 'Posts', type: :request do
         json_response = JSON.parse(response.body)
         expect(response).to have_http_status(:ok)
         expect(json_response.keys).to match(
-          %w[id content created_at updated_at author author_url posted_to postable_url]
+          %w[id content created_at updated_at author posted_to comments]
         )
         expect(json_response['content']).to match(@post.content)
       end
@@ -60,9 +60,9 @@ RSpec.describe 'Posts', type: :request do
           json_response = JSON.parse(response.body)
           expect(response).to have_http_status(:created)
           expect(json_response.keys)
-            .to match(%w[id content created_at updated_at author author_url posted_to postable_url])
+            .to match(%w[id content created_at updated_at author posted_to comments])
           expect(json_response['content']).to eq(content)
-          expect(json_response['posted_to']).to eq(cleo.username)
+          expect(json_response['posted_to']['username']).to eq(cleo.username)
         end
       end
 
@@ -123,9 +123,9 @@ RSpec.describe 'Posts', type: :request do
           json_response = JSON.parse(response.body)
           expect(response).to have_http_status(:accepted)
           expect(json_response.keys)
-            .to match(%w[id content created_at updated_at author author_url posted_to postable_url])
+            .to match(%w[id content created_at updated_at author posted_to comments])
           expect(json_response['content']).to eq(content)
-          expect(json_response['posted_to']).to eq(bjorn.username)
+          expect(json_response['posted_to']['username']).to eq(bjorn.username)
         end
       end
 

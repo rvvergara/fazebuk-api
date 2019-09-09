@@ -2,6 +2,7 @@
 
 class V1::UsersController < ApplicationController
   before_action :pundit_user, except: [:create]
+
   def show
     user = User.find_by(username: params[:username])
     if user

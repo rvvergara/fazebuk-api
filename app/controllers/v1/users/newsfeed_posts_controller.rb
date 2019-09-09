@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class V1::Users::NewsfeedPostsController < ApplicationController
+  before_action :pundit_user
+
   def index
     page = set_page
     records_per_page = 10

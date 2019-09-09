@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class V1::PostsController < ApplicationController
+  before_action :pundit_user
+
   def show
     post = Post.find_by(id: params[:id])
 

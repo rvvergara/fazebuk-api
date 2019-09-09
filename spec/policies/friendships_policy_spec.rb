@@ -3,8 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe FriendshipPolicy, type: :policy do
-  let(:kurt) { create(:user, username: 'kurt') }
-  let(:mary) { create(:user, username: 'mary') }
+  let(:kurt) { create(:male_user, username: 'kurt') }
+  let(:mary) { create(:female_user, username: 'mary') }
   let(:friendship) { create(:friendship, active_friend: kurt, passive_friend: mary) }
 
   context 'policy for actions for a friend request receiver' do

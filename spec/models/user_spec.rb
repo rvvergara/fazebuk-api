@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe User, type: :model do
   describe 'validations' do
-    let(:mike) { build(:user, first_name: 'Mike') }
+    let(:mike) { build(:male_user, first_name: 'Mike') }
     context 'complete basic info' do
       it 'is valid' do
         expect(mike).to be_valid
@@ -20,10 +20,10 @@ RSpec.describe User, type: :model do
   end
 
   describe 'friendship methods' do
-    let(:ryto) { create(:user, username: 'ryto') }
-    let(:mike) { create(:user, username: 'mike') }
-    let(:anna) { create(:user, username: 'anna') }
-    let(:george) { create(:user, username: 'george') }
+    let(:ryto) { create(:male_user, username: 'ryto') }
+    let(:mike) { create(:male_user, username: 'mike') }
+    let(:anna) { create(:female_user, username: 'anna') }
+    let(:george) { create(:male_user, username: 'george') }
 
     before do
       create(:friendship, active_friend_id: ryto.id, passive_friend_id: mike.id, confirmed: true)
@@ -55,7 +55,7 @@ RSpec.describe User, type: :model do
 
     describe "ryto's #mutual_friends_with(anna)" do
       it 'includes george' do
-        expect(ryto.mutual_friends_with(anna, 1, 10)).to include(george)
+        expect(ryto.paginated_mutual_friends_with(anna, 1, 10)).to include(george)
       end
     end
 
@@ -86,6 +86,67 @@ RSpec.describe User, type: :model do
           .dependent(:destroy)
           .with_foreign_key(:passive_friend_id)
       }
+    end
+  end
+
+  describe 'posts related methods' do
+    let(:archer) { create(:male_user, username: 'archer') }
+    let(:william) { create(:male_user, username: 'william') }
+    let(:austin) { create(:male_user, username: 'austin') }
+
+    before do
+      create(:friendship, active_friend: archer, passive_friend: austin, confirmed: true)
+      create(:friendship, active_friend: william, passive_friend: archer, confirmed: true)
+      create(:friendship, active_friend: austin, passive_friend: william, confirmed: true)
+      @post1 = create(:post, author: archer, postable: austin)
+      @post2 = create(:post, postable: archer, author: william)
+      @post3 = create(:post, author: william, postable: austin)
+      @post4 = create(:post, author: austin, postable: william)
+    end
+
+    describe '#authored_posts and #received_posts' do
+      it {
+        should have_many(:authored_posts)
+          .with_foreign_key(:author_id)
+          .dependent(:destroy)
+      }
+      it {
+        should have_many(:received_posts)
+          .with_foreign_key(:postable_id)
+          .dependent(:destroy)
+      }
+    end
+
+    describe '#paginated_timeline_posts' do
+      context 'posts per page is 2 and on page 1' do
+        it 'shows post1 and post2' do
+          expect(archer.paginated_timeline_posts(1, 2)).to include(@post1)
+          expect(archer.paginated_timeline_posts(1, 2)).to include(@post2)
+        end
+      end
+      context 'posts per page' do
+        it 'shows an empty collection' do
+          expect(archer.paginated_timeline_posts(2, 2).empty?).to be(true)
+        end
+      end
+    end
+
+    describe '#paginated_newsfeed_posts' do
+      context 'page 1 of newsfeed' do
+        it 'shows @posts 4 and 3' do
+          page1_posts = archer.paginated_newsfeed_posts(1, 2)
+          expect(page1_posts[0].content).to eq(@post4.content)
+          expect(page1_posts[1].content).to eq(@post3.content)
+        end
+      end
+
+      context 'page 2 of newsfeed' do
+        it 'shows posts 2 and 1' do
+          page2_posts = archer.paginated_newsfeed_posts(2, 2)
+          expect(page2_posts[0].content).to eq(@post2.content)
+          expect(page2_posts[1].content).to eq(@post1.content)
+        end
+      end
     end
   end
 end

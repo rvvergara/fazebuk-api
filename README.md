@@ -126,10 +126,11 @@ $ http POST :3000/v1/sessions email=johnny_bravo@email.com password=password
 
 5. Signing in a user through Facebook/User creation (if user doesn't exist yet)
 
-````bash
+```bash
 # for this to work we should have a Facebook access_token
 $ http GET :3000/v1/auth/facebook?access_token=<facebook access token here>
 ### Friendship endpoints
+```
 
 6. Sending a friend request
 
@@ -137,7 +138,7 @@ $ http GET :3000/v1/auth/facebook?access_token=<facebook access token here>
 # assuming you are logged in and has a token generated from signing in
 # assuming username of user to send request to is 'mildred'
 $ http POST :3000/v1/friendships?friend_requested=mildred "Authorization: Bearer <your user token here>"
-````
+```
 
 7. Cancelling a friend request
 
@@ -179,6 +180,48 @@ $ http GET :3000/v1/users/<username of user>/friends?page=2 "Authorization: Bear
 # mutual friends are listed 10 per page. you can either specify page=1
 # but to check succeeding mutual friends you must specify which page
 $ http GET :3000/v1/users/mildred/mutual_friends?page=<page you wanna see> "Authorization: Bearer <your token here>"
+```
+
+12. Viewing your newsfeed posts
+
+```bash
+# assuming you are logged on and have a token
+# if page param isn't included then request will go to page 1
+$ http GET :3000/v1/newsfeed_posts?page=<which page you wish to view> "Authorization: Bearer <your token>"
+```
+
+13. Viewing a user's timeline posts
+
+```bash
+# assuming you are logged on and have a token
+# assuming you want to see timeline posts of rachel
+# if page param isnt included then response will default to page 1
+$ http GET :3000/v1/users/rachel/timeline_posts?page=<page to view> "Authorization: Bearer <your token>"
+```
+
+14. Posting on your or another user's timeline
+
+```bash
+# assuming you're logged on and have a token
+# assuming you are posting on kobe's timeline
+$ http POST :3000/v1/posts post:='{"postable"="kobe", "content":"Nice shot!"}' "Authorization: Bearer <your token>"
+# in the frontend if you wish to post on your newsfeed just input above your own username in the postable param
+```
+
+15. Updating your post
+
+```bash
+# assuming you are logged on and have a token
+# assuming you posted on jill's timeline and you are updating that post
+$ http PUT :3000/v1/posts/<id of post> post:='{"postable": "jill", "content": "This is an updated content"}' "Authorization: Bearer <your token here>"
+```
+
+16. Deleting your post
+
+```bash
+# assuming you are logged on and have a token
+# assuming you are the owner of the post (if not the response will be an error)
+$ http DELETE :3000/v1/posts/<id of post to be deleted> "Authorization: Bearer <your token>"
 ```
 
 ## Maintainer

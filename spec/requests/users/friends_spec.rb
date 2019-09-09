@@ -3,9 +3,9 @@
 require 'rails_helper'
 
 RSpec.describe 'Users::Friends', type: :request do
-  let(:harry) { create(:user, username: 'harry') }
-  let(:hermione) { create(:user, username: 'hermione') }
-  let(:goku) { create(:user, username: 'goku') }
+  let(:harry) { create(:male_user, username: 'harry') }
+  let(:hermione) { create(:female_user, username: 'hermione') }
+  let(:goku) { create(:male_user, username: 'goku') }
 
   describe 'GET /v1/users/:user_username/friends' do
     before do
@@ -18,8 +18,8 @@ RSpec.describe 'Users::Friends', type: :request do
         login_as(goku)
         get "/v1/users/#{goku.username}/friends",
             headers: { "Authorization": "Bearer #{user_token}" }
-
-        expect(JSON.parse(response.body).size).to be(2)
+        json_response = JSON.parse(response.body)
+        expect(json_response['friends'].size).to be(2)
         expect(response).to have_http_status(:ok)
       end
     end

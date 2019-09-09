@@ -3,8 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe Friendship, type: :model do
-  let(:ryto) { create(:user, username: 'ryto') }
-  let(:james) { create(:user, username: 'james') }
+  let(:ryto) { create(:male_user, username: 'ryto') }
+  let(:james) { create(:male_user, username: 'james') }
 
   before do
     @friendship = create(:friendship, active_friend: ryto, passive_friend: james)

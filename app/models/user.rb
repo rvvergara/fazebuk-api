@@ -6,13 +6,17 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
 
-  default_scope { order(created_at: :asc) }
+  scope :order_created, -> { order(created_at: :asc) }
 
   validates :first_name, :last_name, :username, presence: true
   validates :username, uniqueness: true
 
+  before_validation :downcase
+
   has_many :active_friendships, foreign_key: :active_friend_id, dependent: :destroy, class_name: 'Friendship'
   has_many :passive_friendships, foreign_key: :passive_friend_id, dependent: :destroy, class_name: 'Friendship'
+  has_many :received_posts, foreign_key: :postable_id, dependent: :destroy, class_name: 'Post'
+  has_many :authored_posts, foreign_key: :author_id, dependent: :destroy, class_name: 'Post'
 
   def self.find_or_create_with_facebook(token)
     graph = Koala::Facebook::API.new(token)
@@ -36,39 +40,83 @@ class User < ApplicationRecord
     }
   end
 
+  # Friendship related methods
   def friends
-    User.where(id: active_friendships.where(confirmed: true).pluck(:passive_friend_id))
-      .or(User.where(id: passive_friendships.where(confirmed: true).pluck(:active_friend_id)))
+    User
+      .order_created
+      .where(id: active_friendships.where(confirmed: true).pluck(:passive_friend_id))
+      .or(User.order_created.where(id: passive_friendships.where(confirmed: true).pluck(:active_friend_id)))
   end
 
   def pending_received_requests_from
-    User.where(
-      id: passive_friendships
-        .where(confirmed: false)
-        .pluck(:active_friend_id)
-    )
+    User
+      .order_created
+      .where(
+        id: passive_friendships
+          .where(confirmed: false)
+          .pluck(:active_friend_id)
+      )
   end
 
   def pending_sent_requests_to
-    User.where(
-      id: active_friendships
-        .where(confirmed: false)
-        .pluck(:passive_friend_id)
-    )
+    User
+      .order_created
+      .where(
+        id: active_friendships
+          .where(confirmed: false)
+          .pluck(:passive_friend_id)
+      )
   end
 
-  def mutual_friends_with(other_user, page, per_page)
-    offset = (page.to_i - 1) * per_page
+  def mutual_friends_with(other_user)
     friends
       .where(id: other_user.friends
           .pluck(:id))
-      .limit(per_page).offset(offset)
+  end
+
+  def paginated_mutual_friends_with(other_user, page, per_page)
+    mutual_friends_with(other_user)
+      .limit(per_page)
+      .offset(Pagination.offset(page, per_page))
   end
 
   def paginated_friends(page, per_page)
-    offset = (page.to_i - 1) * per_page
     friends
       .limit(per_page)
-      .offset(offset)
+      .offset(Pagination.offset(page, per_page))
+  end
+
+  # Post related methods
+  # posts shown on a user's page/timeline/profile
+  def timeline_posts
+    authored_posts.or(received_posts)
+  end
+
+  def paginated_timeline_posts(page, per_page)
+    timeline_posts
+      .limit(per_page)
+      .offset(Pagination.offset(page, per_page))
+  end
+
+  # posts shown on the newsfeed
+  def newsfeed_posts
+    feed_ids = friends.ids.concat([id])
+    Post
+      .order_created
+      .where('author_id IN (:feed_ids) OR postable_id IN (:feed_ids)',
+             feed_ids: feed_ids)
+  end
+
+  def paginated_newsfeed_posts(page, per_page)
+    newsfeed_posts
+      .limit(per_page)
+      .offset(Pagination.offset(page, per_page))
+  end
+
+  private
+
+  def downcase
+    username.downcase!
+    email.downcase!
   end
 end

@@ -3,9 +3,9 @@
 require 'rails_helper'
 
 RSpec.describe 'Friendships', type: :request do
-  let(:harry) { create(:user, username: 'harry') }
-  let(:hermione) { create(:user, username: 'hermione') }
-  let(:goku) { create(:user, username: 'goku') }
+  let(:harry) { create(:male_user, username: 'harry') }
+  let(:hermione) { create(:female_user, username: 'hermione') }
+  let(:goku) { create(:male_user, username: 'goku') }
 
   describe 'POST /v1/friendships?friend_requested=:username' do
     context 'harry adds hermione as friend' do

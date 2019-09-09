@@ -40,8 +40,8 @@ RSpec.describe 'Comments', type: :request do
 
           json_response = JSON.parse(response.body)
           expect(response).to have_http_status(:created)
-          expect(json_response.keys).to match(%w[id commenter commenter_url body created_at updated_at])
-          expect(json_response['commenter']).to eq(dominic.username)
+          expect(json_response.keys).to match(%w[id commenter body created_at updated_at replies])
+          expect(json_response['commenter']['username']).to eq(dominic.username)
         end
       end
 
@@ -101,8 +101,8 @@ RSpec.describe 'Comments', type: :request do
 
           json_response = JSON.parse(response.body)
           expect(response).to have_http_status(:created)
-          expect(json_response.keys).to match(%w[id commenter commenter_url body created_at updated_at])
-          expect(json_response['commenter']).to eq(laura.username)
+          expect(json_response.keys).to match(%w[id commenter body created_at updated_at])
+          expect(json_response['commenter']['username']).to eq(laura.username)
         end
       end
 
@@ -168,7 +168,7 @@ RSpec.describe 'Comments', type: :request do
               json_response = JSON.parse(response.body)
               expect(response).to have_http_status(:accepted)
               expect(json_response['id']).to eq(@comment.id)
-              expect(json_response['commenter']).to eq(dominic.username)
+              expect(json_response['commenter']['username']).to eq(dominic.username)
             end
           end
 
@@ -225,7 +225,7 @@ RSpec.describe 'Comments', type: :request do
               json_response = JSON.parse(response.body)
               expect(response).to have_http_status(:accepted)
               expect(json_response['id']).to eq(@reply.id)
-              expect(json_response['commenter']).to eq(laura.username)
+              expect(json_response['commenter']['username']).to eq(laura.username)
             end
           end
 

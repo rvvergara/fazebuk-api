@@ -11,6 +11,8 @@ class User < ApplicationRecord
   validates :first_name, :last_name, :username, presence: true
   validates :username, uniqueness: true
 
+  before_validation :downcase
+
   has_many :active_friendships, foreign_key: :active_friend_id, dependent: :destroy, class_name: 'Friendship'
   has_many :passive_friendships, foreign_key: :passive_friend_id, dependent: :destroy, class_name: 'Friendship'
   has_many :received_posts, foreign_key: :postable_id, dependent: :destroy, class_name: 'Post'
@@ -109,5 +111,12 @@ class User < ApplicationRecord
     newsfeed_posts
       .limit(per_page)
       .offset(Pagination.offset(page, per_page))
+  end
+
+  private
+
+  def downcase
+    username.downcase!
+    email.downcase!
   end
 end

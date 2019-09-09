@@ -14,4 +14,9 @@ json.posted_to do
 end
 json.comments do
   json.count post.comments.count
+  json.list do
+    json.array! post.comments do |comment|
+      json.partial! '/v1/shared/comment', comment: comment
+    end
+  end
 end

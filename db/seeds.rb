@@ -96,6 +96,18 @@ end
   )
 end
 
+# Set comments on ryto's authored posts
+ryto.authored_posts.each_with_index do |post, index|
+  comment = post.comments.create(
+    commenter: post.postable,
+    body: Faker::Lorem.paragraph(sentence_count: 2)
+  )
+  reply = comment.replies.create(
+    commenter: ryto.friends[index],
+    body: Faker::Lorem.paragraph(sentence_count: 2)
+  )
+end
+
 # Set authored and received posts for mike
 5.times do |n|
   FactoryBot.create(
@@ -110,6 +122,18 @@ end
     :post,
     author: mike.friends[n + 4],
     postable: mike
+  )
+end
+
+# Set comments on mike's received posts
+mike.received_posts.each_with_index do |post, index|
+  comment = post.comments.create(
+    commenter: mike,
+    body: Faker::Lorem.paragraph(sentence_count: 2)
+  )
+  reply = comment.replies.create(
+    commenter: mike.friends[index],
+    body: Faker::Lorem.paragraph(sentence_count: 2)
   )
 end
 

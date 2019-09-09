@@ -18,7 +18,7 @@ Rails.application.routes.draw do
     
     resources :newsfeed_posts, only: [:index], module: :users
     
-    resources :posts, only: [:create, :update, :destroy] do
+    resources :posts, only: [:show, :create, :update, :destroy] do
       resources :comments, module: :posts, only: [:create]
     end
     

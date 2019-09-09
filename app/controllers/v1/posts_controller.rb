@@ -1,6 +1,16 @@
 # frozen_string_literal: true
 
 class V1::PostsController < ApplicationController
+  def show
+    post = Post.find_by(id: params[:id])
+
+    if post
+      render :show, locals: { post: post }, status: :ok
+    else
+      render_error('Post does not exist', 404)
+    end
+  end
+
   def create
     post = pundit_user.authored_posts.build(post_params)
     if post.save

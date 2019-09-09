@@ -3,6 +3,41 @@
 require 'rails_helper'
 
 RSpec.describe 'Posts', type: :request do
+  describe 'GET /v1/posts/:id' do
+    let(:colt) { create(:male_user, username: 'colt') }
+    let(:andrew) { create(:male_user, username: 'andrew') }
+
+    before do
+      @post = create(:post, author: colt, postable: andrew)
+      login_as(andrew)
+    end
+
+    context 'visiting an existing post' do
+      it 'sends the post as json response' do
+        get "/v1/posts/#{@post.id}",
+            headers: { "Authorization": "Bearer #{user_token}" }
+
+        json_response = JSON.parse(response.body)
+        expect(response).to have_http_status(:ok)
+        expect(json_response.keys).to match(
+          %w[id content created_at updated_at author posted_to comments]
+        )
+        expect(json_response['content']).to match(@post.content)
+      end
+    end
+
+    context 'visiting a post that does not exist' do
+      it 'sends an error json response' do
+        get '/v1/posts/someIdOfNonExistentPost',
+            headers: { "Authorization": "Bearer #{user_token}" }
+
+        json_response = JSON.parse(response.body)
+        expect(response).to have_http_status(404)
+        expect(json_response['message']).to match('Post does not exist')
+      end
+    end
+  end
+
   describe 'POST /v1/posts' do
     let(:cleo) { create(:female_user, username: 'cleo') }
     let(:julius) { create(:male_user, username: 'julius') }
@@ -25,9 +60,9 @@ RSpec.describe 'Posts', type: :request do
           json_response = JSON.parse(response.body)
           expect(response).to have_http_status(:created)
           expect(json_response.keys)
-            .to match(%w[id content created_at updated_at author author_url posted_to postable_url])
+            .to match(%w[id content created_at updated_at author posted_to comments])
           expect(json_response['content']).to eq(content)
-          expect(json_response['posted_to']).to eq(cleo.username)
+          expect(json_response['posted_to']['username']).to eq(cleo.username)
         end
       end
 
@@ -59,8 +94,8 @@ RSpec.describe 'Posts', type: :request do
              } }
 
         json_response = JSON.parse(response.body)
-        expect(response).to have_http_status(404)
-        expect(json_response['message']).to eq('User does not exist')
+        expect(response).to have_http_status(422)
+        expect(json_response['errors']['postable']).to include('must exist')
       end
     end
   end
@@ -88,9 +123,9 @@ RSpec.describe 'Posts', type: :request do
           json_response = JSON.parse(response.body)
           expect(response).to have_http_status(:accepted)
           expect(json_response.keys)
-            .to match(%w[id content created_at updated_at author author_url posted_to postable_url])
+            .to match(%w[id content created_at updated_at author posted_to comments])
           expect(json_response['content']).to eq(content)
-          expect(json_response['posted_to']).to eq(bjorn.username)
+          expect(json_response['posted_to']['username']).to eq(bjorn.username)
         end
       end
 
@@ -122,8 +157,8 @@ RSpec.describe 'Posts', type: :request do
                 }
               }
           json_response = JSON.parse(response.body)
-          expect(response).to have_http_status(404)
-          expect(json_response['message']).to match('User does not exist')
+          expect(response).to have_http_status(422)
+          expect(json_response['errors']['postable']).to include('must exist')
         end
       end
 
@@ -139,7 +174,7 @@ RSpec.describe 'Posts', type: :request do
               }
           json_response = JSON.parse(response.body)
           expect(response).to have_http_status(404)
-          expect(json_response['message']).to match('User does not exist')
+          expect(json_response['message']).to match('Post does not exist')
         end
       end
     end

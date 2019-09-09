@@ -24,7 +24,7 @@ RSpec.describe 'Users::TimelinePosts', type: :request do
           .map(&:keys).uniq.first
         expect(json_response['timeline_posts'].count).to be(2)
         expect(timeline_posts_keys)
-          .to match(%w[id content created_at updated_at author author_url posted_to postable_url])
+          .to match(%w[id content created_at updated_at author posted_to comments])
       end
 
       context 'user does not exist' do

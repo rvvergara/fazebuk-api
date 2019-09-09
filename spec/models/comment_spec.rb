@@ -4,8 +4,8 @@ require 'rails_helper'
 
 RSpec.describe Comment, type: :model do
   describe 'validations' do
-    let(:marge) { create(:female_user) }
-    let(:rolo) { create(:male_user) }
+    let(:marge) { create(:female_user, username: 'marge') }
+    let(:rolo) { create(:male_user, username: 'rolo') }
     let(:post) { create(:post, author: marge, postable: rolo) }
     let(:comment) { build(:post_comment, commenter: rolo, commentable: post) }
 

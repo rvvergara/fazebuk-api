@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class V1::FriendshipsController < ApplicationController
+  before_action :pundit_user
+
   def create
     passive_friend = User.find_by(username: params[:friend_requested])
     friendship = pundit_user.active_friendships.build(passive_friend: passive_friend)

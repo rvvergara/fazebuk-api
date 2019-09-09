@@ -6,7 +6,7 @@ class V1::Comments::RepliesController < V1::CommentsController
   private
 
   def set_commentable
-    @commentable = Comment.find_by(id: params[:comment_id])
+    Comment.find_by(id: params[:comment_id])
   end
 
   def comment_params
@@ -16,6 +16,6 @@ class V1::Comments::RepliesController < V1::CommentsController
   end
 
   def build_comment
-    @commentable.replies.build(comment_params)
+    set_commentable.replies.build(comment_params)
   end
 end

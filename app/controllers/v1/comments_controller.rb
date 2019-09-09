@@ -2,15 +2,14 @@
 
 class V1::CommentsController < ApplicationController
   before_action :pundit_user
-  before_action :set_comment, except: [:create]
 
   def create
-    if @commentable
-      @comment = build_comment
-      if @comment.save
-        render :create, status: :created
+    if set_commentable
+      comment = build_comment
+      if comment.save
+        render :create, locals: { comment: comment }, status: :created
       else
-        render json: { message: 'Cannot create comment', errors: @comment.errors }, status: :unprocessable_entity
+        render json: { message: 'Cannot create comment', errors: comment.errors }, status: :unprocessable_entity
       end
     else
       commentable_type = params[:post_id] ? 'post' : 'comment'
@@ -19,11 +18,12 @@ class V1::CommentsController < ApplicationController
   end
 
   def update
-    if @comment
-      if @comment.update(update_params)
-        render :update, status: :accepted
+    comment = set_comment
+    if comment
+      if comment.update(update_params)
+        render :update, locals: { comment: comment }, status: :accepted
       else
-        render json: { message: 'Cannot update comment', errors: @comment.errors }, status: :unprocessable_entity
+        render json: { message: 'Cannot update comment', errors: comment.errors }, status: :unprocessable_entity
       end
     else
       render json: { message: 'Cannot find comment' }, status: 404
@@ -31,8 +31,9 @@ class V1::CommentsController < ApplicationController
   end
 
   def destroy
-    if @comment
-      @comment.destroy
+    comment = set_comment
+    if comment
+      comment.destroy
       render json: { message: 'Comment deleted' }, status: :accepted
     else
       render json: { message: 'Cannot find comment' }, status: 404
@@ -46,6 +47,6 @@ class V1::CommentsController < ApplicationController
   end
 
   def set_comment
-    @comment = pundit_user.authored_comments.find_by(id: params[:id])
+    pundit_user.authored_comments.find_by(id: params[:id])
   end
 end

@@ -1,11 +1,19 @@
 # frozen_string_literal: true
 
 class V1::PostsController < ApplicationController
-  before_action :set_postable, except: [:destroy]
-  before_action :set_post, except: [:create]
+  before_action :pundit_user
+
+  def show
+    post = Post.find_by(id: params[:id])
+
+    if post
+      render :show, locals: { post: post }, status: :ok
+    else
+      render_error('Post does not exist', 404)
+    end
+  end
 
   def create
-    set_postable
     post = pundit_user.authored_posts.build(post_params)
     if post.save
       render :create, locals: { post: post }, status: :created
@@ -15,23 +23,21 @@ class V1::PostsController < ApplicationController
   end
 
   def update
-    set_postable
     post = set_post
-    post.postable_param = post_params[:postable]
-    authorize post
+    authorize_post(post)
 
-    if post.update(post_params)
+    if post&.update(post_params)
       render :update, locals: { post: post }, status: :accepted
-    else
+    elsif post
       render_error('Cannot update post', 422, post.errors)
     end
   end
 
   def destroy
     post = set_post
+    post&.destroy
 
-    post.destroy
-    render json: { message: 'Post deleted' }, status: :accepted
+    render json: { message: 'Post deleted' }, status: :accepted if post
   end
 
   private
@@ -41,11 +47,7 @@ class V1::PostsController < ApplicationController
   end
 
   def set_postable
-    postable = User.find_by(username: params[:post][:postable])
-
-    render_error('User does not exist', 404) unless postable
-
-    postable
+    User.find_by(username: params[:post][:postable])
   end
 
   def post_params
@@ -58,6 +60,13 @@ class V1::PostsController < ApplicationController
     render_error('Post does not exist', 404) unless post
 
     post
+  end
+
+  def authorize_post(post)
+    return unless post
+
+    post.postable_param = post_params[:postable] if post
+    authorize post if post.postable_param
   end
 
   def render_error(message, err_status, error_data = nil)

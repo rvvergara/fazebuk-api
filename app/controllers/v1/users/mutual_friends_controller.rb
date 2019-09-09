@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class V1::Users::MutualFriendsController < ApplicationController
+  before_action :pundit_user
+
   def index
     page = set_page
     user = User.find_by(username: params[:user_username])

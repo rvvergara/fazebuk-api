@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class V1::PostsController < ApplicationController
-  before_action :set_post, except: [:create]
-
   def create
     post = pundit_user.authored_posts.build(post_params)
     if post.save
@@ -14,21 +12,20 @@ class V1::PostsController < ApplicationController
 
   def update
     post = set_post
-    post.postable_param = post_params[:postable]
-    authorize post unless post.postable_param.nil?
+    authorize_post(post)
 
-    if post.update(post_params)
+    if post&.update(post_params)
       render :update, locals: { post: post }, status: :accepted
-    else
+    elsif post
       render_error('Cannot update post', 422, post.errors)
     end
   end
 
   def destroy
     post = set_post
+    post&.destroy
 
-    post.destroy
-    render json: { message: 'Post deleted' }, status: :accepted
+    render json: { message: 'Post deleted' }, status: :accepted if post
   end
 
   private
@@ -51,6 +48,13 @@ class V1::PostsController < ApplicationController
     render_error('Post does not exist', 404) unless post
 
     post
+  end
+
+  def authorize_post(post)
+    return unless post
+
+    post.postable_param = post_params[:postable] if post
+    authorize post if post.postable_param
   end
 
   def render_error(message, err_status, error_data = nil)

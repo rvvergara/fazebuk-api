@@ -88,8 +88,21 @@ class User < ApplicationRecord
       .offset(Pagination.offset(page, per_page))
   end
 
+  def existing_friendship_or_request_with?(friend)
+    !active_friendships.or(passive_friendships)
+      .where('active_friend_id=:friend_id OR passive_friend_id=:friend_id', friend_id: friend.id).empty?
+  end
+
+  def friendship_id_with(friend)
+    return unless existing_friendship_or_request_with?(friend)
+
+    active_friendships.or(passive_friendships)
+      .where('active_friend_id=:friend_id OR passive_friend_id=:friend_id', friend_id: friend.id).first.id
+  end
+
   # Post related methods
   # posts shown on a user's page/timeline/profile
+
   def timeline_posts
     authored_posts.or(received_posts)
   end

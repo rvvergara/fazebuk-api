@@ -18,6 +18,7 @@ class User < ApplicationRecord
   has_many :received_posts, foreign_key: :postable_id, dependent: :destroy, class_name: 'Post'
   has_many :authored_posts, foreign_key: :author_id, dependent: :destroy, class_name: 'Post'
   has_many :authored_comments, foreign_key: :commenter_id, dependent: :destroy, class_name: 'Comment'
+  has_many :likes, foreign_key: :liker_id, dependent: :destroy
 
   def self.find_or_create_with_facebook(token)
     graph = Koala::Facebook::API.new(token)
@@ -87,8 +88,21 @@ class User < ApplicationRecord
       .offset(Pagination.offset(page, per_page))
   end
 
+  def existing_friendship_or_request_with?(friend)
+    !active_friendships.or(passive_friendships)
+      .where('active_friend_id=:friend_id OR passive_friend_id=:friend_id', friend_id: friend.id).empty?
+  end
+
+  def friendship_id_with(friend)
+    return unless existing_friendship_or_request_with?(friend)
+
+    active_friendships.or(passive_friendships)
+      .where('active_friend_id=:friend_id OR passive_friend_id=:friend_id', friend_id: friend.id).first.id
+  end
+
   # Post related methods
   # posts shown on a user's page/timeline/profile
+
   def timeline_posts
     authored_posts.or(received_posts)
   end
@@ -112,6 +126,11 @@ class User < ApplicationRecord
     newsfeed_posts
       .limit(per_page)
       .offset(Pagination.offset(page, per_page))
+  end
+
+  # Like related methods
+  def liked?(likeable)
+    !likes.where('likeable_id=?', likeable.id).empty?
   end
 
   private

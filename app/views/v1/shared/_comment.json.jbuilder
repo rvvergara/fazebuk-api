@@ -17,3 +17,13 @@ if comment.commentable_type == 'Post'
     end
   end
 end
+json.likes do
+  json.count comment.likes.count
+  json.likers do
+    json.array! comment.likes do |like|
+      json.partial! '/v1/shared/user_short', user: like.liker
+    end
+  end
+end
+json.liked? pundit_user.liked?(comment)
+json.like_id comment.like_id(pundit_user)

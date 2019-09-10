@@ -184,3 +184,32 @@ User.where('username NOT IN (?)', %w[ryto mike anna george]).each do |user|
     postable: user
   )
 end
+
+# Seed likes in first 20 posts
+Post.limit(20).each do |post|
+  FactoryBot.create(
+    :like,
+    :for_post,
+    likeable: post,
+    liker: post.postable
+  )
+end
+
+# See likes in first 20 comments
+Comment.all.each do |comment|
+  if comment.commentable_type == 'Post'
+    FactoryBot.create(
+      :like,
+      :for_post_comment,
+      likeable: comment,
+      liker: comment.commentable.author
+    )
+  else
+    FactoryBot.create(
+      :like,
+      :for_comment_reply,
+      likeable: comment,
+      liker: comment.commentable.commenter
+    )
+  end
+end

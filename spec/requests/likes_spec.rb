@@ -1,0 +1,81 @@
+# frozen_string_literal: true
+
+require 'rails_helper'
+
+RSpec.describe 'Likes', type: :request do
+  let(:steve) { create(:male_user, username: 'steve') }
+  let(:seth) { create(:male_user, username: 'seth') }
+
+  let!(:login) do
+    login_as(seth)
+
+    @post = create(:post, author: steve, postable: seth)
+  end
+
+  describe 'POST /v1/posts/:post_id/likes' do
+    context 'post exists' do
+      it 'adds like to the database' do
+        expect do
+          post "/v1/posts/#{@post.id}/likes",
+               headers: { "Authorization": "Bearer #{user_token}" }
+        end.to change(Like, :count).by(1)
+      end
+
+      it 'sends a success json response' do
+        post "/v1/posts/#{@post.id}/likes",
+             headers: { "Authorization": "Bearer #{user_token}" }
+
+        expect(response).to have_http_status(:created)
+        expect(JSON.parse(response.body)['message']).to include('Successfully liked post')
+      end
+    end
+
+    context 'post does not exist' do
+      it 'responds with an error json' do
+        post '/v1/posts/nonExistentPostId/likes',
+             headers: { "Authorization": "Bearer #{user_token}" }
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(JSON.parse(response.body)['errors']['likeable']).to include('must exist')
+      end
+    end
+  end
+
+  describe 'POST /v1/comments/:comment_id/likes' do
+    let(:comment) { create(:post_comment, commenter: steve, commentable: @post) }
+    let(:reply) { create(:comment_reply, commenter: steve, commentable: comment) }
+
+    context 'comment exists' do
+      it 'adds like to the database' do
+        expect do
+          post "/v1/comments/#{comment.id}/likes",
+               headers: { "Authorization": "Bearer #{user_token}" }
+        end.to change(Like, :count).by(1)
+
+        expect do
+          login_as(seth)
+          post "/v1/comments/#{reply.id}/likes",
+               headers: { "Authorization": "Bearer #{user_token}" }
+        end.to change(Like, :count).by(1)
+      end
+
+      it 'sends a success JSON response' do
+        post "/v1/comments/#{comment.id}/likes",
+             headers: { "Authorization": "Bearer #{user_token}" }
+
+        expect(response).to have_http_status(:created)
+        expect(JSON.parse(response.body)['message']).to match('Successfully liked comment')
+      end
+    end
+
+    context 'comment/reply does not exist' do
+      it 'sends an error json response' do
+        post '/v1/comments/nonExistenCommentId/likes',
+             headers: { "Authorization": "Bearer #{user_token}" }
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(JSON.parse(response.body)['errors']['likeable']).to include('must exist')
+      end
+    end
+  end
+end

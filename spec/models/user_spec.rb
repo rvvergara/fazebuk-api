@@ -24,50 +24,105 @@ RSpec.describe User, type: :model do
     let(:mike) { create(:male_user, username: 'mike') }
     let(:anna) { create(:female_user, username: 'anna') }
     let(:george) { create(:male_user, username: 'george') }
-
-    before do
+    let(:douglas) { create(:male_user, username: 'douglas') }
+    let!(:ryto_mike_friendship) do
       create(:friendship, active_friend_id: ryto.id, passive_friend_id: mike.id, confirmed: true)
-
+    end
+    let!(:george_ryto_friendship) do
       create(:friendship, active_friend_id: george.id, passive_friend_id: ryto.id, confirmed: true)
-
+    end
+    let!(:anna_mike_request) do
       create(:friendship, active_friend_id: anna.id, passive_friend_id: mike.id)
-
+    end
+    let!(:anna_george_friendship) do
       create(:friendship, active_friend_id: anna.id, passive_friend_id: george.id, confirmed: true)
     end
 
-    describe "ryto's #friends" do
-      it 'includes mike and george' do
+    describe '#friends' do
+      it 'returns collection of confirmed friends' do
         expect(ryto.friends).to include(mike, george)
       end
     end
 
-    describe "anna's last #pending_sent_requests_to" do
-      it 'is mike' do
+    describe '#pending_sent_requests_to' do
+      it 'returns collection of unconfirmed requested users' do
         expect(anna.pending_sent_requests_to.last).to eq(mike)
       end
     end
 
-    describe "mike's last #pending_received_requests_from" do
-      it 'is anna' do
+    describe '#pending_received_requests_from' do
+      it 'returns collection of users whose request is unconfirmed' do
         expect(mike.pending_received_requests_from.last).to eq(anna)
       end
     end
 
-    describe "ryto's #mutual_friends_with(anna)" do
-      it 'includes george' do
-        expect(ryto.paginated_mutual_friends_with(anna, 1, 10)).to include(george)
+    describe '#mutual_friends_with' do
+      it 'returns collection of friends common with another user' do
+        expect(ryto.mutual_friends_with(anna)).to include(george)
       end
     end
 
-    describe "ryto's #paginated_friends method" do
+    describe '#paginated_friends method' do
       context 'page 1 with 2 results per page' do
-        it 'shows mike and george' do
+        it 'shows first two friends' do
           expect(ryto.paginated_friends(1, 2)).to match([mike, george])
         end
       end
       context 'page 2 with 2 results per page' do
         it 'returns an empty collection' do
           expect(ryto.paginated_friends(2, 2).size).to be(0)
+        end
+      end
+    end
+
+    describe '#existing_friendship_or_request_with?' do
+      context 'user has pending request to other user' do
+        it 'returns true' do
+          expect(anna.existing_friendship_or_request_with?(mike)).to be(true)
+        end
+      end
+
+      context 'user has pending received request from other user' do
+        it 'returns true' do
+          expect(mike.existing_friendship_or_request_with?(anna)).to be(true)
+        end
+      end
+
+      context 'user is friends with other user' do
+        it 'returns true' do
+          expect(ryto.existing_friendship_or_request_with?(mike)).to be(true)
+        end
+      end
+
+      context 'user has no pending requests nor is friends with other user' do
+        it 'returns false' do
+          expect(ryto.existing_friendship_or_request_with?(douglas)).to be(false)
+        end
+      end
+    end
+
+    describe '#friendship_id_with' do
+      context 'user has not sent to nor received friendship from user' do
+        it 'returns nil' do
+          expect(ryto.friendship_id_with(douglas)).to be(nil)
+        end
+      end
+
+      context 'user is friends with other user ' do
+        it 'returns friendship id' do
+          expect(ryto.friendship_id_with(mike)).to eq(ryto_mike_friendship.id)
+        end
+      end
+
+      context 'user has pending request from other user' do
+        it 'returns friendship_id' do
+          expect(mike.friendship_id_with(anna)).to eq(anna_mike_request.id)
+        end
+      end
+
+      context 'user has pending request to other user' do
+        it 'returns friendship id' do
+          expect(anna.friendship_id_with(mike)).to eq(anna_mike_request.id)
         end
       end
     end
@@ -96,6 +151,12 @@ RSpec.describe User, type: :model do
       it {
         should have_many(:authored_comments)
           .with_foreign_key(:commenter_id)
+          .dependent(:destroy)
+      }
+
+      it {
+        should have_many(:likes)
+          .with_foreign_key(:liker_id)
           .dependent(:destroy)
       }
     end

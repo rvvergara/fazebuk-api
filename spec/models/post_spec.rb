@@ -24,9 +24,8 @@ RSpec.describe Post, type: :model do
   end
 
   describe 'inherited #like_id' do
+    before { post.save }
     context 'user has liked the post' do
-      before { post.save }
-
       it 'returns like id' do
         like = create(:like, :for_post, likeable: post, liker: kyle)
         expect(post.like_id(kyle)).to eq(like.id)

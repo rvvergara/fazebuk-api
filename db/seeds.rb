@@ -50,31 +50,31 @@ end
 end
 
 4.times do |n|
-  ryto.active_friendships.create(passive_friend: User.find_by(username: "user#{n + 1}"), confirmed: true)
-  ryto.passive_friendships.create(active_friend: User.find_by(username: "user#{n + 5}"), confirmed: true)
-  ryto.active_friendships.create(passive_friend: User.find_by(username: "user#{n + 9}"))
-  ryto.passive_friendships.create(active_friend: User.find_by(username: "user#{n + 13}"))
+  FactoryBot.create(:friendship, :confirmed, active_friend: ryto, passive_friend: User.find_by(username: "user#{n + 1}"))
+  FactoryBot.create(:friendship, :confirmed, active_friend: User.find_by(username: "user#{n + 5}"), passive_friend: ryto)
+  FactoryBot.create(:request, active_friend: ryto, passive_friend: User.find_by(username: "user#{n + 9}"))
+  FactoryBot.create(:request, active_friend: User.find_by(username: "user#{n + 13}"), passive_friend: ryto)
 end
 
 4.times do |n|
-  mike.active_friendships.create(passive_friend: User.find_by(username: "user#{n + 5}"), confirmed: true)
-  mike.passive_friendships.create(active_friend: User.find_by(username: "user#{n + 1}"), confirmed: true)
-  mike.active_friendships.create(passive_friend: User.find_by(username: "user#{n + 13}"))
-  mike.passive_friendships.create(active_friend: User.find_by(username: "user#{n + 9}"))
+  FactoryBot.create(:friendship, :confirmed, active_friend: mike, passive_friend: User.find_by(username: "user#{n + 5}"))
+  FactoryBot.create(:friendship, :confirmed, active_friend: User.find_by(username: "user#{n + 1}"), passive_friend: mike)
+  FactoryBot.create(:request, active_friend: mike, passive_friend: User.find_by(username: "user#{n + 13}"))
+  FactoryBot.create(:request, active_friend: User.find_by(username: "user#{n + 9}"), passive_friend: mike)
 end
 
 4.times do |n|
-  anna.active_friendships.create(passive_friend: User.find_by(username: "user#{n + 9}"), confirmed: true)
-  anna.passive_friendships.create(active_friend: User.find_by(username: "user#{n + 13}"), confirmed: true)
-  anna.active_friendships.create(passive_friend: User.find_by(username: "user#{n + 1}"))
-  anna.passive_friendships.create(active_friend: User.find_by(username: "user#{n + 5}"))
+  FactoryBot.create(:friendship, :confirmed, active_friend: anna, passive_friend: User.find_by(username: "user#{n + 9}"))
+  FactoryBot.create(:friendship, :confirmed, active_friend: User.find_by(username: "user#{n + 13}"), passive_friend: anna)
+  FactoryBot.create(:request, active_friend: anna, passive_friend: User.find_by(username: "user#{n + 1}"))
+  FactoryBot.create(:request, active_friend: User.find_by(username: "user#{n + 5}"), passive_friend: anna)
 end
 
 4.times do |n|
-  george.active_friendships.create(passive_friend: User.find_by(username: "user#{n + 13}"), confirmed: true)
-  george.passive_friendships.create(active_friend: User.find_by(username: "user#{n + 9}"), confirmed: true)
-  george.active_friendships.create(passive_friend: User.find_by(username: "user#{n + 5}"))
-  george.passive_friendships.create(active_friend: User.find_by(username: "user#{n + 1}"))
+  FactoryBot.create(:friendship, :confirmed, active_friend: george, passive_friend: User.find_by(username: "user#{n + 13}"))
+  FactoryBot.create(:friendship, :confirmed, active_friend: User.find_by(username: "user#{n + 9}"), passive_friend: george)
+  FactoryBot.create(:request, active_friend: george, passive_friend: User.find_by(username: "user#{n + 5}"))
+  FactoryBot.create(:request, active_friend: User.find_by(username: "user#{n + 1}"), passive_friend: george)
 end
 
 # Set authored and received posts for ryto

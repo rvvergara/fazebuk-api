@@ -1,33 +1,29 @@
 # frozen_string_literal: true
 
 ryto = FactoryBot.create(
-  :male_user,
-  email: 'ryto@gmail.com',
-  username: 'ryto',
+  :user,
+  :male,
   first_name: 'Ryto',
   last_name: 'Verkar'
 )
 
 mike = FactoryBot.create(
-  :male_user,
-  email: 'mike@gmail.com',
-  username: 'mike',
+  :user,
+  :male,
   first_name: 'Mike',
   last_name: 'Jordan'
 )
 
 anna = FactoryBot.create(
-  :female_user,
-  email: 'anna@gmail.com',
-  username: 'anna',
+  :user,
+  :female,
   first_name: 'Anna',
   last_name: 'Banana'
 )
 
 george = FactoryBot.create(
-  :male_user,
-  email: 'george@gmail.com',
-  username: 'george',
+  :user,
+  :male,
   first_name: 'George',
   last_name: 'Washington'
 )
@@ -39,15 +35,17 @@ FactoryBot.create(:friendship, active_friend: george, passive_friend: anna)
 
 8.times do |_n|
   FactoryBot.create(
-    :male_user,
-    username: FactoryBot.generate(:username), email: FactoryBot.generate(:email)
+    :user,
+    :male,
+    username: FactoryBot.generate(:username)
   )
 end
 
 8.times do |n|
   FactoryBot.create(
-    :male_user,
-    username: FactoryBot.generate(:username), email: FactoryBot.generate(:email)
+    :user,
+    :female,
+    username: FactoryBot.generate(:username)
   )
 end
 
@@ -98,13 +96,17 @@ end
 
 # Set comments on ryto's authored posts
 ryto.authored_posts.each_with_index do |post, index|
-  comment = post.comments.create(
-    commenter: post.postable,
-    body: Faker::Lorem.paragraph(sentence_count: 2)
+  comment = FactoryBot.create(
+    :comment,
+    :for_post,
+    commentable: post,
+    commenter: post.postable
   )
-  reply = comment.replies.create(
-    commenter: ryto.friends[index],
-    body: Faker::Lorem.paragraph(sentence_count: 2)
+  reply = FactoryBot.create(
+    :reply,
+    :for_comment,
+    commentable: comment,
+    commenter: ryto.friends[index]
   )
 end
 
@@ -127,13 +129,18 @@ end
 
 # Set comments on mike's received posts
 mike.received_posts.each_with_index do |post, index|
-  comment = post.comments.create(
-    commenter: mike,
-    body: Faker::Lorem.paragraph(sentence_count: 2)
+  comment = FactoryBot.create(
+    :comment,
+    :for_post,
+    commentable: post,
+    commenter: mike
   )
-  reply = comment.replies.create(
-    commenter: mike.friends[index],
-    body: Faker::Lorem.paragraph(sentence_count: 2)
+
+  reply = FactoryBot.create(
+    :reply,
+    :for_comment,
+    commentable: comment,
+    commenter: mike.friends[index]
   )
 end
 
@@ -200,14 +207,14 @@ Comment.all.each do |comment|
   if comment.commentable_type == 'Post'
     FactoryBot.create(
       :like,
-      :for_post_comment,
+      :for_comment,
       likeable: comment,
       liker: comment.commentable.author
     )
   else
     FactoryBot.create(
       :like,
-      :for_comment_reply,
+      :for_reply,
       likeable: comment,
       liker: comment.commentable.commenter
     )

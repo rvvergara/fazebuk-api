@@ -115,6 +115,11 @@ class User < ApplicationRecord
       .offset(Pagination.offset(page, per_page))
   end
 
+  # Like related methods
+  def liked?(likeable)
+    !likes.where('likeable_id=?', likeable.id).empty?
+  end
+
   private
 
   def downcase

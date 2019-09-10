@@ -90,7 +90,9 @@ class User < ApplicationRecord
 
   def existing_friendship_or_request_with?(friend)
     !active_friendships.or(passive_friendships)
-      .where('active_friend_id=:friend_id OR passive_friend_id=:friend_id', friend_id: friend.id).empty?
+      .where(
+        'active_friend_id=:friend_id OR passive_friend_id=:friend_id', friend_id: friend.id
+      ).empty? && self != friend
   end
 
   def friendship_id_with(friend)

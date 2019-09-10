@@ -15,5 +15,14 @@ class V1::LikesController < ApplicationController
     end
   end
 
-  def destroy; end
+  def destroy
+    like = Like.find_by(id: params[:id])
+    if like
+      like.destroy
+      likeable_type = like.likeable_type.downcase!
+      render json: { message: "Unliked #{likeable_type}" }, status: :accepted
+    else
+      render json: { message: 'Cannot find like record' }, status: 404
+    end
+  end
 end

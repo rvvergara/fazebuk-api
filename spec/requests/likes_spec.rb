@@ -78,4 +78,69 @@ RSpec.describe 'Likes', type: :request do
       end
     end
   end
+
+  describe 'DELETE /v1/likes/:id' do
+    context 'post likes' do
+      let!(:like) { create(:like, :for_post, likeable: @post, liker: seth) }
+
+      context 'like record exists' do
+        it 'removes like from the database' do
+          expect do
+            delete "/v1/likes/#{like.id}",
+                   headers: { "Authorization": "Bearer #{user_token}" }
+          end.to change(Like, :count).by(-1)
+        end
+
+        it 'sends a success json response' do
+          delete "/v1/likes/#{like.id}",
+                 headers: { "Authorization": "Bearer #{user_token}" }
+
+          expect(response).to have_http_status(:accepted)
+          expect(JSON.parse(response.body)['message']).to match('Unliked post')
+        end
+      end
+
+      context 'like does not exist' do
+        it 'sends an error json response' do
+          delete '/v1/likes/nonExistenLikeId',
+                 headers: { "Authorization": "Bearer #{user_token}" }
+
+          expect(response).to have_http_status(404)
+          expect(JSON.parse(response.body)['message']).to match('Cannot find like record')
+        end
+      end
+    end
+
+    context 'comments/replies likes' do
+      let(:comment) { create(:post_comment, commenter: steve, commentable: @post) }
+      let!(:like) { create(:like, :for_post_comment, likeable: comment, liker: seth) }
+
+      context 'like record exists' do
+        it 'removes like from the database' do
+          expect do
+            delete "/v1/likes/#{like.id}",
+                   headers: { "Authorization": "Bearer #{user_token}" }
+          end.to change(Like, :count).by(-1)
+        end
+
+        it 'sends a success json response' do
+          delete "/v1/likes/#{like.id}",
+                 headers: { "Authorization": "Bearer #{user_token}" }
+
+          expect(response).to have_http_status(:accepted)
+          expect(JSON.parse(response.body)['message']).to match('Unliked comment')
+        end
+      end
+
+      context 'like does not exist' do
+        it 'sends an error json response' do
+          delete '/v1/likes/nonExistenLikeId',
+                 headers: { "Authorization": "Bearer #{user_token}" }
+
+          expect(response).to have_http_status(404)
+          expect(JSON.parse(response.body)['message']).to match('Cannot find like record')
+        end
+      end
+    end
+  end
 end

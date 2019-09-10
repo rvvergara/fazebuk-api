@@ -106,7 +106,7 @@ class User < ApplicationRecord
   # posts shown on a user's page/timeline/profile
 
   def timeline_posts
-    authored_posts.or(received_posts)
+    authored_posts.or(received_posts).order_created
   end
 
   def paginated_timeline_posts(page, per_page)

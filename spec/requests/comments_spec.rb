@@ -110,7 +110,9 @@ RSpec.describe 'Comments', type: :request do
         it 'sends an error response' do
           post "/v1/comments/#{@comment.id}/replies",
                headers: { "Authorization": "Bearer #{user_token}" },
-               params: { reply: attributes_for(:reply, :for_comment, commenter: laura, commentable: @comment, body: nil) }
+               params: { reply: attributes_for(
+                 :reply, :for_comment, commenter: laura, commentable: @comment, body: nil
+               ) }
 
           json_response = JSON.parse(response.body)
 
@@ -177,7 +179,9 @@ RSpec.describe 'Comments', type: :request do
             it 'sends an error response' do
               put "/v1/comments/#{@comment.id}",
                   headers: { "Authorization": "Bearer #{user_token}" },
-                  params: { comment: attributes_for(:comment, :for_post, commentable: @post, commenter: dominic, body: nil) }
+                  params: {
+                    comment: attributes_for(:comment, :for_post, commentable: @post, commenter: dominic, body: nil)
+                  }
 
               json_response = JSON.parse(response.body)
 
@@ -235,7 +239,9 @@ RSpec.describe 'Comments', type: :request do
             it 'sends an error response' do
               put "/v1/comments/#{@reply.id}",
                   headers: { "Authorization": "Bearer #{user_token}" },
-                  params: { comment: attributes_for(:comment, :for_post, commentable: @comment, commenter: laura, body: nil) }
+                  params: { comment: attributes_for(
+                    :comment, :for_post, commentable: @comment, commenter: laura, body: nil
+                  ) }
 
               json_response = JSON.parse(response.body)
 

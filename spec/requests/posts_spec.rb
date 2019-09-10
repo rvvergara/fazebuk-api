@@ -6,15 +6,15 @@ RSpec.describe 'Posts', type: :request do
   describe 'GET /v1/posts/:id' do
     let(:colt) { create(:user, :male, first_name: 'Colt') }
     let(:andrew) { create(:user, :male, first_name: 'Andrew') }
+    let(:colt_post) { create(:post, author: colt, postable: andrew) }
 
-    before do
-      @post = create(:post, author: colt, postable: andrew)
+    let!(:login) do
       login_as(andrew)
     end
 
     context 'visiting an existing post' do
       it 'sends the post as json response' do
-        get "/v1/posts/#{@post.id}",
+        get "/v1/posts/#{colt_post.id}",
             headers: { "Authorization": "Bearer #{user_token}" }
 
         json_response = JSON.parse(response.body)
@@ -22,7 +22,7 @@ RSpec.describe 'Posts', type: :request do
         expect(json_response.keys).to match(
           %w[id content created_at updated_at author posted_to comments likes liked? like_id]
         )
-        expect(json_response['content']).to match(@post.content)
+        expect(json_response['content']).to match(colt_post.content)
       end
     end
 
@@ -103,9 +103,9 @@ RSpec.describe 'Posts', type: :request do
   describe 'PUT /v1/posts/:id' do
     let(:ragnar) { create(:user, :male, first_name: 'Ragnar') }
     let(:bjorn) { create(:user, :male, first_name: 'Bjorn') }
+    let(:ragnar_post) { create(:post, author: ragnar, postable: bjorn) }
 
-    before do
-      @post = create(:post, author: ragnar, postable: bjorn)
+    let!(:login) do
       login_as(ragnar)
     end
 
@@ -113,7 +113,7 @@ RSpec.describe 'Posts', type: :request do
       context 'content is present' do
         it 'sends the updated post as json response' do
           content = 'Updated content'
-          put "/v1/posts/#{@post.id}",
+          put "/v1/posts/#{ragnar_post.id}",
               headers: { "Authorization": "Bearer #{user_token}" },
               params: { post: {
                 postable: bjorn.username,
@@ -131,7 +131,7 @@ RSpec.describe 'Posts', type: :request do
 
       context 'content is missing' do
         it 'sends an error json' do
-          put "/v1/posts/#{@post.id}",
+          put "/v1/posts/#{ragnar_post.id}",
               headers: { "Authorization": "Bearer #{user_token}" },
               params: { post: {
                 postable: bjorn.username,
@@ -148,7 +148,7 @@ RSpec.describe 'Posts', type: :request do
     context 'post or postable does not exist' do
       context 'postable does not exist' do
         it 'sends an error response' do
-          put "/v1/posts/#{@post.id}",
+          put "/v1/posts/#{ragnar_post.id}",
               headers: { "Authorization": "Bearer #{user_token}" },
               params: {
                 post: {
@@ -190,9 +190,9 @@ RSpec.describe 'Posts', type: :request do
 
     context 'post exists' do
       it 'sends a success json response' do
-        post = create(:post, author: harvey, postable: louis)
+        harvey_post = create(:post, author: harvey, postable: louis)
 
-        delete "/v1/posts/#{post.id}",
+        delete "/v1/posts/#{harvey_post.id}",
                headers: { "Authorization": "Bearer #{user_token}" }
 
         json_response = JSON.parse(response.body)

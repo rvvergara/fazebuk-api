@@ -5,24 +5,22 @@ require 'rails_helper'
 RSpec.describe 'Likes', type: :request do
   let(:steve) { create(:user, :male, first_name: 'Steve') }
   let(:seth) { create(:user, :male, first_name: 'Seth') }
-
+  let!(:shoutout) { create(:post, author: steve, postable: seth) }
   let!(:login) do
     login_as(seth)
-
-    @post = create(:post, author: steve, postable: seth)
   end
 
   describe 'POST /v1/posts/:post_id/likes' do
     context 'post exists' do
       it 'adds like to the database' do
         expect do
-          post "/v1/posts/#{@post.id}/likes",
+          post "/v1/posts/#{shoutout.id}/likes",
                headers: { "Authorization": "Bearer #{user_token}" }
         end.to change(Like, :count).by(1)
       end
 
       it 'sends a success json response' do
-        post "/v1/posts/#{@post.id}/likes",
+        post "/v1/posts/#{shoutout.id}/likes",
              headers: { "Authorization": "Bearer #{user_token}" }
 
         expect(response).to have_http_status(:created)
@@ -42,7 +40,7 @@ RSpec.describe 'Likes', type: :request do
   end
 
   describe 'POST /v1/comments/:comment_id/likes' do
-    let(:comment) { create(:comment, :for_post, commenter: steve, commentable: @post) }
+    let(:comment) { create(:comment, :for_post, commenter: steve, commentable: shoutout) }
     let(:reply) { create(:reply, :for_comment, commenter: steve, commentable: comment) }
 
     context 'comment exists' do
@@ -81,7 +79,7 @@ RSpec.describe 'Likes', type: :request do
 
   describe 'DELETE /v1/likes/:id' do
     context 'post likes' do
-      let!(:like) { create(:like, :for_post, likeable: @post, liker: seth) }
+      let!(:like) { create(:like, :for_post, likeable: shoutout, liker: seth) }
 
       context 'like record exists' do
         it 'removes like from the database' do
@@ -112,7 +110,7 @@ RSpec.describe 'Likes', type: :request do
     end
 
     context 'comments/replies likes' do
-      let(:comment) { create(:comment, :for_post, commenter: steve, commentable: @post) }
+      let(:comment) { create(:comment, :for_post, commenter: steve, commentable: shoutout) }
       let!(:like) { create(:like, :for_comment, likeable: comment, liker: seth) }
 
       context 'like record exists' do

@@ -3,8 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe Post, type: :model do
-  let(:charlie) { create(:male_user, username: 'charlie') }
-  let(:kyle) { create(:male_user, username: 'kyle') }
+  let(:charlie) { create(:user, :male, first_name: 'Charlie') }
+  let(:kyle) { create(:user, :male, first_name: 'Kyle') }
   let(:post) { build(:post, author: charlie, postable: kyle) }
 
   describe 'validation' do

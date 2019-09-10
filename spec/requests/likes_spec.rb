@@ -3,8 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe 'Likes', type: :request do
-  let(:steve) { create(:male_user, username: 'steve') }
-  let(:seth) { create(:male_user, username: 'seth') }
+  let(:steve) { create(:user, :male, first_name: 'Steve') }
+  let(:seth) { create(:user, :male, first_name: 'Seth') }
 
   let!(:login) do
     login_as(seth)
@@ -42,8 +42,8 @@ RSpec.describe 'Likes', type: :request do
   end
 
   describe 'POST /v1/comments/:comment_id/likes' do
-    let(:comment) { create(:post_comment, commenter: steve, commentable: @post) }
-    let(:reply) { create(:comment_reply, commenter: steve, commentable: comment) }
+    let(:comment) { create(:comment, :for_post, commenter: steve, commentable: @post) }
+    let(:reply) { create(:reply, :for_comment, commenter: steve, commentable: comment) }
 
     context 'comment exists' do
       it 'adds like to the database' do
@@ -112,8 +112,8 @@ RSpec.describe 'Likes', type: :request do
     end
 
     context 'comments/replies likes' do
-      let(:comment) { create(:post_comment, commenter: steve, commentable: @post) }
-      let!(:like) { create(:like, :for_post_comment, likeable: comment, liker: seth) }
+      let(:comment) { create(:comment, :for_post, commenter: steve, commentable: @post) }
+      let!(:like) { create(:like, :for_comment, likeable: comment, liker: seth) }
 
       context 'like record exists' do
         it 'removes like from the database' do

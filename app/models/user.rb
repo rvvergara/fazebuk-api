@@ -136,6 +136,8 @@ class User < ApplicationRecord
   private
 
   def downcase
+    return if username.nil? || email.nil?
+
     username.downcase!
     email.downcase!
   end

@@ -3,10 +3,10 @@
 require 'rails_helper'
 
 RSpec.describe Comment, type: :model do
-  let(:marge) { create(:female_user, username: 'marge') }
-  let(:rolo) { create(:male_user, username: 'rolo') }
+  let(:marge) { create(:user, :female, first_name: 'Marge') }
+  let(:rolo) { create(:user, :male, first_name: 'Rolo') }
   let(:post) { create(:post, author: marge, postable: rolo) }
-  let(:comment) { build(:post_comment, commenter: rolo, commentable: post) }
+  let(:comment) { build(:comment, :for_post, commenter: rolo, commentable: post) }
 
   describe 'validations' do
     context 'body present' do
@@ -29,7 +29,7 @@ RSpec.describe Comment, type: :model do
 
     context 'user has liked the comment' do
       it 'returns like id' do
-        like = create(:like, :for_post_comment, likeable: comment, liker: marge)
+        like = create(:like, :for_comment, likeable: comment, liker: marge)
         expect(comment.like_id(marge)).to eq(like.id)
       end
     end

@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :friendship do
-    association :active_friend, factory: :user
-    association :passive_friend, factory: :user
+    active_friend
+    passive_friend
   end
 end

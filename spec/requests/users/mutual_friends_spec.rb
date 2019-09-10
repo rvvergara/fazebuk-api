@@ -3,9 +3,9 @@
 require 'rails_helper'
 
 RSpec.describe 'Users::Friends', type: :request do
-  let(:harry) { create(:male_user, username: 'harry') }
-  let(:hermione) { create(:female_user, username: 'hermione') }
-  let(:goku) { create(:male_user, username: 'goku') }
+  let(:harry) { create(:user, :male, first_name: 'harry') }
+  let(:hermione) { create(:user, :female, first_name: 'Hermione') }
+  let(:goku) { create(:user, :male, first_name: 'Goku') }
 
   describe 'GET /v1/users/:user_username/friends' do
     before do

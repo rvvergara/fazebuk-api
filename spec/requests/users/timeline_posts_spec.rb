@@ -4,8 +4,8 @@ require 'rails_helper'
 
 RSpec.describe 'Users::TimelinePosts', type: :request do
   describe '/v1/users/:user_username/timeline_posts' do
-    let(:richie) { create(:male_user, username: 'richie') }
-    let(:abel) { create(:male_user, username: 'abel') }
+    let(:richie) { create(:user, :male, first_name: 'Richie') }
+    let(:abel) { create(:user, :male, first_name: 'Abel') }
     before do
       create(:friendship, active_friend: richie, passive_friend: abel, confirmed: true)
       @post1 = create(:post, author: richie, postable: abel, content: Faker::Lorem.paragraph(sentence_count: 3))

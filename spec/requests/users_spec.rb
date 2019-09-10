@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe 'Users', type: :request do
   describe 'GET /v1/users/:username' do
-    let(:alfred) { create(:male_user, username: 'alfred') }
+    let(:alfred) { create(:user, :male, first_name: 'Alfred') }
 
     context 'logged user' do
       before do
@@ -31,7 +31,7 @@ RSpec.describe 'Users', type: :request do
   describe 'POST /v1/users' do
     context 'correct and complete user data' do
       it 'creates & authenticates user' do
-        user_attributes = attributes_for(:male_user)
+        user_attributes = attributes_for(:user, :male)
 
         expect do
           post '/v1/users', params: { user: user_attributes }
@@ -45,7 +45,7 @@ RSpec.describe 'Users', type: :request do
 
     context 'first name missing' do
       it 'does not create a user' do
-        invalid_attributes = attributes_for(:male_user, first_name: nil)
+        invalid_attributes = attributes_for(:user, :male, username: nil)
         expect do
           post '/v1/users', params: { user: invalid_attributes }
         end.to_not change(User, :count)
@@ -56,8 +56,8 @@ RSpec.describe 'Users', type: :request do
 
     context 'duplicate username' do
       it 'does not create user' do
-        arnold = create(:male_user, username: 'arnold')
-        duplicate_attributes = attributes_for(:male_user, username: arnold.username)
+        arnold = create(:user, :male, username: 'arnold')
+        duplicate_attributes = attributes_for(:user, :male, username: arnold.username)
 
         expect do
           post '/v1/users', params: { user: duplicate_attributes }
@@ -69,8 +69,8 @@ RSpec.describe 'Users', type: :request do
   end
 
   describe 'PUT /v1/users/:username' do
-    let(:lebron) { create(:male_user, username: 'lebron') }
-    let(:boogie) { create(:male_user, username: 'boogie', first_name: 'Demarcus') }
+    let(:lebron) { create(:user, :male, first_name: 'Lebron') }
+    let(:boogie) { create(:user, :male, first_name: 'Demarcus') }
 
     before { login_as(lebron) }
 
@@ -100,8 +100,8 @@ RSpec.describe 'Users', type: :request do
   end
 
   describe 'DELETE /v1/users/:username' do
-    let(:cesar) { create(:male_user, username: 'cesar') }
-    let(:pompey) { create(:male_user, username: 'pompey') }
+    let(:cesar) { create(:user, :male, first_name: 'Cesar') }
+    let(:pompey) { create(:user, :male, first_name: 'Pompey') }
 
     before { login_as(cesar) }
 

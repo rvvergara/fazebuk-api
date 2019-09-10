@@ -18,3 +18,13 @@ json.comments do
     end
   end
 end
+json.likes do
+  json.count post.likes.count
+  json.likers do
+    json.array! post.likes do |like|
+      json.partial! '/v1/shared/user_short', user: like.liker
+    end
+  end
+end
+json.liked? pundit_user.liked?(post)
+json.like_id post.like_id(pundit_user)

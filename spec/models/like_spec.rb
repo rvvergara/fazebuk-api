@@ -14,7 +14,7 @@ RSpec.describe Like, type: :model do
       it 'is invalid' do
         duplicate = build(:like, :for_post, liker: luke, likeable: post)
         duplicate.valid?
-        expect(duplicate.errors['liker']).to include('cannot like the Post twice')
+        expect(duplicate.errors['liker']).to include('cannot like the post twice')
       end
 
       context 'unique like' do

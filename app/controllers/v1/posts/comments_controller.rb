@@ -16,6 +16,11 @@ class V1::Posts::CommentsController < V1::CommentsController
   end
 
   def build_comment
-    set_commentable.comments.build(comment_params)
+    if set_commentable
+      set_commentable.comments.build(comment_params)
+    else
+      render json: { message: 'Cannot find post' }, status: 404
+      nil
+    end
   end
 end

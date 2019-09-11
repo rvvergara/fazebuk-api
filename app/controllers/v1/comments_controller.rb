@@ -4,16 +4,13 @@ class V1::CommentsController < ApplicationController
   before_action :pundit_user
 
   def create
-    if set_commentable
-      comment = build_comment
-      if comment.save
-        render :create, locals: { comment: comment }, status: :created
-      else
-        render json: { message: 'Cannot create comment', errors: comment.errors }, status: :unprocessable_entity
-      end
+    comment = build_comment
+    return unless comment
+
+    if comment.save
+      render :create, locals: { comment: comment }, status: :created
     else
-      commentable_type = params[:post_id] ? 'post' : 'comment'
-      render json: { message: "Cannot find #{commentable_type}" }, status: 404
+      render json: { message: 'Cannot create comment', errors: comment.errors }, status: :unprocessable_entity
     end
   end
 

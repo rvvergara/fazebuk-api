@@ -16,19 +16,19 @@ class V1::CommentsController < ApplicationController
 
   def update
     comment = set_comment
-    if comment
-      if comment.update(update_params)
-        render :update, locals: { comment: comment }, status: :accepted
-      else
-        render json: { message: 'Cannot update comment', errors: comment.errors }, status: :unprocessable_entity
-      end
+    return unless comment
+
+    if comment.update(update_params)
+      render :update, locals: { comment: comment }, status: :accepted
     else
-      render json: { message: 'Cannot find comment' }, status: 404
+      render json: { message: 'Cannot update comment', errors: comment.errors }, status: :unprocessable_entity
     end
   end
 
   def destroy
     comment = set_comment
+    return unless comment
+
     if comment
       comment.destroy
       render json: { message: 'Comment deleted' }, status: :accepted
@@ -44,6 +44,11 @@ class V1::CommentsController < ApplicationController
   end
 
   def set_comment
-    pundit_user.authored_comments.find_by(id: params[:id])
+    comment = pundit_user.authored_comments.find_by(id: params[:id])
+
+    return comment if comment
+
+    render json: { message: 'Cannot find comment' }, status: 404
+    nil
   end
 end

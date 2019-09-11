@@ -14,5 +14,9 @@ FactoryBot.define do
       association :commentable, factory: :comment
       commentable_type { 'Comment' }
     end
+
+    trait :invalid do
+      body { nil }
+    end
   end
 end

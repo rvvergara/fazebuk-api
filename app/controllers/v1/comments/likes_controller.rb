@@ -6,10 +6,10 @@ class V1::Comments::LikesController < V1::LikesController
   private
 
   def set_likeable
-    Comment.find_by(id: params[:comment_id])
-  end
+    comment = Comment.find_by(id: params[:comment_id])
+    return comment if comment
 
-  def build_like
-    pundit_user.likes.build(likeable: set_likeable)
+    render_error('comment')
+    nil
   end
 end

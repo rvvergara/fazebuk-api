@@ -5,139 +5,122 @@ require 'rails_helper'
 RSpec.describe 'Likes', type: :request do
   let(:steve) { create(:user, :male, first_name: 'Steve') }
   let(:seth) { create(:user, :male, first_name: 'Seth') }
-  let!(:shoutout) { create(:post, author: steve, postable: seth) }
-  let!(:login) do
-    login_as(seth)
+  let(:stalker) { create(:user, :female, first_name: 'Becky') }
+  let(:post_to_seth) { create(:post, author: steve, postable: seth) }
+  let(:comment_to_post) { create(:comment, :for_post, commenter: seth, commentable: post_to_seth) }
+  let!(:post_like) { create(:like, :for_post, likeable: post_to_seth, liker: seth) }
+  let!(:comment_like) { create(:like, :for_comment, likeable: comment_to_post, liker: steve) }
+
+  describe 'unauthenticated user requests' do
+    it {
+      post "/v1/posts/#{post_to_seth.id}/likes"
+
+      expect(response).to have_http_status(:unauthorized)
+    }
+    it {
+      post "/v1/comments/#{comment_to_post.id}/likes"
+
+      expect(response).to have_http_status(:unauthorized)
+    }
+    it {
+      delete "/v1/likes/#{post_like.id}"
+
+      expect(response).to have_http_status(:unauthorized)
+    }
+    it {
+      delete "/v1/likes/#{comment_like.id}"
+
+      expect(response).to have_http_status(:unauthorized)
+    }
   end
 
-  describe 'POST /v1/posts/:post_id/likes' do
+  describe 'POST /v1/posts/:id/likes' do
+    let!(:login) { login_as(stalker) }
+
     context 'post exists' do
-      it 'adds like to the database' do
-        expect do
-          post "/v1/posts/#{shoutout.id}/likes",
+      context 'valid params' do
+        it 'adds like to the database' do
+          expect do
+            post "/v1/posts/#{post_to_seth.id}/likes",
+                 headers: { "Authorization": "Bearer #{user_token}" }
+          end
+            .to change(Like, :count).by(1)
+        end
+
+        it 'sends a success message' do
+          post "/v1/posts/#{post_to_seth.id}/likes",
                headers: { "Authorization": "Bearer #{user_token}" }
-        end.to change(Like, :count).by(1)
+
+          expect(response).to have_http_status(:created)
+          expect(JSON.parse(response.body)['message']).to match('Successfully liked post')
+        end
       end
 
-      it 'sends a success json response' do
-        post "/v1/posts/#{shoutout.id}/likes",
-             headers: { "Authorization": "Bearer #{user_token}" }
+      context 'invalid params' do
+        it 'sends an error response' do
+          login_as(seth)
+          post "/v1/posts/#{post_to_seth.id}/likes",
+               headers: { "Authorization": "Bearer #{user_token}" }
 
-        expect(response).to have_http_status(:created)
-        expect(JSON.parse(response.body)['message']).to include('Successfully liked post')
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(JSON.parse(response.body)['errors']['liker']).to include('cannot like the post twice')
+        end
       end
     end
 
     context 'post does not exist' do
-      it 'responds with an error json' do
+      it 'sends an error response' do
         post '/v1/posts/nonExistentPostId/likes',
              headers: { "Authorization": "Bearer #{user_token}" }
 
-        expect(response).to have_http_status(:unprocessable_entity)
-        expect(JSON.parse(response.body)['errors']['likeable']).to include('must exist')
+        expect(response).to have_http_status(404)
+        expect(JSON.parse(response.body)['message']).to match('Cannot find post')
       end
     end
   end
 
-  describe 'POST /v1/comments/:comment_id/likes' do
-    let(:comment) { create(:comment, :for_post, commenter: steve, commentable: shoutout) }
-    let(:reply) { create(:reply, :for_comment, commenter: steve, commentable: comment) }
+  describe 'POST /v1/comments/:id/likes' do
+    let!(:login) { login_as(stalker) }
 
     context 'comment exists' do
-      it 'adds like to the database' do
-        expect do
-          post "/v1/comments/#{comment.id}/likes",
-               headers: { "Authorization": "Bearer #{user_token}" }
-        end.to change(Like, :count).by(1)
+      context 'valid params' do
+        it 'adds like to the database' do
+          expect do
+            post "/v1/comments/#{comment_to_post.id}/likes",
+                 headers: { "Authorization": "Bearer #{user_token}" }
+          end
+            .to change(Like, :count).by(1)
+        end
 
-        expect do
-          login_as(seth)
-          post "/v1/comments/#{reply.id}/likes",
+        it 'sends a success response' do
+          post "/v1/comments/#{comment_to_post.id}/likes",
                headers: { "Authorization": "Bearer #{user_token}" }
-        end.to change(Like, :count).by(1)
+
+          expect(response).to have_http_status(:created)
+          expect(JSON.parse(response.body)['message']).to match('Successfully liked comment')
+        end
       end
 
-      it 'sends a success JSON response' do
-        post "/v1/comments/#{comment.id}/likes",
+      context 'invalid params' do
+        it 'sends an error response' do
+          login_as(steve)
+
+          post "/v1/comments/#{comment_to_post.id}/likes",
+               headers: { "Authorization": "Bearer #{user_token}" }
+
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(JSON.parse(response.body)['errors']['liker']).to include('cannot like the comment twice')
+        end
+      end
+    end
+
+    context 'comment does not exist' do
+      it 'sends an error response' do
+        post '/v1/comments/someNonExistenCommentId/likes',
              headers: { "Authorization": "Bearer #{user_token}" }
 
-        expect(response).to have_http_status(:created)
-        expect(JSON.parse(response.body)['message']).to match('Successfully liked comment')
-      end
-    end
-
-    context 'comment/reply does not exist' do
-      it 'sends an error json response' do
-        post '/v1/comments/nonExistenCommentId/likes',
-             headers: { "Authorization": "Bearer #{user_token}" }
-
-        expect(response).to have_http_status(:unprocessable_entity)
-        expect(JSON.parse(response.body)['errors']['likeable']).to include('must exist')
-      end
-    end
-  end
-
-  describe 'DELETE /v1/likes/:id' do
-    context 'post likes' do
-      let!(:like) { create(:like, :for_post, likeable: shoutout, liker: seth) }
-
-      context 'like record exists' do
-        it 'removes like from the database' do
-          expect do
-            delete "/v1/likes/#{like.id}",
-                   headers: { "Authorization": "Bearer #{user_token}" }
-          end.to change(Like, :count).by(-1)
-        end
-
-        it 'sends a success json response' do
-          delete "/v1/likes/#{like.id}",
-                 headers: { "Authorization": "Bearer #{user_token}" }
-
-          expect(response).to have_http_status(:accepted)
-          expect(JSON.parse(response.body)['message']).to match('Unliked post')
-        end
-      end
-
-      context 'like does not exist' do
-        it 'sends an error json response' do
-          delete '/v1/likes/nonExistenLikeId',
-                 headers: { "Authorization": "Bearer #{user_token}" }
-
-          expect(response).to have_http_status(404)
-          expect(JSON.parse(response.body)['message']).to match('Cannot find like record')
-        end
-      end
-    end
-
-    context 'comments/replies likes' do
-      let(:comment) { create(:comment, :for_post, commenter: steve, commentable: shoutout) }
-      let!(:like) { create(:like, :for_comment, likeable: comment, liker: seth) }
-
-      context 'like record exists' do
-        it 'removes like from the database' do
-          expect do
-            delete "/v1/likes/#{like.id}",
-                   headers: { "Authorization": "Bearer #{user_token}" }
-          end.to change(Like, :count).by(-1)
-        end
-
-        it 'sends a success json response' do
-          delete "/v1/likes/#{like.id}",
-                 headers: { "Authorization": "Bearer #{user_token}" }
-
-          expect(response).to have_http_status(:accepted)
-          expect(JSON.parse(response.body)['message']).to match('Unliked comment')
-        end
-      end
-
-      context 'like does not exist' do
-        it 'sends an error json response' do
-          delete '/v1/likes/nonExistenLikeId',
-                 headers: { "Authorization": "Bearer #{user_token}" }
-
-          expect(response).to have_http_status(404)
-          expect(JSON.parse(response.body)['message']).to match('Cannot find like record')
-        end
+        expect(response).to have_http_status(404)
+        expect(JSON.parse(response.body)['message']).to match('Cannot find comment')
       end
     end
   end

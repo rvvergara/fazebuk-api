@@ -5,6 +5,7 @@ class V1::LikesController < ApplicationController
 
   def create
     like = build_like
+    return unless like
 
     if like.save
       likeable_type = like.likeable_type.downcase!
@@ -19,10 +20,22 @@ class V1::LikesController < ApplicationController
     like = Like.find_by(id: params[:id])
     if like
       like.destroy
-      likeable_type = like.likeable_type.downcase!
+      likeable_type = like.likeable_type.downcase
       render json: { message: "Unliked #{likeable_type}" }, status: :accepted
     else
       render json: { message: 'Cannot find like record' }, status: 404
     end
+  end
+
+  private
+
+  def build_like
+    return unless set_likeable
+
+    pundit_user.likes.build(likeable: set_likeable)
+  end
+
+  def render_error(likeable_type)
+    render json: { message: "Cannot find #{likeable_type}" }, status: 404
   end
 end

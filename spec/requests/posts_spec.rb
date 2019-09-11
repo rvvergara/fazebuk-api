@@ -3,214 +3,188 @@
 require 'rails_helper'
 
 RSpec.describe 'Posts', type: :request do
+  let(:beng) { create(:user, :female, first_name: 'Beng') }
+  let(:karen) { create(:user, :female, first_name: 'Karen') }
+  let!(:post_to_karen) { create(:post, author: beng, postable: karen) }
+  let(:updated_content) { 'Updated content' }
+  let!(:login) { login_as(beng) }
+
+  describe 'requests by unauthenticated user' do
+    it {
+      get "/v1/posts/#{post_to_karen.id}"
+      expect(response).to have_http_status(:unauthorized)
+    }
+    it {
+      post "/v1/posts?postable=#{karen.username}"
+      expect(response).to have_http_status(:unauthorized)
+    }
+    it {
+      put "/v1/posts/#{post_to_karen.id}"
+      expect(response).to have_http_status(:unauthorized)
+    }
+    it {
+      delete "/v1/posts/#{post_to_karen.id}"
+      expect(response).to have_http_status(:unauthorized)
+    }
+  end
+
   describe 'GET /v1/posts/:id' do
-    let(:colt) { create(:user, :male, first_name: 'Colt') }
-    let(:andrew) { create(:user, :male, first_name: 'Andrew') }
-    let(:colt_post) { create(:post, author: colt, postable: andrew) }
-
-    let!(:login) do
-      login_as(andrew)
-    end
-
-    context 'visiting an existing post' do
-      it 'sends the post as json response' do
-        get "/v1/posts/#{colt_post.id}",
+    context 'post exists' do
+      let!(:visit) do
+        get "/v1/posts/#{post_to_karen.id}",
             headers: { "Authorization": "Bearer #{user_token}" }
+      end
 
-        json_response = JSON.parse(response.body)
+      it 'sends a success response' do
         expect(response).to have_http_status(:ok)
-        expect(json_response.keys).to match(
-          %w[id content created_at updated_at author posted_to comments likes liked? like_id]
-        )
-        expect(json_response['content']).to match(colt_post.content)
+      end
+
+      it 'sends the json data of post' do
+        json_response = JSON.parse(response.body)
+        expect(json_response.keys)
+          .to match(%w[id content created_at updated_at author posted_to comments likes liked? like_id])
+
+        expect(json_response['posted_to']['username']).to eq(karen.username)
+        expect(json_response['author']['username']).to eq(beng.username)
       end
     end
 
-    context 'visiting a post that does not exist' do
-      it 'sends an error json response' do
-        get '/v1/posts/someIdOfNonExistentPost',
+    context 'post does not exist' do
+      it 'sends an error response' do
+        get '/v1/posts/nonExistentPostId',
             headers: { "Authorization": "Bearer #{user_token}" }
 
-        json_response = JSON.parse(response.body)
         expect(response).to have_http_status(404)
-        expect(json_response['message']).to match('Post does not exist')
+        expect(JSON.parse(response.body)['message']).to match('Post does not exist')
       end
     end
   end
 
   describe 'POST /v1/posts' do
-    let(:cleo) { create(:user, :female, first_name: 'Cleo') }
-    let(:julius) { create(:user, :male, first_name: 'Julius') }
-
-    before do
-      login_as(julius)
-    end
-
-    context 'user to post to exists' do
-      context 'content is present' do
-        it 'sends the post created as response' do
-          content = 'Some content'
+    context 'complete and valid post params' do
+      it 'adds post to the database' do
+        expect do
           post '/v1/posts',
                headers: { "Authorization": "Bearer #{user_token}" },
-               params: { post: {
-                 postable: cleo.username,
-                 content: content
-               } }
-
-          json_response = JSON.parse(response.body)
-          expect(response).to have_http_status(:created)
-          expect(json_response.keys)
-            .to match(%w[id content created_at updated_at author posted_to comments likes liked? like_id])
-          expect(json_response['content']).to eq(content)
-          expect(json_response['posted_to']['username']).to eq(cleo.username)
+               params: { post: attributes_for(:post).merge(postable: beng.username) }
         end
+          .to change(Post, :count).by(1)
       end
 
-      context 'content left blank' do
-        it 'sends an error response message' do
-          post '/v1/posts',
-               headers: { "Authorization": "Bearer #{user_token}" },
-               params: { post: {
-                 postable: cleo.username,
-                 content: nil
-               } }
-
-          json_response = JSON.parse(response.body)
-
-          expect(response).to have_http_status(:unprocessable_entity)
-          expect(json_response['message']).to match('Cannot create post')
-          expect(json_response['errors']['content']).to match(["can't be blank"])
-        end
-      end
-    end
-
-    context 'postable user does not exist' do
-      it 'responds with an error json' do
+      it 'responds w/ data of created post' do
         post '/v1/posts',
              headers: { "Authorization": "Bearer #{user_token}" },
-             params: { post: {
-               postable: 'nick',
-               content: nil
-             } }
+             params: { post: attributes_for(:post).merge(postable: beng.username) }
 
         json_response = JSON.parse(response.body)
-        expect(response).to have_http_status(422)
-        expect(json_response['errors']['postable']).to include('must exist')
+
+        expect(response).to have_http_status(:created)
+        expect(json_response.keys).to match(
+          %w[id content created_at updated_at author posted_to comments likes liked? like_id]
+        )
+        expect(json_response['author']['username']).to eq(beng.username)
+        expect(json_response['posted_to']['username']).to eq(beng.username)
+      end
+    end
+
+    context 'incomplete or invalid post params' do
+      it 'sends an error response' do
+        post '/v1/posts',
+             headers: { "Authorization": "Bearer #{user_token}" },
+             params: { post: attributes_for(:post, :invalid).merge(postable: karen.username) }
+
+        json_response = JSON.parse(response.body)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(json_response['message']).to match('Cannot create post')
+        expect(json_response['errors']['content']).to include("can't be blank")
       end
     end
   end
 
   describe 'PUT /v1/posts/:id' do
-    let(:ragnar) { create(:user, :male, first_name: 'Ragnar') }
-    let(:bjorn) { create(:user, :male, first_name: 'Bjorn') }
-    let(:ragnar_post) { create(:post, author: ragnar, postable: bjorn) }
-
-    let!(:login) do
-      login_as(ragnar)
-    end
-
-    context 'post and postable exist' do
-      context 'content is present' do
-        it 'sends the updated post as json response' do
-          content = 'Updated content'
-          put "/v1/posts/#{ragnar_post.id}",
+    context 'post exists' do
+      context 'valid post params' do
+        let!(:update) do
+          put "/v1/posts/#{post_to_karen.id}",
               headers: { "Authorization": "Bearer #{user_token}" },
-              params: { post: {
-                postable: bjorn.username,
-                content: content
-              } }
+              params: { post: { content: updated_content, postable: karen.username } }
 
+          post_to_karen.reload
+        end
+
+        it 'updates the post on the db' do
+          expect(post_to_karen.content).to eq(updated_content)
+        end
+
+        it 'sends the updated post as response' do
           json_response = JSON.parse(response.body)
+
           expect(response).to have_http_status(:accepted)
-          expect(json_response.keys)
-            .to match(%w[id content created_at updated_at author posted_to comments likes liked? like_id])
-          expect(json_response['content']).to eq(content)
-          expect(json_response['posted_to']['username']).to eq(bjorn.username)
+
+          expect(json_response['content']).to match(updated_content)
         end
       end
 
-      context 'content is missing' do
-        it 'sends an error json' do
-          put "/v1/posts/#{ragnar_post.id}",
+      context 'invalid post params' do
+        let!(:update) do
+          put "/v1/posts/#{post_to_karen.id}",
               headers: { "Authorization": "Bearer #{user_token}" },
-              params: { post: {
-                postable: bjorn.username,
-                content: nil
-              } }
-          json_response = JSON.parse(response.body)
-          expect(response).to have_http_status(:unprocessable_entity)
-          expect(json_response['message']).to match('Cannot update post')
-          expect(json_response['errors']['content'].first).to match("can't be blank")
-        end
-      end
-    end
+              params: { post: attributes_for(:post).merge(content: updated_content) }
 
-    context 'post or postable does not exist' do
-      context 'postable does not exist' do
-        it 'sends an error response' do
-          put "/v1/posts/#{ragnar_post.id}",
-              headers: { "Authorization": "Bearer #{user_token}" },
-              params: {
-                post: {
-                  postable: 'arnold',
-                  content: 'Updated content'
-                }
-              }
+          post_to_karen.reload
+        end
+
+        it 'does not change post in the db' do
+          expect(post_to_karen.content).to_not eq(updated_content)
+        end
+
+        it 'sends error response' do
           json_response = JSON.parse(response.body)
-          expect(response).to have_http_status(422)
+
           expect(json_response['errors']['postable']).to include('must exist')
         end
       end
+    end
 
-      context 'post does not exist' do
-        it 'sends an error response' do
-          put '/v1/posts/another233id',
-              headers: { "Authorization": "Bearer #{user_token}" },
-              params: {
-                post: {
-                  postable: bjorn,
-                  content: 'Updated content'
-                }
-              }
-          json_response = JSON.parse(response.body)
-          expect(response).to have_http_status(404)
-          expect(json_response['message']).to match('Post does not exist')
-        end
+    context 'post does not exist' do
+      it 'sends an error response' do
+        put '/v1/posts/nonExistentPostId',
+            headers: { "Authorization": "Bearer #{user_token}" },
+            params: { post: attributes_for(:post).merge(postable: beng) }
+
+        expect(response).to have_http_status(404)
+        expect(JSON.parse(response.body)['message']).to match('Post does not exist')
       end
     end
   end
 
   describe 'DELETE /v1/posts/:id' do
-    let(:harvey) { create(:user, :male, first_name: 'Harvey') }
-    let(:louis) { create(:user, :male, first_name: 'Louis') }
-
-    before do
-      login_as(harvey)
-    end
-
     context 'post exists' do
-      it 'sends a success json response' do
-        harvey_post = create(:post, author: harvey, postable: louis)
+      it 'removes post from db' do
+        expect do
+          delete "/v1/posts/#{post_to_karen.id}",
+                 headers: { "Authorization": "Bearer #{user_token}" }
+        end
+          .to change(Post, :count).by(-1)
+      end
 
-        delete "/v1/posts/#{harvey_post.id}",
+      it 'sends a success response' do
+        delete "/v1/posts/#{post_to_karen.id}",
                headers: { "Authorization": "Bearer #{user_token}" }
 
-        json_response = JSON.parse(response.body)
-
-        expect(response).to have_http_status(202)
-        expect(json_response['message']).to match('Post deleted')
+        expect(response).to have_http_status(:accepted)
+        expect(JSON.parse(response.body)['message']).to match('Post deleted')
       end
     end
 
     context 'post does not exist' do
-      it 'sends an error json response' do
-        delete '/v1/posts/123someId',
+      it 'sends an error response' do
+        delete '/v1/posts/nonExistentPosId',
                headers: { "Authorization": "Bearer #{user_token}" }
 
-        json_response = JSON.parse(response.body)
-
         expect(response).to have_http_status(404)
-        expect(json_response['message']).to match('Post does not exist')
+        expect(JSON.parse(response.body)['message']).to match('Post does not exist')
       end
     end
   end

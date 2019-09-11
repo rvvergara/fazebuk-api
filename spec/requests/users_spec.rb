@@ -3,16 +3,17 @@
 require 'rails_helper'
 
 RSpec.describe 'Users', type: :request do
-  describe 'GET /v1/users/:username' do
-    let(:alfred) { create(:user, :male, first_name: 'Alfred') }
+  let(:alfred) { create(:user, :male, first_name: 'Alfred') }
+  let!(:arnold) { create(:user, :male, first_name: 'Arnold') }
+  let(:duplicate_attributes) { attributes_for(:user, :male, username: arnold.username) }
+  let(:valid_attributes) { attributes_for(:user, :male) }
+  let(:invalid_attributes) { attributes_for(:user, :male, :invalid, first_name: nil) }
+  let!(:login) { login_as(alfred) }
 
+  describe 'GET /v1/users/:username' do
     context 'logged user' do
-      before do
-        login_as(alfred)
-        @token = user_token
-      end
       it 'returns a good response' do
-        get "/v1/users/#{alfred.username}", headers: { "Authorization": "Bearer #{@token}" }
+        get "/v1/users/#{alfred.username}", headers: { "Authorization": "Bearer #{user_token}" }
         expect(response).to have_http_status(:ok)
         expect(JSON.parse(response.body)['username']).to eq(alfred.username)
       end
@@ -31,21 +32,18 @@ RSpec.describe 'Users', type: :request do
   describe 'POST /v1/users' do
     context 'correct and complete user data' do
       it 'creates & authenticates user' do
-        user_attributes = attributes_for(:user, :male)
-
         expect do
-          post '/v1/users', params: { user: user_attributes }
+          post '/v1/users', params: { user: valid_attributes }
         end.to change(User, :count).by(1)
 
         expect(response).to have_http_status(:created)
 
-        expect(JSON.parse(response.body)['user']['token']).to_not be(nil)
+        expect(JSON.parse(response.body)['user']['token']).to eq(user_token)
       end
     end
 
     context 'first name missing' do
       it 'does not create a user' do
-        invalid_attributes = attributes_for(:user, :male, username: nil)
         expect do
           post '/v1/users', params: { user: invalid_attributes }
         end.to_not change(User, :count)
@@ -56,9 +54,6 @@ RSpec.describe 'Users', type: :request do
 
     context 'duplicate username' do
       it 'does not create user' do
-        arnold = create(:user, :male, username: 'arnold')
-        duplicate_attributes = attributes_for(:user, :male, username: arnold.username)
-
         expect do
           post '/v1/users', params: { user: duplicate_attributes }
         end.to_not change(User, :count)
@@ -69,57 +64,69 @@ RSpec.describe 'Users', type: :request do
   end
 
   describe 'PUT /v1/users/:username' do
-    let(:lebron) { create(:user, :male, first_name: 'Lebron') }
-    let(:boogie) { create(:user, :male, first_name: 'Demarcus') }
+    context 'authenticated user' do
+      context 'updating own account' do
+        it 'is accepted' do
+          put "/v1/users/#{alfred.username}",
+              headers: { "Authorization": "Bearer #{user_token}" },
+              params: { user: { first_name: 'King' } }
+          alfred.reload
+          expect(response).to have_http_status(:accepted)
+          expect(JSON.parse(response.body)['first_name']).to eq('King')
+          expect(alfred.first_name).to eq('King')
+        end
+      end
 
-    before { login_as(lebron) }
+      context "attempting to update other user's account" do
+        it 'is unauthorized' do
+          put "/v1/users/#{arnold.username}",
+              headers: { "Authorization": "Bearer #{user_token}" },
+              params: { user: { first_name: 'Booger' } }
 
-    context 'lebron updating his own account' do
-      it 'is accepted' do
-        put "/v1/users/#{lebron.username}",
-            headers: { "Authorization": "Bearer #{user_token}" },
-            params: { user: { first_name: 'King' } }
-        lebron.reload
-        expect(response).to have_http_status(:accepted)
-        expect(JSON.parse(response.body)['first_name']).to eq('King')
-        expect(lebron.first_name).to eq('King')
+          expect(response).to have_http_status(:unauthorized)
+          arnold.reload
+          expect(arnold.first_name).to eq('Arnold')
+        end
       end
     end
 
-    context "lebron attempting to update boogie's account" do
+    context 'unauthenticated user' do
       it 'is unauthorized' do
-        put "/v1/users/#{boogie.username}",
-            headers: { "Authorization": "Bearer #{user_token}" },
-            params: { user: { first_name: 'Booger' } }
+        put "/v1/users/#{alfred.username}",
+            params: { user: valid_attributes }
 
         expect(response).to have_http_status(:unauthorized)
-        boogie.reload
-        expect(boogie.first_name).to eq('Demarcus')
+        expect(JSON.parse(response.body)['message']).to match('Unauthorized access')
       end
     end
   end
 
   describe 'DELETE /v1/users/:username' do
-    let(:cesar) { create(:user, :male, first_name: 'Cesar') }
-    let(:pompey) { create(:user, :male, first_name: 'Pompey') }
+    context 'authenticated user' do
+      context 'deleting own account' do
+        it 'is successfully processed' do
+          delete "/v1/users/#{alfred.username}",
+                 headers: { "Authorization": "Bearer #{user_token}" }
 
-    before { login_as(cesar) }
+          expect(response).to have_http_status(:accepted)
+        end
+      end
 
-    context 'cesar deleting his own account' do
-      it 'is successfully processed' do
-        delete "/v1/users/#{cesar.username}",
-               headers: { "Authorization": "Bearer #{user_token}" }
+      context "attempting to delete other user's account" do
+        it 'is not successful' do
+          delete "/v1/users/#{arnold.username}",
+                 headers: { "Authorization": "Bearer #{user_token}" }
 
-        expect(response).to have_http_status(:accepted)
+          expect(response).to have_http_status(:unauthorized)
+        end
       end
     end
-
-    context "cesar deleting pompey's account" do
-      it 'is not successful' do
-        delete "/v1/users/#{pompey.username}",
-               headers: { "Authorization": "Bearer #{user_token}" }
+    context 'unauthenticated user' do
+      it 'is invalid' do
+        delete "/v1/users/#{alfred.username}"
 
         expect(response).to have_http_status(:unauthorized)
+        expect(JSON.parse(response.body)['message']).to match('Unauthorized access')
       end
     end
   end

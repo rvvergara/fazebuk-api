@@ -12,6 +12,10 @@ FactoryBot.define do
       first_name { Faker::Name.female_first_name }
     end
 
+    trait :invalid do
+      username { first_name }
+    end
+
     last_name { Faker::Name.last_name }
     username { first_name.downcase }
     email { "#{username}@gmail.com" }

@@ -8,6 +8,7 @@ RSpec.describe Friendship, type: :model do
   let!(:valid_request) { create(:request, active_friend: ryto, passive_friend: james) }
   let(:invalid_request) { build(:request, active_friend: james, passive_friend: ryto) }
   let(:request_to_self) { build(:request, active_friend: james, passive_friend: james) }
+  let(:request_to_nil) { build(:request, active_friend: james, passive_friend: nil) }
 
   describe 'validations' do
     context 'friend request to a friend' do
@@ -23,6 +24,18 @@ RSpec.describe Friendship, type: :model do
         request_to_self.valid?
 
         expect(request_to_self.errors['active_friend']).to include('You cannot send yourself a friend request')
+      end
+    end
+
+    context 'friend request to non-existent user' do
+      let!(:validate) { request_to_nil.valid? }
+
+      it 'is invalid' do
+        expect(request_to_nil.errors['passive_friend']).to include('must exist')
+      end
+
+      it 'has nil combined_ids' do
+        expect(request_to_nil.combined_ids).to eq(nil)
       end
     end
   end

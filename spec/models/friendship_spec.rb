@@ -5,37 +5,32 @@ require 'rails_helper'
 RSpec.describe Friendship, type: :model do
   let(:ryto) { create(:user, :male, first_name: 'Ryto') }
   let(:james) { create(:user, :male, first_name: 'James') }
-
-  before do
-    @friendship = create(:friendship, active_friend: ryto, passive_friend: james)
-  end
+  let!(:valid_request) { create(:request, active_friend: ryto, passive_friend: james) }
+  let(:invalid_request) { build(:request, active_friend: james, passive_friend: ryto) }
+  let(:request_to_self) { build(:request, active_friend: james, passive_friend: james) }
 
   describe 'validations' do
-    context 'james creates a duplicate friendship with ryto' do
+    context 'friend request to a friend' do
       it 'is invalid' do
-        duplicate_friendship = build(:friendship, active_friend: james, passive_friend: ryto)
+        invalid_request.valid?
 
-        duplicate_friendship.valid?
-
-        expect(duplicate_friendship.errors['combined_ids']).to include('has already been taken')
+        expect(invalid_request.errors['combined_ids']).to include('has already been taken')
       end
     end
 
-    context 'james sends himself a friend request' do
+    context 'friend request to self' do
       it 'is invalid' do
-        self_friendship = build(:friendship, active_friend: james, passive_friend: james)
+        request_to_self.valid?
 
-        self_friendship.valid?
-
-        expect(self_friendship.errors['active_friend']).to include('You cannot send yourself a friend request')
+        expect(request_to_self.errors['active_friend']).to include('You cannot send yourself a friend request')
       end
     end
   end
 
   describe '#confirm' do
     it 'confirms the friendship between james and ryto' do
-      @friendship.confirm
-      expect(@friendship.confirmed).to eq(true)
+      valid_request.confirm
+      expect(valid_request.confirmed).to eq(true)
     end
   end
 end

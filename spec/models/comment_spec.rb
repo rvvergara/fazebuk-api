@@ -25,7 +25,7 @@ RSpec.describe Comment, type: :model do
   end
 
   describe 'inherited #like_id' do
-    before { comment.save }
+    let!(:save) { comment.save }
 
     context 'user has liked the comment' do
       it 'returns like id' do

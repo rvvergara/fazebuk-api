@@ -6,6 +6,7 @@ RSpec.describe Post, type: :model do
   let(:charlie) { create(:user, :male, first_name: 'Charlie') }
   let(:kyle) { create(:user, :male, first_name: 'Kyle') }
   let(:post) { build(:post, author: charlie, postable: kyle) }
+  let!(:like) { create(:like, :for_post, likeable: post, liker: kyle) }
 
   describe 'validation' do
     context 'content present in post' do
@@ -15,7 +16,7 @@ RSpec.describe Post, type: :model do
     end
 
     context 'post has no content' do
-      it 'is contains an error saying content cannot be blank' do
+      it 'is invalid and has errors' do
         post.content = nil
         post.valid?
         expect(post.errors['content']).to be_include("can't be blank")
@@ -24,16 +25,16 @@ RSpec.describe Post, type: :model do
   end
 
   describe 'inherited #like_id' do
-    before { post.save }
+    let!(:save) { post.save }
+
     context 'user has liked the post' do
       it 'returns like id' do
-        like = create(:like, :for_post, likeable: post, liker: kyle)
         expect(post.like_id(kyle)).to eq(like.id)
       end
     end
     context 'user has not liked the post' do
       it 'returns nil' do
-        expect(post.like_id(kyle)).to be(nil)
+        expect(post.like_id(charlie)).to be(nil)
       end
     end
   end

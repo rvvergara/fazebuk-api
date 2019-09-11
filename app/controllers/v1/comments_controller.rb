@@ -29,15 +29,22 @@ class V1::CommentsController < ApplicationController
     comment = set_comment
     return unless comment
 
-    if comment
-      comment.destroy
-      render json: { message: 'Comment deleted' }, status: :accepted
-    else
-      render json: { message: 'Cannot find comment' }, status: 404
-    end
+    comment.destroy
+
+    render json: { message: 'Comment deleted' }, status: :accepted
   end
 
   private
+
+  def build_comment
+    return unless set_commentable
+
+    if set_commentable.class == Post
+      set_commentable.comments.build(comment_params)
+    elsif set_commentable.class == Comment
+      set_commentable.replies.build(comment_params)
+    end
+  end
 
   def update_params
     params.require(:comment).permit(:body).merge(commenter: pundit_user)
@@ -48,7 +55,7 @@ class V1::CommentsController < ApplicationController
 
     return comment if comment
 
-    render json: { message: 'Cannot find comment' }, status: 404
+    render_error('comment')
     nil
   end
 end

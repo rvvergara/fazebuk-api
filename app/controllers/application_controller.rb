@@ -45,4 +45,8 @@ class ApplicationController < ActionController::API
       gender: user.gender
     }
   end
+
+  def render_error(resource_type)
+    render json: { message: "Cannot find #{resource_type}" }, status: 404
+  end
 end

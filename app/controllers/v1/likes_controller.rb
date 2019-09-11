@@ -34,8 +34,4 @@ class V1::LikesController < ApplicationController
 
     pundit_user.likes.build(likeable: set_likeable)
   end
-
-  def render_error(likeable_type)
-    render json: { message: "Cannot find #{likeable_type}" }, status: 404
-  end
 end

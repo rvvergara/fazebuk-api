@@ -8,9 +8,9 @@ class V1::FriendshipsController < ApplicationController
     friendship = pundit_user.active_friendships.build(passive_friend: passive_friend)
 
     if friendship.save
-      render :create, locals: { passive_friend: passive_friend }, status: :ok
+      render :create, locals: { passive_friend: passive_friend }, status: :created
     else
-      render json: { message: 'Cannot send request', errors: friendship.errors }
+      render json: { message: 'Cannot send request', errors: friendship.errors }, status: :unprocessable_entity
     end
   end
 

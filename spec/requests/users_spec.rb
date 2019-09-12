@@ -10,6 +10,14 @@ RSpec.describe 'Users', type: :request do
   let(:invalid_attributes) { attributes_for(:user, :male, :invalid, first_name: nil) }
   let!(:login) { login_as(alfred) }
 
+  def user_params(attributes_hash)
+    { user: attributes_hash }
+  end
+
+  def user_route(resource)
+    "/v1/users/#{resource}"
+  end
+
   describe 'unauthenticated user requests' do
     it {
       get "/v1/users/#{alfred.username}"
@@ -28,7 +36,8 @@ RSpec.describe 'Users', type: :request do
   describe 'GET /v1/users/:username' do
     context 'logged user' do
       it 'sends user json data as response' do
-        get "/v1/users/#{alfred.username}", headers: { "Authorization": "Bearer #{user_token}" }
+        get user_route(alfred.username),
+            headers: authorization_header
 
         expect(response).to have_http_status(:ok)
         expect(json_response.keys).to match(user_response_keys)
@@ -41,7 +50,8 @@ RSpec.describe 'Users', type: :request do
     context 'correct and complete user data' do
       it 'creates & authenticates user' do
         expect do
-          post '/v1/users', params: { user: valid_attributes }
+          post user_route(nil),
+               params: user_params(valid_attributes)
         end.to change(User, :count).by(1)
 
         expect(response).to have_http_status(:created)
@@ -53,7 +63,8 @@ RSpec.describe 'Users', type: :request do
     context 'first name missing' do
       it 'does not create a user' do
         expect do
-          post '/v1/users', params: { user: invalid_attributes }
+          post user_route(nil),
+               params: user_params(invalid_attributes)
         end.to_not change(User, :count)
 
         expect(json_response['message']).to match('Cannot create user')
@@ -63,8 +74,10 @@ RSpec.describe 'Users', type: :request do
     context 'duplicate username' do
       it 'does not create user' do
         expect do
-          post '/v1/users', params: { user: duplicate_attributes }
-        end.to_not change(User, :count)
+          post user_route(nil),
+               params: user_params(duplicate_attributes)
+        end
+          .to_not change(User, :count)
 
         expect(json_response['errors']['username']).to include('has already been taken')
       end
@@ -75,9 +88,9 @@ RSpec.describe 'Users', type: :request do
     context 'authenticated user' do
       context 'updating own account' do
         it 'is accepted' do
-          put "/v1/users/#{alfred.username}",
-              headers: { "Authorization": "Bearer #{user_token}" },
-              params: { user: { first_name: 'King' } }
+          put user_route(alfred.username),
+              headers: authorization_header,
+              params: user_params(first_name: 'King')
           alfred.reload
 
           expect(response).to have_http_status(:accepted)
@@ -89,9 +102,9 @@ RSpec.describe 'Users', type: :request do
 
       context "attempting to update other user's account" do
         it 'is unauthorized' do
-          put "/v1/users/#{arnold.username}",
-              headers: { "Authorization": "Bearer #{user_token}" },
-              params: { user: { first_name: 'Booger' } }
+          put user_route(arnold.username),
+              headers: authorization_header,
+              params: user_params(first_name: 'Booger')
 
           expect(response).to have_http_status(:unauthorized)
           arnold.reload
@@ -105,8 +118,8 @@ RSpec.describe 'Users', type: :request do
     context 'authenticated user' do
       context 'deleting own account' do
         it 'is successfully processed' do
-          delete "/v1/users/#{alfred.username}",
-                 headers: { "Authorization": "Bearer #{user_token}" }
+          delete user_route(alfred.username),
+                 headers: authorization_header
 
           expect(response).to have_http_status(:accepted)
         end
@@ -114,8 +127,8 @@ RSpec.describe 'Users', type: :request do
 
       context "attempting to delete other user's account" do
         it 'is not successful' do
-          delete "/v1/users/#{arnold.username}",
-                 headers: { "Authorization": "Bearer #{user_token}" }
+          delete user_route(arnold.username),
+                 headers: authorization_header
 
           expect(response).to have_http_status(:unauthorized)
         end

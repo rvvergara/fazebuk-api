@@ -26,6 +26,10 @@ module Helpers
       ]
     end
 
+    def post_response_keys
+      %w[id content created_at updated_at author posted_to comments likes liked? like_id]
+    end
+
     def timeline_posts_response_keys
       %w[
         timeline_posts_of timeline_posts page total_shown_on_page total_posts
@@ -36,6 +40,14 @@ module Helpers
       %w[
         newsfeed_posts_for newsfeed_posts page total_shown_on_page total_posts
       ]
+    end
+
+    def comment_response_keys
+      %w[id commenter body created_at updated_at replies likes liked? like_id]
+    end
+
+    def comment_reply_response_keys
+      %w[id commenter body created_at updated_at likes liked? like_id]
     end
   end
 end

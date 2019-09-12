@@ -4,8 +4,9 @@ require 'rails_helper'
 
 RSpec.describe 'Users', type: :request do
   let(:alfred) { create(:user, :male, first_name: 'Alfred') }
-  let!(:arnold) { create(:user, :male, first_name: 'Arnold') }
-  let(:duplicate_attributes) { attributes_for(:user, :male, username: arnold.username) }
+  let(:conrad) { create(:user, :male, first_name: 'Conrad') }
+  let!(:friendship) { create(:friendship, :confirmed, active_friend: alfred, passive_friend: conrad) }
+  let(:duplicate_attributes) { attributes_for(:user, :male, username: conrad.username) }
   let(:valid_attributes) { attributes_for(:user, :male) }
   let(:invalid_attributes) { attributes_for(:user, :male, :invalid, first_name: nil) }
   let!(:login) { login_as(alfred) }
@@ -14,8 +15,14 @@ RSpec.describe 'Users', type: :request do
     { user: attributes_hash }
   end
 
-  def user_route(resource)
-    "/v1/users/#{resource}"
+  def user_route(username = nil)
+    "/v1/users/#{username}"
+  end
+
+  def update_user(username, attributes)
+    put user_route(username),
+        headers: authorization_header,
+        params: user_params(attributes)
   end
 
   describe 'unauthenticated user requests' do
@@ -34,20 +41,30 @@ RSpec.describe 'Users', type: :request do
   end
 
   describe 'GET /v1/users/:username' do
-    context 'logged user' do
-      it 'sends user json data as response' do
-        get user_route(alfred.username),
+    context 'user exists' do
+      it 'sends the user data as response' do
+        get user_route(conrad.username),
             headers: authorization_header
 
         expect(response).to have_http_status(:ok)
         expect(json_response.keys).to match(user_response_keys)
-        expect(json_response['username']).to eq(alfred.username)
+        expect(json_response['is_already_a_friend?']).to be(true)
+      end
+    end
+
+    context 'user does not exist' do
+      it 'sends an error response' do
+        get user_route('nobody'),
+            headers: authorization_header
+
+        expect(response).to have_http_status(404)
+        expect(json_response['message']).to match('Cannot find user')
       end
     end
   end
 
   describe 'POST /v1/users' do
-    context 'correct and complete user data' do
+    context 'valid params' do
       it 'creates & authenticates user' do
         expect do
           post user_route(nil),
@@ -60,78 +77,119 @@ RSpec.describe 'Users', type: :request do
       end
     end
 
-    context 'first name missing' do
-      it 'does not create a user' do
-        expect do
-          post user_route(nil),
-               params: user_params(invalid_attributes)
-        end.to_not change(User, :count)
+    context 'invalid params' do
+      context 'missing first_name' do
+        it 'does not create a user' do
+          expect do
+            post user_route(nil),
+                 params: user_params(invalid_attributes)
+          end.to_not change(User, :count)
 
-        expect(json_response['message']).to match('Cannot create user')
-      end
-    end
-
-    context 'duplicate username' do
-      it 'does not create user' do
-        expect do
-          post user_route(nil),
-               params: user_params(duplicate_attributes)
+          expect(json_response['message']).to match('Cannot create user')
         end
-          .to_not change(User, :count)
+      end
 
-        expect(json_response['errors']['username']).to include('has already been taken')
+      context 'duplicate username' do
+        it 'does not create user' do
+          expect do
+            post user_route(nil),
+                 params: user_params(duplicate_attributes)
+          end
+            .to_not change(User, :count)
+
+          expect(json_response['errors']['username']).to include('has already been taken')
+        end
       end
     end
   end
 
   describe 'PUT /v1/users/:username' do
-    context 'authenticated user' do
-      context 'updating own account' do
-        it 'is accepted' do
-          put user_route(alfred.username),
-              headers: authorization_header,
-              params: user_params(first_name: 'King')
-          alfred.reload
+    let!(:login) { login_as(alfred) }
 
+    context 'user exists' do
+      context 'valid params' do
+        before do
+          attributes = { first_name: 'King' }
+
+          update_user(alfred.username, attributes)
+        end
+
+        it 'changes user record' do
+          alfred.reload
+          expect(alfred.first_name).to eq('King')
+        end
+
+        it 'sends updated user data as response' do
           expect(response).to have_http_status(:accepted)
           expect(json_response.keys).to match(user_response_keys)
           expect(json_response['first_name']).to eq('King')
-          expect(alfred.first_name).to eq('King')
         end
       end
 
-      context "attempting to update other user's account" do
-        it 'is unauthorized' do
-          put user_route(arnold.username),
-              headers: authorization_header,
-              params: user_params(first_name: 'Booger')
+      context 'invalid params' do
+        context 'missing first name' do
+          before { update_user(alfred.username, invalid_attributes) }
 
-          expect(response).to have_http_status(:unauthorized)
-          arnold.reload
-          expect(arnold.first_name).to eq('Arnold')
+          it 'does not update user record' do
+            alfred.reload
+            expect(alfred.first_name).to eq('Alfred')
+          end
+
+          it 'sends an error response' do
+            expect(response).to have_http_status(:unprocessable_entity)
+            expect(json_response['errors']['first_name']).to include("can't be blank")
+          end
         end
+
+        context 'duplicate username' do
+          before { update_user(alfred.username, duplicate_attributes) }
+
+          it 'does not change user record' do
+            alfred.reload
+
+            expect(alfred.username).to eq('alfred')
+          end
+        end
+      end
+    end
+
+    context 'user does not exist' do
+      it 'sends an error response' do
+        put user_route('nobody'),
+            headers: authorization_header
+
+        expect(response).to have_http_status(404)
+        expect(json_response['message']).to match('Cannot find user')
       end
     end
   end
 
   describe 'DELETE /v1/users/:username' do
-    context 'authenticated user' do
-      context 'deleting own account' do
-        it 'is successfully processed' do
+    context 'user exists' do
+      it 'removes user record from the db' do
+        expect do
           delete user_route(alfred.username),
                  headers: authorization_header
-
-          expect(response).to have_http_status(:accepted)
         end
+          .to change(User, :count).by(-1)
       end
 
-      context "attempting to delete other user's account" do
-        it 'is not successful' do
-          delete user_route(arnold.username),
-                 headers: authorization_header
+      it 'sends a success response' do
+        delete user_route(alfred.username),
+               headers: authorization_header
 
-          expect(response).to have_http_status(:unauthorized)
-        end
+        expect(response).to have_http_status(:accepted)
+        expect(json_response['message']).to match('Account deleted')
+      end
+    end
+
+    context 'user does not exist' do
+      it 'sends an error response' do
+        delete user_route('nobody'),
+               headers: authorization_header
+
+        expect(response).to have_http_status(404)
+        expect(json_response['message']).to match('Cannot find user')
       end
     end
   end

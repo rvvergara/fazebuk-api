@@ -4,12 +4,10 @@ class V1::UsersController < ApplicationController
   before_action :pundit_user, except: [:create]
 
   def show
-    user = User.find_by(username: params[:username])
-    if user
-      render :user, locals: { user: user }, status: :ok
-    else
-      render json: { message: 'Cannot find user' }, status: 404
-    end
+    user = find_user
+    return unless user
+
+    render :user, locals: { user: user }, status: :ok
   end
 
   def create
@@ -19,36 +17,41 @@ class V1::UsersController < ApplicationController
       token = JsonWebToken.encode(user.attributes)
       render :create, locals: { user: user, token: token }, status: :created
     else
-      render json: { message: 'Cannot create user', errors: user.errors }, status: :unprocessable_entity
+      process_error(user, 'Cannot create user')
     end
   end
 
   def update
-    user = User.find_by(username: params[:username])
+    user = find_user
+    return unless user
+
     authorize user
     if user.update(user_params)
       render :user, locals: { user: user }, status: :accepted
     else
-      render json: {
-        message: 'Cannot process update',
-        errors: user.errors
-      },
-             status: :unprocessable_entity
+      process_error(user, 'Cannot update user')
     end
   end
 
   def destroy
-    user = User.find_by(username: params[:username])
+    user = find_user
+    return unless user
+
     authorize user
 
-    if user.destroy
-      render json: { message: 'Account deleted' }, status: :accepted
-    else
-      render json: { message: 'Cannot find user' }, status: :unprocessable_entity
-    end
+    user.destroy
+    render json: { message: 'Account deleted' }, status: :accepted
   end
 
   private
+
+  def find_user
+    user = User.find_by(username: params[:username])
+    return user if user
+
+    find_error('user')
+    nil
+  end
 
   def user_params
     params.require(:user).permit(

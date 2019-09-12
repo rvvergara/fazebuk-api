@@ -9,7 +9,7 @@ class V1::Posts::CommentsController < V1::CommentsController
     post = Post.find_by(id: params[:post_id])
     return post if post
 
-    render_error('post')
+    find_error('post')
     nil
   end
 

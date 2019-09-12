@@ -28,7 +28,7 @@ class ApplicationController < ActionController::API
     user = User.find_by(username: params[:user_username])
     return user if user
 
-    render_error('user')
+    find_error('user')
     nil
   end
 

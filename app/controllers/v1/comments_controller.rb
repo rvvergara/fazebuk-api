@@ -55,7 +55,7 @@ class V1::CommentsController < ApplicationController
 
     return comment if comment
 
-    render_error('comment')
+    find_error('comment')
     nil
   end
 end

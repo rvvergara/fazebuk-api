@@ -9,7 +9,7 @@ class V1::Comments::RepliesController < V1::CommentsController
     comment = Comment.find_by(id: params[:comment_id])
     return comment if comment
 
-    render_error('comment')
+    find_error('comment')
     nil
   end
 

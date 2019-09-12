@@ -9,7 +9,7 @@ class V1::Comments::LikesController < V1::LikesController
     comment = Comment.find_by(id: params[:comment_id])
     return comment if comment
 
-    render_error('comment')
+    find_error('comment')
     nil
   end
 end

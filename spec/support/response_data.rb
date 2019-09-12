@@ -25,5 +25,17 @@ module Helpers
         mutual_friends_with displayed_mutual_friends page total_shown_on_page total
       ]
     end
+
+    def timeline_posts_response_keys
+      %w[
+        timeline_posts_of timeline_posts page total_shown_on_page total_posts
+      ]
+    end
+
+    def newsfeed_posts_response_keys
+      %w[
+        newsfeed_posts_for newsfeed_posts page total_shown_on_page total_posts
+      ]
+    end
   end
 end

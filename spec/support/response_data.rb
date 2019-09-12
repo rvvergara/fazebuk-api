@@ -19,5 +19,11 @@ module Helpers
         friends_of displayed_friends page total_shown_on_page total
       ]
     end
+
+    def mutual_friends_response_keys
+      %w[
+        mutual_friends_with displayed_mutual_friends page total_shown_on_page total
+      ]
+    end
   end
 end

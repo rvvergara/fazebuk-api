@@ -10,7 +10,7 @@ class V1::LikesController < ApplicationController
     if like.save
       likeable_type = like.likeable_type.downcase!
 
-      action_success( "Successfully liked #{likeable_type}", :created)
+      action_success("Successfully liked #{likeable_type}", :created)
     else
       process_error(like, 'Cannot like resource')
     end

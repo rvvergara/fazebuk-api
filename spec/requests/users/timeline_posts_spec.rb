@@ -18,11 +18,6 @@ RSpec.describe 'Users::TimelinePosts', type: :request do
     end
   end
 
-  def timeline_posts_route(username, page = nil)
-    page_param = page ? "?page=#{page}" : nil
-    "/v1/users/#{username}/timeline_posts#{page_param}"
-  end
-
   describe 'unauthenticated user request' do
     it {
       get timeline_posts_route(harry.username)

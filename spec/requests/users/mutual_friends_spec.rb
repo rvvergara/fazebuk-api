@@ -19,11 +19,6 @@ RSpec.describe 'Users::Friends', type: :request do
     end
   end
 
-  def mutual_friends_route(username, page = nil)
-    page_param = page ? "?page=#{page}" : nil
-    "/v1/users/#{username}/mutual_friends#{page_param}"
-  end
-
   describe 'unauthenticated user request' do
     it {
       get mutual_friends_route(gerry.username)

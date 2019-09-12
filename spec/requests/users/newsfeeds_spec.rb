@@ -23,11 +23,6 @@ RSpec.describe 'Users::Newsfeeds', type: :request do
     end
   end
 
-  def newsfeed_route(page = nil)
-    page_param = page ? "?page=#{page}" : nil
-    "/v1/newsfeed_posts#{page_param}"
-  end
-
   describe 'unauthenticated user request' do
     it {
       get newsfeed_route

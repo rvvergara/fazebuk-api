@@ -7,6 +7,17 @@ module Helpers
       "/v1/users/#{username}"
     end
 
+    # Friendship related routes
+    def friends_route(username, page = nil)
+      page_param = page ? "?page=#{page}" : nil
+      "/v1/users/#{username}/friends#{page_param}"
+    end
+
+    def mutual_friends_route(username, page = nil)
+      page_param = page ? "?page=#{page}" : nil
+      "/v1/users/#{username}/mutual_friends#{page_param}"
+    end
+
     # Post routes
     def posts_route
       '/v1/posts'
@@ -14,6 +25,16 @@ module Helpers
 
     def post_route(post_id)
       "/v1/posts/#{post_id}"
+    end
+
+    def newsfeed_route(page = nil)
+      page_param = page ? "?page=#{page}" : nil
+      "/v1/newsfeed_posts#{page_param}"
+    end
+
+    def timeline_posts_route(username, page = nil)
+      page_param = page ? "?page=#{page}" : nil
+      "/v1/users/#{username}/timeline_posts#{page_param}"
     end
 
     # Comment and replies routes

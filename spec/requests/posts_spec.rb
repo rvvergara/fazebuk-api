@@ -6,7 +6,6 @@ RSpec.describe 'Posts', type: :request do
   let(:beng) { create(:user, :female, first_name: 'Beng') }
   let(:karen) { create(:user, :female, first_name: 'Karen') }
   let!(:post_to_karen) { create(:post, author: beng, postable: karen) }
-  let(:updated_content) { 'Updated content' }
   let!(:login) { login_as(beng) }
 
   describe 'requests by unauthenticated user' do
@@ -31,8 +30,8 @@ RSpec.describe 'Posts', type: :request do
   describe 'GET /v1/posts/:id' do
     context 'post exists' do
       let!(:visit) do
-        get "/v1/posts/#{post_to_karen.id}",
-            headers: { "Authorization": "Bearer #{user_token}" }
+        get post_route(post_to_karen.id),
+            headers: authorization_header
       end
 
       it 'sends a success response' do
@@ -40,9 +39,8 @@ RSpec.describe 'Posts', type: :request do
       end
 
       it 'sends the json data of post' do
-        json_response = JSON.parse(response.body)
         expect(json_response.keys)
-          .to match(%w[id content created_at updated_at author posted_to comments likes liked? like_id])
+          .to match(post_response_keys)
 
         expect(json_response['posted_to']['username']).to eq(karen.username)
         expect(json_response['author']['username']).to eq(beng.username)
@@ -51,11 +49,11 @@ RSpec.describe 'Posts', type: :request do
 
     context 'post does not exist' do
       it 'sends an error response' do
-        get '/v1/posts/nonExistentPostId',
-            headers: { "Authorization": "Bearer #{user_token}" }
+        get post_route('nonExistentPostId'),
+            headers: authorization_header
 
         expect(response).to have_http_status(404)
-        expect(JSON.parse(response.body)['message']).to match('Post does not exist')
+        expect(json_response['message']).to match('Cannot find post')
       end
     end
   end
@@ -64,24 +62,20 @@ RSpec.describe 'Posts', type: :request do
     context 'complete and valid post params' do
       it 'adds post to the database' do
         expect do
-          post '/v1/posts',
-               headers: { "Authorization": "Bearer #{user_token}" },
-               params: { post: attributes_for(:post).merge(postable: beng.username) }
+          post posts_route,
+               headers: authorization_header,
+               params: valid_post_attributes(beng)
         end
           .to change(Post, :count).by(1)
       end
 
       it 'responds w/ data of created post' do
-        post '/v1/posts',
-             headers: { "Authorization": "Bearer #{user_token}" },
-             params: { post: attributes_for(:post).merge(postable: beng.username) }
-
-        json_response = JSON.parse(response.body)
+        post posts_route,
+             headers: authorization_header,
+             params: valid_post_attributes(beng)
 
         expect(response).to have_http_status(:created)
-        expect(json_response.keys).to match(
-          %w[id content created_at updated_at author posted_to comments likes liked? like_id]
-        )
+        expect(json_response.keys).to match(post_response_keys)
         expect(json_response['author']['username']).to eq(beng.username)
         expect(json_response['posted_to']['username']).to eq(beng.username)
       end
@@ -89,11 +83,9 @@ RSpec.describe 'Posts', type: :request do
 
     context 'incomplete or invalid post params' do
       it 'sends an error response' do
-        post '/v1/posts',
-             headers: { "Authorization": "Bearer #{user_token}" },
-             params: { post: attributes_for(:post, :invalid).merge(postable: karen.username) }
-
-        json_response = JSON.parse(response.body)
+        post posts_route,
+             headers: authorization_header,
+             params: invalid_post_attributes(karen)
 
         expect(response).to have_http_status(:unprocessable_entity)
         expect(json_response['message']).to match('Cannot create post')
@@ -103,12 +95,14 @@ RSpec.describe 'Posts', type: :request do
   end
 
   describe 'PUT /v1/posts/:id' do
+    let(:updated_content) { 'Updated content' }
+
     context 'post exists' do
       context 'valid post params' do
         let!(:update) do
-          put "/v1/posts/#{post_to_karen.id}",
-              headers: { "Authorization": "Bearer #{user_token}" },
-              params: { post: { content: updated_content, postable: karen.username } }
+          put post_route(post_to_karen.id),
+              headers: authorization_header,
+              params: valid_post_attributes(karen, content: updated_content)
 
           post_to_karen.reload
         end
@@ -118,8 +112,6 @@ RSpec.describe 'Posts', type: :request do
         end
 
         it 'sends the updated post as response' do
-          json_response = JSON.parse(response.body)
-
           expect(response).to have_http_status(:accepted)
 
           expect(json_response['content']).to match(updated_content)
@@ -128,33 +120,31 @@ RSpec.describe 'Posts', type: :request do
 
       context 'invalid post params' do
         let!(:update) do
-          put "/v1/posts/#{post_to_karen.id}",
-              headers: { "Authorization": "Bearer #{user_token}" },
-              params: { post: attributes_for(:post).merge(content: updated_content) }
+          put post_route(post_to_karen.id),
+              headers: authorization_header,
+              params: invalid_post_attributes(karen)
 
           post_to_karen.reload
         end
 
         it 'does not change post in the db' do
-          expect(post_to_karen.content).to_not eq(updated_content)
+          expect(post_to_karen.content).to_not eq('')
         end
 
         it 'sends error response' do
-          json_response = JSON.parse(response.body)
-
-          expect(json_response['errors']['postable']).to include('must exist')
+          expect(json_response['errors']['content']).to include("can't be blank")
         end
       end
     end
 
     context 'post does not exist' do
       it 'sends an error response' do
-        put '/v1/posts/nonExistentPostId',
-            headers: { "Authorization": "Bearer #{user_token}" },
-            params: { post: attributes_for(:post).merge(postable: beng) }
+        put post_route('nonExistentPostId'),
+            headers: authorization_header,
+            params: valid_post_attributes(beng)
 
         expect(response).to have_http_status(404)
-        expect(JSON.parse(response.body)['message']).to match('Post does not exist')
+        expect(json_response['message']).to match('Cannot find post')
       end
     end
   end
@@ -163,28 +153,28 @@ RSpec.describe 'Posts', type: :request do
     context 'post exists' do
       it 'removes post from db' do
         expect do
-          delete "/v1/posts/#{post_to_karen.id}",
-                 headers: { "Authorization": "Bearer #{user_token}" }
+          delete post_route(post_to_karen.id),
+                 headers: authorization_header
         end
           .to change(Post, :count).by(-1)
       end
 
       it 'sends a success response' do
-        delete "/v1/posts/#{post_to_karen.id}",
-               headers: { "Authorization": "Bearer #{user_token}" }
+        delete post_route(post_to_karen.id),
+               headers: authorization_header
 
         expect(response).to have_http_status(:accepted)
-        expect(JSON.parse(response.body)['message']).to match('Post deleted')
+        expect(json_response['message']).to match('Post deleted')
       end
     end
 
     context 'post does not exist' do
       it 'sends an error response' do
-        delete '/v1/posts/nonExistentPosId',
-               headers: { "Authorization": "Bearer #{user_token}" }
+        delete post_route('nonExistentPostId'),
+               headers: authorization_header
 
         expect(response).to have_http_status(404)
-        expect(JSON.parse(response.body)['message']).to match('Post does not exist')
+        expect(json_response['message']).to match('Cannot find post')
       end
     end
   end

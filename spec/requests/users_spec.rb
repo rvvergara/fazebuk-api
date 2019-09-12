@@ -6,24 +6,7 @@ RSpec.describe 'Users', type: :request do
   let(:alfred) { create(:user, :male, first_name: 'Alfred') }
   let(:conrad) { create(:user, :male, first_name: 'Conrad') }
   let!(:friendship) { create(:friendship, :confirmed, active_friend: alfred, passive_friend: conrad) }
-  let(:duplicate_attributes) { attributes_for(:user, :male, username: conrad.username) }
-  let(:valid_attributes) { attributes_for(:user, :male) }
-  let(:invalid_attributes) { attributes_for(:user, :male, :invalid, first_name: nil) }
   let!(:login) { login_as(alfred) }
-
-  def user_params(attributes_hash)
-    { user: attributes_hash }
-  end
-
-  def user_route(username = nil)
-    "/v1/users/#{username}"
-  end
-
-  def update_user(username, attributes)
-    put user_route(username),
-        headers: authorization_header,
-        params: user_params(attributes)
-  end
 
   describe 'unauthenticated user requests' do
     it {
@@ -68,7 +51,7 @@ RSpec.describe 'Users', type: :request do
       it 'creates & authenticates user' do
         expect do
           post user_route(nil),
-               params: user_params(valid_attributes)
+               params: user_params(valid_user_attributes)
         end.to change(User, :count).by(1)
 
         expect(response).to have_http_status(:created)
@@ -82,7 +65,7 @@ RSpec.describe 'Users', type: :request do
         it 'does not create a user' do
           expect do
             post user_route(nil),
-                 params: user_params(invalid_attributes)
+                 params: user_params(invalid_user_attributes)
           end.to_not change(User, :count)
 
           expect(json_response['message']).to match('Cannot create user')
@@ -93,7 +76,7 @@ RSpec.describe 'Users', type: :request do
         it 'does not create user' do
           expect do
             post user_route(nil),
-                 params: user_params(duplicate_attributes)
+                 params: user_params(valid_user_attributes.merge(username: conrad.username))
           end
             .to_not change(User, :count)
 
@@ -108,11 +91,7 @@ RSpec.describe 'Users', type: :request do
 
     context 'user exists' do
       context 'valid params' do
-        before do
-          attributes = { first_name: 'King' }
-
-          update_user(alfred.username, attributes)
-        end
+        before { update_user(alfred.username, first_name: 'King') }
 
         it 'changes user record' do
           alfred.reload
@@ -128,7 +107,7 @@ RSpec.describe 'Users', type: :request do
 
       context 'invalid params' do
         context 'missing first name' do
-          before { update_user(alfred.username, invalid_attributes) }
+          before { update_user(alfred.username, invalid_user_attributes) }
 
           it 'does not update user record' do
             alfred.reload
@@ -142,7 +121,7 @@ RSpec.describe 'Users', type: :request do
         end
 
         context 'duplicate username' do
-          before { update_user(alfred.username, duplicate_attributes) }
+          before { update_user(alfred.username, username: conrad.username) }
 
           it 'does not change user record' do
             alfred.reload

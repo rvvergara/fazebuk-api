@@ -50,48 +50,44 @@ RSpec.describe 'Comments', type: :request do
       context 'valid params' do
         it 'saves to the database' do
           expect do
-            post "/v1/posts/#{post_to_lisa.id}/comments",
-                 headers: { "Authorization": "Bearer #{user_token}" },
-                 params: { comment: attributes_for(:comment, :for_post) }
+            post post_comments_route(post_to_lisa.id),
+                 headers: authorization_header,
+                 params: valid_comment_attributes(:comment)
           end
             .to change(Comment, :count).by(1)
         end
 
         it 'sends created comment as response' do
-          post "/v1/posts/#{post_to_lisa.id}/comments",
-               headers: { "Authorization": "Bearer #{user_token}" },
-               params: { comment: attributes_for(:comment, :for_post) }
-
-          json_response = JSON.parse(response.body)
+          post post_comments_route(post_to_lisa.id),
+               headers: authorization_header,
+               params: valid_comment_attributes(:comment)
 
           expect(response).to have_http_status(:created)
-          expect(json_response.keys).to match(
-            %w[id commenter body created_at updated_at replies likes liked? like_id]
-          )
+          expect(json_response.keys).to match(comment_response_keys)
           expect(json_response['commenter']['username']).to eq(lisa.username)
         end
       end
 
       context 'invalid params' do
         it 'sends an error response' do
-          post "/v1/posts/#{post_to_lisa.id}/comments",
-               headers: { "Authorization": "Bearer #{user_token}" },
-               params: { comment: attributes_for(:comment, :invalid, :for_post) }
+          post post_comments_route(post_to_lisa.id),
+               headers: authorization_header,
+               params: invalid_comment_attributes(:comment, :for_post)
 
           expect(response).to have_http_status(:unprocessable_entity)
-          expect(JSON.parse(response.body)['errors']['body']).to include("can't be blank")
+          expect(json_response['errors']['body']).to include("can't be blank")
         end
       end
     end
 
     context 'post does not exist' do
       it 'sends an error response' do
-        post '/v1/posts/nonExistentPostId/comments',
-             headers: { "Authorization": "Bearer #{user_token}" },
+        post post_comments_route('nonExistentPostId'),
+             headers: authorization_header,
              params: { comment: attributes_for(:comment, :for_post) }
 
         expect(response).to have_http_status(404)
-        expect(JSON.parse(response.body)['message']).to match('Cannot find post')
+        expect(json_response['message']).to match('Cannot find post')
       end
     end
   end
@@ -103,48 +99,44 @@ RSpec.describe 'Comments', type: :request do
       context 'valid params' do
         it 'saves to the database' do
           expect do
-            post "/v1/comments/#{comment.id}/replies",
-                 headers: { "Authorization": "Bearer #{user_token}" },
-                 params: { reply: attributes_for(:reply, :for_comment) }
+            post comment_replies_route(comment.id),
+                 headers: authorization_header,
+                 params: valid_comment_attributes(:reply)
           end
             .to change(Comment, :count).by(1)
         end
 
         it 'sends created reply as response' do
-          post "/v1/comments/#{comment.id}/replies",
-               headers: { "Authorization": "Bearer #{user_token}" },
-               params: { reply: attributes_for(:reply, :for_comment) }
-
-          json_response = JSON.parse(response.body)
+          post comment_replies_route(comment.id),
+               headers: authorization_header,
+               params: valid_comment_attributes('reply')
 
           expect(response).to have_http_status(:created)
-          expect(json_response.keys).to match(
-            %w[id commenter body created_at updated_at likes liked? like_id]
-          )
+          expect(json_response.keys).to match(comment_reply_response_keys)
           expect(json_response['commenter']['username']).to eq(bart.username)
         end
       end
 
       context 'invalid params' do
         it 'sends an error response' do
-          post "/v1/comments/#{comment.id}/replies",
-               headers: { "Authorization": "Bearer #{user_token}" },
-               params: { reply: attributes_for(:reply, :invalid, :for_comment) }
+          post comment_replies_route(comment.id),
+               headers: authorization_header,
+               params: invalid_comment_attributes(:reply, :for_comment)
 
           expect(response).to have_http_status(:unprocessable_entity)
-          expect(JSON.parse(response.body)['errors']['body']).to include("can't be blank")
+          expect(json_response['errors']['body']).to include("can't be blank")
         end
       end
     end
 
     context 'comment does not exist' do
       it 'sends an error response' do
-        post '/v1/comments/nonExistentPostId/replies',
-             headers: { "Authorization": "Bearer #{user_token}" },
-             params: { reply: attributes_for(:reply, :for_comment) }
+        post comment_replies_route('nonExistentCommentId'),
+             headers: authorization_header,
+             params: valid_comment_attributes(:reply)
 
         expect(response).to have_http_status(404)
-        expect(JSON.parse(response.body)['message']).to match('Cannot find comment')
+        expect(json_response['message']).to match('Cannot find comment')
       end
     end
   end
@@ -154,9 +146,9 @@ RSpec.describe 'Comments', type: :request do
     context 'comment exists' do
       context 'valid params' do
         let!(:update) do
-          put "/v1/comments/#{reply.id}",
-              headers: { "Authorization": "Bearer #{user_token}" },
-              params: { comment: { body: updated_body } }
+          put comment_route(reply.id),
+              headers: authorization_header,
+              params: valid_comment_attributes('comment', body: updated_body)
 
           reply.reload
         end
@@ -166,8 +158,6 @@ RSpec.describe 'Comments', type: :request do
         end
 
         it 'sends updated reply as response' do
-          json_response = JSON.parse(response.body)
-
           expect(response).to have_http_status(:accepted)
           expect(json_response['body']).to match(updated_body)
         end
@@ -175,9 +165,9 @@ RSpec.describe 'Comments', type: :request do
 
       context 'invalid params' do
         let!(:update) do
-          put "/v1/comments/#{reply.id}",
-              headers: { "Authorization": "Bearer #{user_token}" },
-              params: { comment: attributes_for(:reply, :for_comment, :invalid) }
+          put comment_route(reply.id),
+              headers: authorization_header,
+              params: invalid_comment_attributes(:reply, :for_comment, :comment)
 
           reply.reload
         end
@@ -188,19 +178,19 @@ RSpec.describe 'Comments', type: :request do
 
         it 'sends an error response' do
           expect(response).to have_http_status(:unprocessable_entity)
-          expect(JSON.parse(response.body)['errors']['body']).to include("can't be blank")
+          expect(json_response['errors']['body']).to include("can't be blank")
         end
       end
     end
 
     context 'comment does not exist' do
       it 'sends an error response' do
-        put '/v1/comments/nonExistentCommentId',
-            headers: { "Authorization": "Bearer #{user_token}" },
-            params: { comment: attributes_for(:reply, :for_comment) }
+        put comment_route('nonExistentCommentId'),
+            headers: authorization_header,
+            params: valid_comment_attributes(:reply)
 
         expect(response).to have_http_status(404)
-        expect(JSON.parse(response.body)['message']).to match('Cannot find comment')
+        expect(json_response['message']).to match('Cannot find comment')
       end
     end
   end
@@ -211,28 +201,28 @@ RSpec.describe 'Comments', type: :request do
     context 'comment exists' do
       it 'removes comment (and replies) from db' do
         expect do
-          delete "/v1/comments/#{comment.id}",
-                 headers: { "Authorization": "Bearer #{user_token}" }
+          delete comment_route(comment.id),
+                 headers: authorization_header
         end
           .to change(Comment, :count).by(-2)
       end
 
       it 'sends a success response' do
-        delete "/v1/comments/#{comment.id}",
-               headers: { "Authorization": "Bearer #{user_token}" }
+        delete comment_route(comment.id),
+               headers: authorization_header
 
         expect(response).to have_http_status(:accepted)
-        expect(JSON.parse(response.body)['message']).to match('Comment deleted')
+        expect(json_response['message']).to match('Comment deleted')
       end
     end
 
     context 'comment does not exist' do
       it 'sends an error response' do
-        delete '/v1/comments/nonExistingCommentId',
-               headers: { "Authorization": "Bearer #{user_token}" }
+        delete comment_route('nonExistentCommentId'),
+               headers: authorization_header
 
         expect(response).to have_http_status(404)
-        expect(JSON.parse(response.body)['message']).to match('Cannot find comment')
+        expect(json_response['message']).to match('Cannot find comment')
       end
     end
   end

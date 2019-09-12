@@ -9,7 +9,7 @@ class V1::PostsController < ApplicationController
     if post
       render :show, locals: { post: post }, status: :ok
     else
-      render_error('Post does not exist', 404)
+      find_error('post')
     end
   end
 
@@ -18,7 +18,7 @@ class V1::PostsController < ApplicationController
     if post.save
       render :create, locals: { post: post }, status: :created
     else
-      render_error('Cannot create post', 422, post.errors)
+      process_error(post, 'Cannot create post')
     end
   end
 
@@ -29,7 +29,7 @@ class V1::PostsController < ApplicationController
     if post&.update(post_params)
       render :update, locals: { post: post }, status: :accepted
     elsif post
-      render_error('Cannot update post', 422, post.errors)
+      process_error(post, 'Cannot update post')
     end
   end
 
@@ -57,7 +57,7 @@ class V1::PostsController < ApplicationController
   def set_post
     post = pundit_user.authored_posts.find_by(id: params[:id])
 
-    render_error('Post does not exist', 404) unless post
+    find_error('post') unless post
 
     post
   end
@@ -67,11 +67,5 @@ class V1::PostsController < ApplicationController
 
     post.postable_param = post_params[:postable] if post
     authorize post if post.postable_param
-  end
-
-  def render_error(message, err_status, error_data = nil)
-    err_json = { message: message }
-    err_json = err_json.merge(errors: error_data) if error_data
-    render json: err_json, status: err_status
   end
 end

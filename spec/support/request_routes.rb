@@ -28,5 +28,18 @@ module Helpers
     def comment_route(comment_id)
       "/v1/comments/#{comment_id}"
     end
+
+    # Like routes
+    def post_likes_route(post_id)
+      "/v1/posts/#{post_id}/likes"
+    end
+
+    def comment_likes_route(comment_id)
+      "/v1/comments/#{comment_id}/likes"
+    end
+
+    def like_route(like_id)
+      "/v1/likes/#{like_id}"
+    end
   end
 end

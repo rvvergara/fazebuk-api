@@ -17,14 +17,12 @@ class V1::LikesController < ApplicationController
   end
 
   def destroy
-    like = Like.find_by(id: params[:id])
-    if like
-      like.destroy
-      likeable_type = like.likeable_type.downcase
-      render json: { message: "Unliked #{likeable_type}" }, status: :accepted
-    else
-      render json: { message: 'Cannot find like record' }, status: 404
-    end
+    like = find_like
+    return unless like
+
+    like.destroy
+    likeable_type = like.likeable_type.downcase
+    render json: { message: "Unliked #{likeable_type}" }, status: :accepted
   end
 
   private
@@ -33,5 +31,13 @@ class V1::LikesController < ApplicationController
     return unless set_likeable
 
     pundit_user.likes.build(likeable: set_likeable)
+  end
+
+  def find_like
+    like = Like.find_by(id: params[:id])
+    return like if like
+
+    find_error('like record')
+    nil
   end
 end

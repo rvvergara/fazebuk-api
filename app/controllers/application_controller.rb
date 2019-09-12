@@ -24,6 +24,14 @@ class ApplicationController < ActionController::API
     end
   end
 
+  def find_user
+    user = User.find_by(username: params[:user_username])
+    return user if user
+
+    render_error('user')
+    nil
+  end
+
   def set_page
     Pagination.page(params[:page]).to_i
   end

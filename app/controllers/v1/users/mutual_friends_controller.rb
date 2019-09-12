@@ -5,16 +5,20 @@ class V1::Users::MutualFriendsController < ApplicationController
 
   def index
     page = set_page
+
     user = User.find_by(username: params[:user_username])
     records_per_page = 10
-    mutual_friends_count = pundit_user.mutual_friends_with(user).count
-    mutual_friends = pundit_user.paginated_mutual_friends_with(user, page, records_per_page)
 
-    if set_max_in_page(page, mutual_friends_count, records_per_page)
+    total_mutual_friends_count = pundit_user.mutual_friends_with(user).count
+
+    displayed_mutual_friends = pundit_user.paginated_mutual_friends_with(user, page, records_per_page)
+
+    if set_max_in_page(page, total_mutual_friends_count, records_per_page)
       render :mutual_friends,
              locals: {
                user: user,
-               mutual_friends: mutual_friends, mutual_friends_count: mutual_friends_count,
+               displayed_mutual_friends: displayed_mutual_friends, total_mutual_friends_count:
+               total_mutual_friends_count,
                page: page
              },
              status: :ok

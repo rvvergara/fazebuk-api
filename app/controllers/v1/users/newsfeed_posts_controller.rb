@@ -16,7 +16,7 @@ class V1::Users::NewsfeedPostsController < ApplicationController
              },
              status: :ok
     else
-      render json: { message: 'No more newsfeed posts to show' }, status: :ok
+      action_success('No more newsfeed posts to show', :ok)
     end
   end
 end

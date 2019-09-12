@@ -10,9 +10,9 @@ class V1::LikesController < ApplicationController
     if like.save
       likeable_type = like.likeable_type.downcase!
 
-      render json: { message: "Successfully liked #{likeable_type}" }, status: :created
+      action_success( "Successfully liked #{likeable_type}", :created)
     else
-      render json: { message: 'Cannot like resource', errors: like.errors }, status: :unprocessable_entity
+      process_error(like, 'Cannot like resource')
     end
   end
 
@@ -22,7 +22,7 @@ class V1::LikesController < ApplicationController
 
     like.destroy
     likeable_type = like.likeable_type.downcase
-    render json: { message: "Unliked #{likeable_type}" }, status: :accepted
+    action_success("Unliked #{likeable_type}")
   end
 
   private

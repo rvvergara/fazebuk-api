@@ -25,7 +25,7 @@ class V1::Users::MutualFriendsController < ApplicationController
              },
              status: :ok
     else
-      render json: { message: 'No more mutual friends to show' }
+      action_success('No more mutual friends to show', :ok)
     end
   end
 end

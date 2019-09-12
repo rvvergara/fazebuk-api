@@ -54,6 +54,12 @@ class ApplicationController < ActionController::API
     }
   end
 
+  def action_success(message, status_code = nil)
+    status_code ||= :accepted
+    render json: { message: message },
+           status: status_code
+  end
+
   def find_error(resource_type)
     render json: { message: "Cannot find #{resource_type}" }, status: 404
   end

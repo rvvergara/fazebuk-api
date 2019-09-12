@@ -31,7 +31,7 @@ class V1::CommentsController < ApplicationController
 
     comment.destroy
 
-    render json: { message: 'Comment deleted' }, status: :accepted
+    action_success('Comment deleted')
   end
 
   private

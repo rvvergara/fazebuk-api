@@ -37,7 +37,7 @@ class V1::PostsController < ApplicationController
     post = set_post
     post&.destroy
 
-    render json: { message: 'Post deleted' }, status: :accepted if post
+    action_success('Post deleted') if post
   end
 
   private

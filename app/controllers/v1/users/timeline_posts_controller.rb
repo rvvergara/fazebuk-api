@@ -21,7 +21,7 @@ class V1::Users::TimelinePostsController < ApplicationController
              },
              status: :ok
     else
-      render json: { message: 'No more timeline posts to show' }, status: :ok
+      action_success('No more timeline posts to show', :ok)
     end
   end
 end

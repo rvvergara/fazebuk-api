@@ -40,7 +40,7 @@ class V1::UsersController < ApplicationController
     authorize user
 
     user.destroy
-    render json: { message: 'Account deleted' }, status: :accepted
+    action_success('Account deleted')
   end
 
   private

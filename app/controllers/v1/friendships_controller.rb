@@ -10,7 +10,7 @@ class V1::FriendshipsController < ApplicationController
     if friendship.save
       render :create, locals: { passive_friend: passive_friend }, status: :created
     else
-      render json: { message: 'Cannot send request', errors: friendship.errors }, status: :unprocessable_entity
+      process_error(friendship, 'Cannot send request')
     end
   end
 
@@ -18,7 +18,7 @@ class V1::FriendshipsController < ApplicationController
     return unless find_friendship
 
     find_friendship.confirm
-    render json: { message: 'Friend request confirmed!' }, status: :accepted
+    action_success('Friend request confirmed!')
   end
 
   def destroy

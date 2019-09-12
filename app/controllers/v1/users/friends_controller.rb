@@ -23,7 +23,7 @@ class V1::Users::FriendsController < ApplicationController
              },
              status: :ok
     else
-      render json: { message: 'No more friends to show' }
+      action_success('No more friends to show', :ok)
     end
   end
 end

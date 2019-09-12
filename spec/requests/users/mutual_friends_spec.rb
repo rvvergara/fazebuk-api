@@ -34,35 +34,47 @@ RSpec.describe 'Users::Friends', type: :request do
   describe 'GET /v1/users/:user_username/friends' do
     let!(:login) { login_as(harry) }
 
-    context 'request without specified page' do
-      it 'responds with first page (10 friends)' do
-        get mutual_friends_route(gerry.username),
-            headers: authorization_header
+    context 'user exists' do
+      context 'request without specified page' do
+        it 'responds with first page (10 friends)' do
+          get mutual_friends_route(gerry.username),
+              headers: authorization_header
 
-        expect(response).to have_http_status(:ok)
-        expect(json_response.keys).to match(mutual_friends_response_keys)
-        expect(json_response['total_shown_on_page']).to be(10)
+          expect(response).to have_http_status(:ok)
+          expect(json_response.keys).to match(mutual_friends_response_keys)
+          expect(json_response['total_shown_on_page']).to be(10)
+        end
+      end
+
+      context 'request for page 2' do
+        it 'responds with second page (5 friends)' do
+          get mutual_friends_route(gerry.username, 2),
+              headers: authorization_header
+
+          expect(response).to have_http_status(:ok)
+          expect(json_response.keys).to match(mutual_friends_response_keys)
+          expect(json_response['total_shown_on_page']).to be(5)
+        end
+      end
+
+      context 'request for page 3' do
+        it 'sends a no more to display message' do
+          get mutual_friends_route(gerry.username, 3),
+              headers: authorization_header
+
+          expect(response).to have_http_status(:ok)
+          expect(json_response['message']).to match('No more mutual friends to show')
+        end
       end
     end
 
-    context 'request for page 2' do
-      it 'responds with second page (5 friends)' do
-        get mutual_friends_route(gerry.username, 2),
+    context 'user does not exist' do
+      it 'sends an error response' do
+        get mutual_friends_route('nobody'),
             headers: authorization_header
 
-        expect(response).to have_http_status(:ok)
-        expect(json_response.keys).to match(mutual_friends_response_keys)
-        expect(json_response['total_shown_on_page']).to be(5)
-      end
-    end
-
-    context 'request for page 3' do
-      it 'sends a no more to display message' do
-        get mutual_friends_route(gerry.username, 3),
-            headers: authorization_header
-
-        expect(response).to have_http_status(:ok)
-        expect(json_response['message']).to match('No more mutual friends to show')
+        expect(response).to have_http_status(404)
+        expect(json_response['message']).to match('Cannot find user')
       end
     end
   end

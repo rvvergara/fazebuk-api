@@ -6,7 +6,9 @@ class V1::Users::MutualFriendsController < ApplicationController
   def index
     page = set_page
 
-    user = User.find_by(username: params[:user_username])
+    user = find_user
+    return unless user
+
     records_per_page = 10
 
     total_mutual_friends_count = pundit_user.mutual_friends_with(user).count

@@ -5,7 +5,9 @@ class V1::Users::FriendsController < ApplicationController
 
   def index
     page = set_page
-    user = User.find_by(username: params[:user_username])
+    user = find_user
+    return unless user
+
     records_per_page = 10
     all_friends = user.friends
     total_friends_count = all_friends.count

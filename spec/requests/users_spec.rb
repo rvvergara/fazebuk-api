@@ -10,21 +10,29 @@ RSpec.describe 'Users', type: :request do
   let(:invalid_attributes) { attributes_for(:user, :male, :invalid, first_name: nil) }
   let!(:login) { login_as(alfred) }
 
+  describe 'unauthenticated user requests' do
+    it {
+      get "/v1/users/#{alfred.username}"
+      expect(response).to have_http_status(:unauthorized)
+    }
+    it {
+      put "/v1/users/#{alfred.username}"
+      expect(response).to have_http_status(:unauthorized)
+    }
+    it {
+      delete "/v1/users/#{alfred.username}"
+      expect(response).to have_http_status(:unauthorized)
+    }
+  end
+
   describe 'GET /v1/users/:username' do
     context 'logged user' do
-      it 'returns a good response' do
+      it 'sends user json data as response' do
         get "/v1/users/#{alfred.username}", headers: { "Authorization": "Bearer #{user_token}" }
+
         expect(response).to have_http_status(:ok)
-        expect(JSON.parse(response.body)['username']).to eq(alfred.username)
-      end
-    end
-
-    context 'unauthenticated user' do
-      it 'returns an error message' do
-        get "/v1/users/#{alfred.username}"
-
-        expect(response).to have_http_status(:unauthorized)
-        expect(JSON.parse(response.body)['message']).to match('Unauthorized')
+        expect(json_response.keys).to match(user_response_keys)
+        expect(json_response['username']).to eq(alfred.username)
       end
     end
   end
@@ -38,7 +46,7 @@ RSpec.describe 'Users', type: :request do
 
         expect(response).to have_http_status(:created)
 
-        expect(JSON.parse(response.body)['user']['token']).to eq(user_token)
+        expect(json_response['user']['token']).to eq(user_token)
       end
     end
 
@@ -48,7 +56,7 @@ RSpec.describe 'Users', type: :request do
           post '/v1/users', params: { user: invalid_attributes }
         end.to_not change(User, :count)
 
-        expect(JSON.parse(response.body)['message']).to match('Cannot create user')
+        expect(json_response['message']).to match('Cannot create user')
       end
     end
 
@@ -58,7 +66,7 @@ RSpec.describe 'Users', type: :request do
           post '/v1/users', params: { user: duplicate_attributes }
         end.to_not change(User, :count)
 
-        expect(JSON.parse(response.body)['errors']['username']).to include('has already been taken')
+        expect(json_response['errors']['username']).to include('has already been taken')
       end
     end
   end
@@ -71,8 +79,10 @@ RSpec.describe 'Users', type: :request do
               headers: { "Authorization": "Bearer #{user_token}" },
               params: { user: { first_name: 'King' } }
           alfred.reload
+
           expect(response).to have_http_status(:accepted)
-          expect(JSON.parse(response.body)['first_name']).to eq('King')
+          expect(json_response.keys).to match(user_response_keys)
+          expect(json_response['first_name']).to eq('King')
           expect(alfred.first_name).to eq('King')
         end
       end
@@ -87,16 +97,6 @@ RSpec.describe 'Users', type: :request do
           arnold.reload
           expect(arnold.first_name).to eq('Arnold')
         end
-      end
-    end
-
-    context 'unauthenticated user' do
-      it 'is unauthorized' do
-        put "/v1/users/#{alfred.username}",
-            params: { user: valid_attributes }
-
-        expect(response).to have_http_status(:unauthorized)
-        expect(JSON.parse(response.body)['message']).to match('Unauthorized access')
       end
     end
   end
@@ -119,14 +119,6 @@ RSpec.describe 'Users', type: :request do
 
           expect(response).to have_http_status(:unauthorized)
         end
-      end
-    end
-    context 'unauthenticated user' do
-      it 'is invalid' do
-        delete "/v1/users/#{alfred.username}"
-
-        expect(response).to have_http_status(:unauthorized)
-        expect(JSON.parse(response.body)['message']).to match('Unauthorized access')
       end
     end
   end

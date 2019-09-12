@@ -13,5 +13,11 @@ module Helpers
         has_pending_received_request_from?
       ]
     end
+
+    def friends_response_keys
+      %w[
+        friends_of displayed_friends page total_shown_on_page total
+      ]
+    end
   end
 end

@@ -14,7 +14,7 @@ class V1::Users::FriendsController < ApplicationController
     displayed_friends = user.paginated_friends(page, records_per_page)
 
     if set_max_in_page(page, total_friends_count, records_per_page)
-      render :friends,
+      render :index,
              locals: {
                user: user,
                displayed_friends: displayed_friends,

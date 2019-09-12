@@ -7,7 +7,7 @@ class V1::FacebookAuthenticationsController < ApplicationController
     if facebook_data.class == User
       data = shown_attributes(facebook_data)
       token = JsonWebToken.encode(data)
-      render :user, locals: { token: token, facebook_data: facebook_data }, status: :ok
+      render :create, locals: { token: token, facebook_data: facebook_data }, status: :ok
     else
       render json: facebook_data, status: :unprocessable_entity
     end

@@ -7,7 +7,7 @@ class V1::UsersController < ApplicationController
     user = find_user
     return unless user
 
-    render :user, locals: { user: user }, status: :ok
+    render :show, locals: { user: user }, status: :ok
   end
 
   def create
@@ -27,7 +27,7 @@ class V1::UsersController < ApplicationController
 
     authorize user
     if user.update(user_params)
-      render :user, locals: { user: user }, status: :accepted
+      render :show, locals: { user: user }, status: :accepted
     else
       process_error(user, 'Cannot update user')
     end

@@ -16,7 +16,7 @@ class V1::Users::MutualFriendsController < ApplicationController
     displayed_mutual_friends = pundit_user.paginated_mutual_friends_with(user, page, records_per_page)
 
     if set_max_in_page(page, total_mutual_friends_count, records_per_page)
-      render :mutual_friends,
+      render :index,
              locals: {
                user: user,
                displayed_mutual_friends: displayed_mutual_friends, total_mutual_friends_count:

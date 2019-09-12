@@ -13,7 +13,7 @@ class V1::Users::TimelinePostsController < ApplicationController
     timeline_posts = user.paginated_timeline_posts(page, records_per_page)
 
     if set_max_in_page(page, posts_count, records_per_page)
-      render :timeline_posts,
+      render :index,
              locals: {
                user: user,
                timeline_posts: timeline_posts,

@@ -8,6 +8,11 @@ module Helpers
     end
 
     # Friendship related routes
+
+    def friendships_route(requested_username)
+      "/v1/friendships?friend_requested=#{requested_username}"
+    end
+
     def friends_route(username, page = nil)
       page_param = page ? "?page=#{page}" : nil
       "/v1/users/#{username}/friends#{page_param}"

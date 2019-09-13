@@ -12,32 +12,32 @@ RSpec.describe 'Comments', type: :request do
 
   describe 'unauthenticated user requests' do
     it {
-      post "/v1/posts/#{post_to_lisa.id}/comments"
+      post post_comments_route(post_to_lisa.id)
 
       expect(response).to have_http_status(:unauthorized)
     }
     it {
-      post "/v1/comments/#{comment.id}/replies"
+      post comment_replies_route(comment.id)
 
       expect(response).to have_http_status(:unauthorized)
     }
     it {
-      put "/v1/comments/#{comment.id}"
+      put comment_route(comment.id)
 
       expect(response).to have_http_status(:unauthorized)
     }
     it {
-      put "/v1/comments/#{reply.id}"
+      put comment_route(reply.id)
 
       expect(response).to have_http_status(:unauthorized)
     }
     it {
-      delete "/v1/comments/#{comment.id}"
+      delete comment_route(comment.id)
 
       expect(response).to have_http_status(:unauthorized)
     }
     it {
-      delete "/v1/comments/#{reply.id}"
+      delete comment_route(reply.id)
 
       expect(response).to have_http_status(:unauthorized)
     }

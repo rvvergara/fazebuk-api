@@ -13,22 +13,22 @@ RSpec.describe 'Likes', type: :request do
 
   describe 'unauthenticated user requests' do
     it {
-      post "/v1/posts/#{post_to_seth.id}/likes"
+      post post_likes_route(post_to_seth.id)
 
       expect(response).to have_http_status(:unauthorized)
     }
     it {
-      post "/v1/comments/#{comment_to_post.id}/likes"
+      post comment_likes_route(comment_to_post.id)
 
       expect(response).to have_http_status(:unauthorized)
     }
     it {
-      delete "/v1/likes/#{post_like.id}"
+      delete like_route(post_like.id)
 
       expect(response).to have_http_status(:unauthorized)
     }
     it {
-      delete "/v1/likes/#{comment_like.id}"
+      delete like_route(comment_like.id)
 
       expect(response).to have_http_status(:unauthorized)
     }

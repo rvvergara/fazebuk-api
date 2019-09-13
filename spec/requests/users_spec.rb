@@ -10,15 +10,15 @@ RSpec.describe 'Users', type: :request do
 
   describe 'unauthenticated user requests' do
     it {
-      get "/v1/users/#{alfred.username}"
+      get user_route(alfred.username)
       expect(response).to have_http_status(:unauthorized)
     }
     it {
-      put "/v1/users/#{alfred.username}"
+      put user_route(alfred.username)
       expect(response).to have_http_status(:unauthorized)
     }
     it {
-      delete "/v1/users/#{alfred.username}"
+      delete user_route(alfred.username)
       expect(response).to have_http_status(:unauthorized)
     }
   end

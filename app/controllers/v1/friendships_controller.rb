@@ -8,9 +8,9 @@ class V1::FriendshipsController < ApplicationController
     friendship = pundit_user.active_friendships.build(passive_friend: passive_friend)
 
     if friendship.save
-      render :create, locals: { passive_friend: passive_friend }, status: :ok
+      render :create, locals: { passive_friend: passive_friend }, status: :created
     else
-      render json: { message: 'Cannot send request', errors: friendship.errors }
+      process_error(friendship, 'Cannot send request')
     end
   end
 
@@ -18,30 +18,36 @@ class V1::FriendshipsController < ApplicationController
     return unless find_friendship
 
     find_friendship.confirm
-    render json: { message: 'Friend request confirmed!' }, status: :accepted
+    action_success('Friend request confirmed!')
   end
 
   def destroy
     friendship = find_friendship
+    return unless friendship
+
     friendship.destroy
-    if friendship.confirmed
-      render json: { message: 'Friendship deleted' }, status: :accepted
-    else
-      message = friendship.active_friend == pundit_user ? 'Cancelled friend request' : 'Rejected friend request'
-      render json: { message: message }, status: :accepted
-    end
+    delete_request_message(friendship)
   end
 
   private
 
   def find_friendship
     friendship = Friendship.order_created.find_by(id: params[:id])
+
     if friendship
       authorize friendship
       return friendship
+    end
+    find_error('friendship or request')
+    nil
+  end
+
+  def delete_request_message(friendship)
+    if friendship.confirmed
+      action_success('Friendship deleted')
     else
-      render json: { message: 'Cannot find resource' }, status: 404
-      return false
+      message = friendship.active_friend == pundit_user ? 'Cancelled friend request' : 'Rejected friend request'
+      action_success(message)
     end
   end
 end

@@ -18,6 +18,8 @@ class Friendship < ApplicationRecord
   private
 
   def concatenate_ids
+    return unless active_friend && passive_friend
+
     self.combined_ids = [active_friend_id, passive_friend_id].sort.join
   end
 

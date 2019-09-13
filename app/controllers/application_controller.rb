@@ -24,6 +24,14 @@ class ApplicationController < ActionController::API
     end
   end
 
+  def find_user
+    user = User.find_by(username: params[:user_username])
+    return user if user
+
+    find_error('user')
+    nil
+  end
+
   def set_page
     Pagination.page(params[:page]).to_i
   end
@@ -44,5 +52,19 @@ class ApplicationController < ActionController::API
       birthday: user.birthday,
       gender: user.gender
     }
+  end
+
+  def action_success(message, status_code = nil)
+    status_code ||= :accepted
+    render json: { message: message },
+           status: status_code
+  end
+
+  def find_error(resource_type)
+    render json: { message: "Cannot find #{resource_type}" }, status: 404
+  end
+
+  def process_error(resource, message)
+    render json: { message: message, errors: resource.errors }, status: :unprocessable_entity
   end
 end

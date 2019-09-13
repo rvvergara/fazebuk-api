@@ -90,7 +90,9 @@ class User < ApplicationRecord
 
   def existing_friendship_or_request_with?(friend)
     !active_friendships.or(passive_friendships)
-      .where('active_friend_id=:friend_id OR passive_friend_id=:friend_id', friend_id: friend.id).empty?
+      .where(
+        'active_friend_id=:friend_id OR passive_friend_id=:friend_id', friend_id: friend.id
+      ).empty? && self != friend
   end
 
   def friendship_id_with(friend)
@@ -104,7 +106,7 @@ class User < ApplicationRecord
   # posts shown on a user's page/timeline/profile
 
   def timeline_posts
-    authored_posts.or(received_posts)
+    authored_posts.or(received_posts).order_created
   end
 
   def paginated_timeline_posts(page, per_page)
@@ -136,6 +138,8 @@ class User < ApplicationRecord
   private
 
   def downcase
+    return if username.nil? || email.nil?
+
     username.downcase!
     email.downcase!
   end

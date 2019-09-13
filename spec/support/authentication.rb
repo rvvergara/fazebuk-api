@@ -12,5 +12,9 @@ module Helpers
     def user_token
       JSON.parse(response.body)['user']['token']
     end
+
+    def authorization_header
+      { "Authorization": "Bearer #{user_token}" }
+    end
   end
 end

@@ -3,8 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe UserPolicy, type: :policy do
-  let(:jane) { create(:female_user, username: 'jane') }
-  let(:miri) { create(:female_user, username: 'miri') }
+  let(:jane) { create(:user, :male, first_name: 'Jane') }
+  let(:miri) { create(:user, :male, first_name: 'Miri') }
 
   context 'policy for a user managing their own account' do
     subject { UserPolicy.new(jane, jane) }

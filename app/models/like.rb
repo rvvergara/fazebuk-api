@@ -11,6 +11,6 @@ class Like < ApplicationRecord
   def prevent_duplicate
     return if Like.where('liker_id=? AND likeable_id=?', liker.id, likeable_id).empty?
 
-    errors.add(:liker, "cannot like the #{likeable_type} twice")
+    errors.add(:liker, "cannot like the #{likeable_type.downcase} twice")
   end
 end

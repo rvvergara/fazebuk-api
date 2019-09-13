@@ -6,16 +6,16 @@ class V1::Comments::RepliesController < V1::CommentsController
   private
 
   def set_commentable
-    Comment.find_by(id: params[:comment_id])
+    comment = Comment.find_by(id: params[:comment_id])
+    return comment if comment
+
+    find_error('comment')
+    nil
   end
 
   def comment_params
     params.require(:reply)
       .permit(:body)
       .merge(commenter: pundit_user)
-  end
-
-  def build_comment
-    set_commentable.replies.build(comment_params)
   end
 end

@@ -3,41 +3,69 @@
 require 'rails_helper'
 
 RSpec.describe User, type: :model do
+  let(:ryto) { create(:user, :male, first_name: 'Ryto') }
+  let(:mike) { create(:user, :male, first_name: 'Mike') }
+  let(:anna) { create(:user, :female, first_name: 'Anna') }
+  let(:george) { create(:user, :male, first_name: 'George') }
+  let(:douglas) { create(:user, :male, first_name: 'Douglas') }
+  let!(:ryto_mike_friendship) do
+    create(:friendship, :confirmed, active_friend_id: ryto.id, passive_friend_id: mike.id)
+  end
+  let!(:george_ryto_friendship) do
+    create(:friendship, :confirmed, active_friend: george, passive_friend: ryto)
+  end
+  let!(:george_mike_friendship) do
+    create(:friendship, :confirmed, active_friend: george, passive_friend: mike)
+  end
+  let!(:anna_mike_request) do
+    create(:request, active_friend: anna, passive_friend: mike)
+  end
+  let!(:anna_george_friendship) do
+    create(:friendship, :confirmed, active_friend: anna, passive_friend: george)
+  end
+  let!(:post1) { create(:post, author: ryto, postable: mike) }
+  let!(:post2) { create(:post, author: ryto, postable: george) }
+  let!(:post3) { create(:post, author: george, postable: mike) }
+  let!(:post4) { create(:post, author: mike, postable: george) }
+  let!(:post5) { create(:post, author: anna, postable: george) }
+  let!(:post6) { create(:post, author: mike, postable: anna) }
+
   describe 'validations' do
-    let(:mike) { build(:male_user, first_name: 'Mike') }
+    let(:joe) { build(:user, :male, first_name: 'Joe') }
     context 'complete basic info' do
       it 'is valid' do
-        expect(mike).to be_valid
+        expect(joe).to be_valid
       end
     end
 
     context 'first_name absent' do
       it 'is invalid' do
-        mike.first_name = nil
-        expect(mike).to_not be_valid
+        joe.first_name = nil
+        expect(joe).to_not be_valid
+      end
+    end
+
+    context 'duplicate username' do
+      it 'is invalid' do
+        mike2 = build(:user, :male, username: 'mike')
+
+        mike2.valid?
+
+        expect(mike2.errors['username']).to include('has already been taken')
+      end
+    end
+
+    context 'username is all caps' do
+      it 'is downcased' do
+        doug = build(:user, :male, username: 'DOUG')
+
+        doug.valid?
+        expect(doug.username).to eq(doug.username.downcase)
       end
     end
   end
 
   describe 'friendship methods' do
-    let(:ryto) { create(:male_user, username: 'ryto') }
-    let(:mike) { create(:male_user, username: 'mike') }
-    let(:anna) { create(:female_user, username: 'anna') }
-    let(:george) { create(:male_user, username: 'george') }
-    let(:douglas) { create(:male_user, username: 'douglas') }
-    let!(:ryto_mike_friendship) do
-      create(:friendship, active_friend_id: ryto.id, passive_friend_id: mike.id, confirmed: true)
-    end
-    let!(:george_ryto_friendship) do
-      create(:friendship, active_friend_id: george.id, passive_friend_id: ryto.id, confirmed: true)
-    end
-    let!(:anna_mike_request) do
-      create(:friendship, active_friend_id: anna.id, passive_friend_id: mike.id)
-    end
-    let!(:anna_george_friendship) do
-      create(:friendship, active_friend_id: anna.id, passive_friend_id: george.id, confirmed: true)
-    end
-
     describe '#friends' do
       it 'returns collection of confirmed friends' do
         expect(ryto.friends).to include(mike, george)
@@ -128,6 +156,92 @@ RSpec.describe User, type: :model do
     end
   end
 
+  describe 'posts related methods' do
+    describe '#timeline posts' do
+      context 'user authored 2 posts' do
+        it {
+          expect(ryto.timeline_posts.count).to be(2)
+        }
+        it {
+          expect(ryto.timeline_posts).to match([post2, post1])
+        }
+      end
+
+      context 'user authored 2 and received 2 posts' do
+        it {
+          expect(mike.timeline_posts.count).to be(4)
+        }
+        it {
+          expect(mike.timeline_posts).to match([post6, post4, post3, post1])
+        }
+      end
+    end
+
+    describe '#paginated_timeline_posts' do
+      context 'each page has 2 posts max' do
+        context 'page1' do
+          it 'shows 2 posts' do
+            expect(mike.paginated_timeline_posts(1, 2)).to match([post6, post4])
+          end
+        end
+
+        context 'page 2' do
+          it 'shows 1 post' do
+            expect(mike.paginated_timeline_posts(2, 2)).to match([post3, post1])
+          end
+        end
+
+        context 'page 3' do
+          it 'returns an empty collection' do
+            expect(mike.paginated_timeline_posts(3, 2)).to match([])
+          end
+        end
+      end
+    end
+
+    describe '#newsfeed posts' do
+      it {
+        expect(ryto.newsfeed_posts).to match([post6, post5, post4, post3, post2, post1])
+      }
+      it {
+        expect(ryto.newsfeed_posts.count).to be(6)
+      }
+    end
+
+    describe '#paginated_newsfeed_posts' do
+      context '4 max posts per page' do
+        context 'page 1' do
+          it 'shows 4 posts' do
+            expect(ryto.paginated_newsfeed_posts(1, 4)).to match([post6, post5, post4, post3])
+          end
+        end
+
+        context 'page 2' do
+          it 'shows 2 posts' do
+            expect(ryto.paginated_newsfeed_posts(2, 4)).to match([post2, post1])
+          end
+        end
+
+        context 'page 3' do
+          it 'shows empty collection' do
+            expect(ryto.paginated_newsfeed_posts(3, 4)).to match([])
+          end
+        end
+      end
+    end
+
+    describe '#liked?' do
+      let!(:like) { create(:like, :for_post, liker: ryto, likeable: post3) }
+
+      it {
+        expect(ryto.liked?(post3)).to be(true)
+      }
+      it {
+        expect(ryto.liked?(post2)).to be(false)
+      }
+    end
+  end
+
   describe 'associations' do
     describe 'active_friendships and passive_friendships' do
       it {
@@ -135,49 +249,11 @@ RSpec.describe User, type: :model do
           .dependent(:destroy)
           .with_foreign_key(:active_friend_id)
       }
-
       it {
         should have_many(:passive_friendships)
           .dependent(:destroy)
           .with_foreign_key(:passive_friend_id)
       }
-
-      it {
-        should have_many(:authored_posts)
-          .with_foreign_key(:author_id)
-          .dependent(:destroy)
-      }
-
-      it {
-        should have_many(:authored_comments)
-          .with_foreign_key(:commenter_id)
-          .dependent(:destroy)
-      }
-
-      it {
-        should have_many(:likes)
-          .with_foreign_key(:liker_id)
-          .dependent(:destroy)
-      }
-    end
-  end
-
-  describe 'posts related methods' do
-    let(:archer) { create(:male_user, username: 'archer') }
-    let(:william) { create(:male_user, username: 'william') }
-    let(:austin) { create(:male_user, username: 'austin') }
-
-    before do
-      create(:friendship, active_friend: archer, passive_friend: austin, confirmed: true)
-      create(:friendship, active_friend: william, passive_friend: archer, confirmed: true)
-      create(:friendship, active_friend: austin, passive_friend: william, confirmed: true)
-      @post1 = create(:post, author: archer, postable: austin)
-      @post2 = create(:post, postable: archer, author: william)
-      @post3 = create(:post, author: william, postable: austin)
-      @post4 = create(:post, author: austin, postable: william)
-    end
-
-    describe '#authored_posts and #received_posts' do
       it {
         should have_many(:authored_posts)
           .with_foreign_key(:author_id)
@@ -188,38 +264,16 @@ RSpec.describe User, type: :model do
           .with_foreign_key(:postable_id)
           .dependent(:destroy)
       }
-    end
-
-    describe '#paginated_timeline_posts' do
-      context 'posts per page is 2 and on page 1' do
-        it 'shows post1 and post2' do
-          expect(archer.paginated_timeline_posts(1, 2)).to include(@post1)
-          expect(archer.paginated_timeline_posts(1, 2)).to include(@post2)
-        end
-      end
-      context 'posts per page' do
-        it 'shows an empty collection' do
-          expect(archer.paginated_timeline_posts(2, 2).empty?).to be(true)
-        end
-      end
-    end
-
-    describe '#paginated_newsfeed_posts' do
-      context 'page 1 of newsfeed' do
-        it 'shows @posts 4 and 3' do
-          page1_posts = archer.paginated_newsfeed_posts(1, 2)
-          expect(page1_posts[0].content).to eq(@post4.content)
-          expect(page1_posts[1].content).to eq(@post3.content)
-        end
-      end
-
-      context 'page 2 of newsfeed' do
-        it 'shows posts 2 and 1' do
-          page2_posts = archer.paginated_newsfeed_posts(2, 2)
-          expect(page2_posts[0].content).to eq(@post2.content)
-          expect(page2_posts[1].content).to eq(@post1.content)
-        end
-      end
+      it {
+        should have_many(:authored_comments)
+          .with_foreign_key(:commenter_id)
+          .dependent(:destroy)
+      }
+      it {
+        should have_many(:likes)
+          .with_foreign_key(:liker_id)
+          .dependent(:destroy)
+      }
     end
   end
 end

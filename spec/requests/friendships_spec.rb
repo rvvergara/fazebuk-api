@@ -3,102 +3,186 @@
 require 'rails_helper'
 
 RSpec.describe 'Friendships', type: :request do
-  let(:harry) { create(:male_user, username: 'harry') }
-  let(:hermione) { create(:female_user, username: 'hermione') }
-  let(:goku) { create(:male_user, username: 'goku') }
+  let(:harry) { create(:user, :male, first_name: 'Harry') }
+  let(:ron) { create(:user, :male, first_name: 'Ron') }
+  let(:hermione) { create(:user, :female, first_name: 'Hermione') }
+  let!(:ron_hermione_friendship) { create(:friendship, :confirmed, active_friend: hermione, passive_friend: ron) }
+  let!(:harry_ron_request) { create(:request, active_friend: harry, passive_friend: ron) }
 
-  describe 'POST /v1/friendships?friend_requested=:username' do
-    context 'harry adds hermione as friend' do
-      it 'adds to friendships record' do
-        login_as(harry)
+  describe 'unauthenticated users request' do
+    it {
+      post friend_request_route(ron.username)
+      expect(response).to have_http_status(:unauthorized)
+    }
+    it {
+      put friendship_route(harry_ron_request.id)
+      expect(response).to have_http_status(:unauthorized)
+    }
+    it {
+      delete friendship_route(ron_hermione_friendship.id)
+      expect(response).to have_http_status(:unauthorized)
+    }
+    it {
+      delete friendship_route(harry_ron_request.id)
+      expect(response).to have_http_status(:unauthorized)
+    }
+  end
+
+  describe 'POST /v1/friendships' do
+    let!(:login) { login_as(harry) }
+
+    context 'valid request' do
+      it 'adds friendship record to the db' do
         expect do
-          post "/v1/friendships?friend_requested=#{hermione.username}",
-               headers: { "Authorization": "Bearer #{user_token}" }
-        end.to change(Friendship, :count).by(1)
+          post friend_request_route(hermione.username),
+               headers: authorization_header
+        end
+          .to change(Friendship, :count).by(1)
+      end
+
+      it 'sends passive_friend data as response' do
+        post friend_request_route(hermione.username),
+             headers: authorization_header
+
+        expect(response).to have_http_status(:created)
+        expect(json_response['sent_request_to'].keys).to match(user_response_keys)
+        expect(json_response['sent_request_to']['username']).to eq(hermione.username)
+      end
+    end
+
+    context 'invalid requests' do
+      context 'requested user does not exist' do
+        it 'sends an error response' do
+          post friend_request_route('norman'),
+               headers: authorization_header
+
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(json_response['message']).to match('Cannot send request')
+          expect(json_response['errors']['passive_friend']).to include('must exist')
+        end
+      end
+
+      context 'duplicate friend request' do
+        it 'does not add to the db record' do
+          expect do
+            post friend_request_route(ron.username),
+                 headers: authorization_header
+          end
+            .to_not change(Friendship, :count)
+        end
+
+        it 'sends an error response' do
+          post friend_request_route(ron.username),
+               headers: authorization_header
+
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(json_response['errors']['combined_ids']).to include('has already been taken')
+        end
+      end
+
+      context 'request sent to existing friend' do
+        let!(:accept) { harry_ron_request.confirm }
+
+        it 'does not create friendship record' do
+          expect do
+            post friend_request_route(ron.username),
+                 headers: authorization_header
+          end
+            .to_not change(Friendship, :count)
+        end
+        it 'sends an error response' do
+          post friend_request_route(ron.username),
+               headers: authorization_header
+
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(json_response['errors']['combined_ids']).to include('has already been taken')
+        end
       end
     end
   end
 
   describe 'PUT /v1/friendships/:id' do
-    let(:friendship) { create(:friendship, active_friend: hermione, passive_friend: goku) }
+    let!(:login) { login_as(ron) }
 
-    context 'friendship record cannot be found' do
-      it 'responds with a 404 error' do
-        login_as(goku)
-        friendship_id = "#{friendship.id}123"
-        put "/v1/friendships/#{friendship_id}",
-            headers: {
-              "Authorization": "Bearer #{user_token}"
-            }
+    context 'friendship exists' do
+      let!(:accept) do
+        put friendship_route(harry_ron_request.id),
+            headers: authorization_header
+      end
 
-        expect(response).to have_http_status(404)
-        expect(JSON.parse(response.body)['message']).to match('Cannot find resource')
+      it 'changes friendship record in the db' do
+        harry_ron_request.reload
+        expect(harry_ron_request.confirmed).to be(true)
+      end
+
+      it 'sends a success message' do
+        expect(response).to have_http_status(:accepted)
+        expect(json_response['message']).to match('Friend request confirmed!')
       end
     end
 
-    context "goku confirms hermione's friend request" do
-      before do
-        login_as(goku)
+    context 'friendship does not exist' do
+      it 'sends an error response' do
+        put friendship_route('nonExistentFriendshipId'),
+            headers: authorization_header
 
-        put "/v1/friendships/#{friendship.id}",
-            headers: { "Authorization": "Bearer #{user_token}" }
-        friendship.reload
-        goku.reload
-      end
-
-      it 'sends a success response' do
-        expect(response).to have_http_status(:accepted)
-      end
-
-      it 'updates friendship.confirmed to true' do
-        expect(friendship.confirmed).to be(true)
-      end
-
-      it "adds hermione in goku's friends list" do
-        expect(goku.friends).to include(hermione)
+        expect(response).to have_http_status(404)
+        expect(json_response['message']).to match('Cannot find friendship or request')
       end
     end
   end
 
-  describe 'DELETE /v1/friendships/:id' do
-    let(:friendship) { create(:friendship, active_friend: harry, passive_friend: goku) }
+  describe 'DESTROY /v1/friendships/:id' do
+    context 'friendship exists' do
+      context 'request to delete friendship' do
+        let!(:login) { login_as(hermione) }
+        it 'removes friendship record from db' do
+          expect do
+            delete friendship_route(ron_hermione_friendship.id),
+                   headers: authorization_header
+          end
+            .to change(Friendship, :count).by(-1)
+        end
 
-    context 'Goku accepts friendship but later on deletes it' do
-      before do
-        login_as(goku)
-        friendship.confirm
-        delete "/v1/friendships/#{friendship.id}",
-               headers: { "Authorization": "Bearer #{user_token}" }
+        it 'sends a success response' do
+          delete friendship_route(ron_hermione_friendship.id),
+                 headers: authorization_header
+
+          expect(response).to have_http_status(:accepted)
+          expect(json_response['message']).to match('Friendship deleted')
+        end
       end
-      it 'sends a success response' do
-        expect(response).to have_http_status(:accepted)
+
+      context 'request to cancel request' do
+        it 'sends a cancelled request message' do
+          login_as(harry)
+          delete friendship_route(harry_ron_request.id),
+                 headers: authorization_header
+
+          expect(json_response['message']).to match('Cancelled friend request')
+        end
       end
-      it "sends a response with 'Friendship deleted' message" do
-        expect(JSON.parse(response.body)['message']).to match('Friendship deleted')
+
+      context 'request to reject request' do
+        it 'sends a rejected request message' do
+          login_as(ron)
+          delete friendship_route(harry_ron_request.id),
+                 headers: authorization_header
+
+          expect(json_response['message']).to match('Rejected friend request')
+        end
       end
     end
 
-    context 'Goku rejects the friend request' do
-      before do
-        login_as(goku)
-        delete "/v1/friendships/#{friendship.id}",
-               headers: { "Authorization": "Bearer #{user_token}" }
-      end
+    context 'friendship does not exist' do
+      let!(:login) { login_as(harry) }
 
-      it "sends a response with message 'Rejected friend request'" do
-        expect(JSON.parse(response.body)['message']).to match('Rejected friend request')
-      end
-    end
+      it 'sends an error response' do
+        delete friendship_route('wrongFriendshipId'),
+               headers: authorization_header
 
-    context 'Mike cancels the friend request' do
-      before do
-        login_as(harry)
-        delete "/v1/friendships/#{friendship.id}",
-               headers: { "Authorization": "Bearer #{user_token}" }
-      end
-
-      it "sends a response with message 'Rejected friend request'" do
-        expect(JSON.parse(response.body)['message']).to match('Cancelled friend request')
+        expect(response).to have_http_status(404)
+        expect(json_response['message']).to match('Cannot find friendship or request')
       end
     end
   end

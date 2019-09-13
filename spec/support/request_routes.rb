@@ -19,11 +19,8 @@ module Helpers
     end
 
     # Post routes
-    def posts_route
-      '/v1/posts'
-    end
 
-    def post_route(post_id)
+    def post_route(post_id = nil)
       "/v1/posts/#{post_id}"
     end
 

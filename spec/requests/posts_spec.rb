@@ -10,19 +10,20 @@ RSpec.describe 'Posts', type: :request do
 
   describe 'requests by unauthenticated user' do
     it {
-      get "/v1/posts/#{post_to_karen.id}"
+      get post_route(post_to_karen.id)
       expect(response).to have_http_status(:unauthorized)
     }
     it {
-      post "/v1/posts?postable=#{karen.username}"
+      post post_route,
+           params: valid_post_attributes(karen)
       expect(response).to have_http_status(:unauthorized)
     }
     it {
-      put "/v1/posts/#{post_to_karen.id}"
+      put post_route(post_to_karen.id)
       expect(response).to have_http_status(:unauthorized)
     }
     it {
-      delete "/v1/posts/#{post_to_karen.id}"
+      delete post_route(post_to_karen.id)
       expect(response).to have_http_status(:unauthorized)
     }
   end
@@ -62,7 +63,7 @@ RSpec.describe 'Posts', type: :request do
     context 'complete and valid post params' do
       it 'adds post to the database' do
         expect do
-          post posts_route,
+          post post_route,
                headers: authorization_header,
                params: valid_post_attributes(beng)
         end
@@ -70,7 +71,7 @@ RSpec.describe 'Posts', type: :request do
       end
 
       it 'responds w/ data of created post' do
-        post posts_route,
+        post post_route,
              headers: authorization_header,
              params: valid_post_attributes(beng)
 
@@ -83,7 +84,7 @@ RSpec.describe 'Posts', type: :request do
 
     context 'incomplete or invalid post params' do
       it 'sends an error response' do
-        post posts_route,
+        post post_route,
              headers: authorization_header,
              params: invalid_post_attributes(karen)
 

@@ -9,8 +9,12 @@ module Helpers
 
     # Friendship related routes
 
-    def friendships_route(requested_username)
+    def friend_request_route(requested_username)
       "/v1/friendships?friend_requested=#{requested_username}"
+    end
+
+    def friendship_route(friendship_id)
+      "/v1/friendships/#{friendship_id}"
     end
 
     def friends_route(username, page = nil)

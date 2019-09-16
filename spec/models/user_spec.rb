@@ -242,6 +242,33 @@ RSpec.describe User, type: :model do
     end
   end
 
+  describe 'private method effects' do
+    describe '#downcase effect' do
+      context 'all caps username input' do
+        it 'downcases username' do
+          kobe = build(:user, :male, username: 'KOBE')
+
+          kobe.valid?
+
+          expect(kobe.username).to eq('kobe')
+        end
+      end
+
+      context 'all caps email input' do
+        it 'downcases email' do
+          ricci = build(:user, :male, email: 'RICCI@gmail.com')
+
+          ricci.valid?
+
+          expect(ricci.email).to eq('ricci@gmail.com')
+        end
+      end
+    end
+
+    describe '#assign_profile_pic' do
+    end
+  end
+
   describe 'associations' do
     describe 'active_friendships and passive_friendships' do
       it {

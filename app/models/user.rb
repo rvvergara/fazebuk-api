@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class User < ApplicationRecord
+  include Rails.application.routes.url_helpers
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   devise :database_authenticatable, :registerable,
@@ -12,6 +13,7 @@ class User < ApplicationRecord
   validates :username, uniqueness: true
 
   before_validation :downcase
+  before_update :assign_profile_pic, :assign_cover_pic
 
   has_many :active_friendships, foreign_key: :active_friend_id, dependent: :destroy, class_name: 'Friendship'
   has_many :passive_friendships, foreign_key: :passive_friend_id, dependent: :destroy, class_name: 'Friendship'
@@ -19,6 +21,8 @@ class User < ApplicationRecord
   has_many :authored_posts, foreign_key: :author_id, dependent: :destroy, class_name: 'Post'
   has_many :authored_comments, foreign_key: :commenter_id, dependent: :destroy, class_name: 'Comment'
   has_many :likes, foreign_key: :liker_id, dependent: :destroy
+  has_many_attached :profile_images
+  has_many_attached :cover_images
 
   def self.find_or_create_with_facebook(token)
     graph = Koala::Facebook::API.new(token)
@@ -142,5 +146,17 @@ class User < ApplicationRecord
 
     username.downcase!
     email.downcase!
+  end
+
+  def assign_profile_pic
+    return unless profile_images.attached?
+
+    self.profile_pic = rails_blob_path(profile_images.last, only_path: true)
+  end
+
+  def assign_cover_pic
+    return unless cover_images.attached?
+
+    self.cover_pic = rails_blob_path(cover_images.last, only_path: true)
   end
 end

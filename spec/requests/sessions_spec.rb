@@ -6,7 +6,7 @@ RSpec.describe 'Sessions', type: :request do
   describe '#create' do
     let(:john) { create(:user, :male, first_name: 'John') }
     context 'correct credentials' do
-      before do
+      subject! do
         post '/v1/sessions', params: {
           email: john.email,
           password: 'password'
@@ -17,7 +17,6 @@ RSpec.describe 'Sessions', type: :request do
       end
 
       it 'renders a json with complete data' do
-        json_response = JSON.parse(response.body)['user']
         expect(json_response['data']['username']).to eq(john.username)
         expect(json_response['token']).to_not be('')
       end

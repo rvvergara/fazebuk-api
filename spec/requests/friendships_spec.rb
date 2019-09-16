@@ -32,18 +32,17 @@ RSpec.describe 'Friendships', type: :request do
     let!(:login) { login_as(harry) }
 
     context 'valid request' do
+      subject do
+        post friend_request_route(hermione.username),
+             headers: authorization_header
+      end
+
       it 'adds friendship record to the db' do
-        expect do
-          post friend_request_route(hermione.username),
-               headers: authorization_header
-        end
-          .to change(Friendship, :count).by(1)
+        expect { subject }.to change(Friendship, :count).by(1)
       end
 
       it 'sends passive_friend data as response' do
-        post friend_request_route(hermione.username),
-             headers: authorization_header
-
+        subject
         expect(response).to have_http_status(:created)
         expect(json_response['sent_request_to'].keys).to match(user_response_keys)
         expect(json_response['sent_request_to']['username']).to eq(hermione.username)
@@ -105,7 +104,7 @@ RSpec.describe 'Friendships', type: :request do
     let!(:login) { login_as(ron) }
 
     context 'friendship exists' do
-      let!(:accept) do
+      subject! do
         put friendship_route(harry_ron_request.id),
             headers: authorization_header
       end
@@ -135,19 +134,17 @@ RSpec.describe 'Friendships', type: :request do
   describe 'DESTROY /v1/friendships/:id' do
     context 'friendship exists' do
       context 'request to delete friendship' do
-        let!(:login) { login_as(hermione) }
+        subject do
+          login_as(hermione)
+          delete friendship_route(ron_hermione_friendship.id),
+                 headers: authorization_header
+        end
         it 'removes friendship record from db' do
-          expect do
-            delete friendship_route(ron_hermione_friendship.id),
-                   headers: authorization_header
-          end
-            .to change(Friendship, :count).by(-1)
+          expect { subject }.to change(Friendship, :count).by(-1)
         end
 
         it 'sends a success response' do
-          delete friendship_route(ron_hermione_friendship.id),
-                 headers: authorization_header
-
+          subject
           expect(response).to have_http_status(:accepted)
           expect(json_response['message']).to match('Friendship deleted')
         end

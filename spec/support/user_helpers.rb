@@ -2,6 +2,11 @@
 
 module Helpers
   module UserHelpers
+    def create_user(attributes)
+      post user_route(nil),
+           params: user_params(attributes)
+    end
+
     def update_user(username, attributes)
       put user_route(username),
           headers: authorization_header,

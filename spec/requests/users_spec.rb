@@ -6,6 +6,9 @@ RSpec.describe 'Users', type: :request do
   let(:alfred) { create(:user, :male, first_name: 'Alfred') }
   let(:conrad) { create(:user, :male, first_name: 'Conrad') }
   let!(:friendship) { create(:friendship, :confirmed, active_friend: alfred, passive_friend: conrad) }
+  let(:image) do
+    fixture_file_upload(Rails.root.join('spec', 'support', 'assets', 'kayi.jpg'), 'image/jpg')
+  end
   let!(:login) { login_as(alfred) }
 
   describe 'unauthenticated user requests' do
@@ -49,24 +52,20 @@ RSpec.describe 'Users', type: :request do
   describe 'POST /v1/users' do
     context 'valid params' do
       it 'creates & authenticates user' do
-        expect do
-          post user_route(nil),
-               params: user_params(valid_user_attributes)
-        end.to change(User, :count).by(1)
+        expect { create_user(valid_user_attributes) }
+          .to change(User, :count).by(1)
 
         expect(response).to have_http_status(:created)
 
-        expect(json_response['user']['token']).to eq(user_token)
+        expect(json_response['token']).to eq(user_token)
       end
     end
 
     context 'invalid params' do
       context 'missing first_name' do
         it 'does not create a user' do
-          expect do
-            post user_route(nil),
-                 params: user_params(invalid_user_attributes)
-          end.to_not change(User, :count)
+          expect { create_user(invalid_user_attributes) }
+            .to_not change(User, :count)
 
           expect(json_response['message']).to match('Cannot create user')
         end
@@ -75,8 +74,7 @@ RSpec.describe 'Users', type: :request do
       context 'duplicate username' do
         it 'does not create user' do
           expect do
-            post user_route(nil),
-                 params: user_params(valid_user_attributes.merge(username: conrad.username))
+            create_user(valid_user_attributes.merge(username: conrad.username))
           end
             .to_not change(User, :count)
 
@@ -130,6 +128,42 @@ RSpec.describe 'Users', type: :request do
           end
         end
       end
+
+      context 'request for profile pic change' do
+        subject do
+          update_user(alfred.username, profile_images: [image])
+        end
+
+        it 'uploads a new image' do
+          expect { subject }.to change(ActiveStorage::Attachment, :count).from(0).to(1)
+        end
+
+        it "changes the user's profile_pic" do
+          subject
+          alfred.reload
+          expect(alfred.profile_pic).to eq(
+            rails_blob_path(alfred.profile_images.last)
+          )
+        end
+      end
+
+      context 'request for cover pic change' do
+        subject do
+          update_user(alfred.username, cover_images: [image])
+        end
+
+        it 'uploads image to db' do
+          expect { subject }.to change(ActiveStorage::Attachment, :count).from(0).to(1)
+        end
+
+        it "changes the user's cover pic" do
+          subject
+          alfred.reload
+          expect(alfred.cover_pic).to eq(
+            rails_blob_path(alfred.cover_images.last, only_path: true)
+          )
+        end
+      end
     end
 
     context 'user does not exist' do
@@ -145,18 +179,17 @@ RSpec.describe 'Users', type: :request do
 
   describe 'DELETE /v1/users/:username' do
     context 'user exists' do
+      subject do
+        delete user_route(alfred.username),
+               headers: authorization_header
+      end
+
       it 'removes user record from the db' do
-        expect do
-          delete user_route(alfred.username),
-                 headers: authorization_header
-        end
-          .to change(User, :count).by(-1)
+        expect { subject }.to change(User, :count).by(-1)
       end
 
       it 'sends a success response' do
-        delete user_route(alfred.username),
-               headers: authorization_header
-
+        subject
         expect(response).to have_http_status(:accepted)
         expect(json_response['message']).to match('Account deleted')
       end

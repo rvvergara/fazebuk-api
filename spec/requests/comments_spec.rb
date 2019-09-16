@@ -48,20 +48,18 @@ RSpec.describe 'Comments', type: :request do
 
     context 'post exists' do
       context 'valid params' do
-        it 'saves to the database' do
-          expect do
-            post post_comments_route(post_to_lisa.id),
-                 headers: authorization_header,
-                 params: valid_comment_attributes(:comment)
-          end
-            .to change(Comment, :count).by(1)
-        end
-
-        it 'sends created comment as response' do
+        subject do
           post post_comments_route(post_to_lisa.id),
                headers: authorization_header,
                params: valid_comment_attributes(:comment)
+        end
 
+        it 'saves to the database' do
+          expect { subject }.to change(Comment, :count).by(1)
+        end
+
+        it 'sends created comment as response' do
+          subject
           expect(response).to have_http_status(:created)
           expect(json_response.keys).to match(comment_response_keys)
           expect(json_response['commenter']['username']).to eq(lisa.username)
@@ -97,20 +95,18 @@ RSpec.describe 'Comments', type: :request do
 
     context 'comment exists' do
       context 'valid params' do
+        subject do
+          post comment_replies_route(comment.id),
+               headers: authorization_header,
+               params: valid_comment_attributes(:reply)
+        end
+
         it 'saves to the database' do
-          expect do
-            post comment_replies_route(comment.id),
-                 headers: authorization_header,
-                 params: valid_comment_attributes(:reply)
-          end
-            .to change(Comment, :count).by(1)
+          expect { subject }.to change(Comment, :count).by(1)
         end
 
         it 'sends created reply as response' do
-          post comment_replies_route(comment.id),
-               headers: authorization_header,
-               params: valid_comment_attributes('reply')
-
+          subject
           expect(response).to have_http_status(:created)
           expect(json_response.keys).to match(comment_reply_response_keys)
           expect(json_response['commenter']['username']).to eq(bart.username)
@@ -145,7 +141,7 @@ RSpec.describe 'Comments', type: :request do
     let!(:login) { login_as(bart) }
     context 'comment exists' do
       context 'valid params' do
-        let!(:update) do
+        subject! do
           put comment_route(reply.id),
               headers: authorization_header,
               params: valid_comment_attributes('comment', body: updated_body)
@@ -199,18 +195,17 @@ RSpec.describe 'Comments', type: :request do
     let!(:login) { login_as(lisa) }
 
     context 'comment exists' do
+      subject do
+        delete comment_route(comment.id),
+               headers: authorization_header
+      end
+
       it 'removes comment (and replies) from db' do
-        expect do
-          delete comment_route(comment.id),
-                 headers: authorization_header
-        end
-          .to change(Comment, :count).by(-2)
+        expect { subject }.to change(Comment, :count).by(-2)
       end
 
       it 'sends a success response' do
-        delete comment_route(comment.id),
-               headers: authorization_header
-
+        subject
         expect(response).to have_http_status(:accepted)
         expect(json_response['message']).to match('Comment deleted')
       end

@@ -29,6 +29,8 @@ RSpec.describe User, type: :model do
   let!(:post4) { create(:post, author: mike, postable: george) }
   let!(:post5) { create(:post, author: anna, postable: george) }
   let!(:post6) { create(:post, author: mike, postable: anna) }
+  let(:gerard) { create(:user, :male, :with_profile_images, first_name: 'Gerard') }
+  let(:hunter) { create(:user, :male, :with_cover_images, first_name: 'Hunter') }
 
   describe 'validations' do
     let(:joe) { build(:user, :male, first_name: 'Joe') }
@@ -239,6 +241,50 @@ RSpec.describe User, type: :model do
       it {
         expect(ryto.liked?(post2)).to be(false)
       }
+    end
+  end
+
+  describe 'private method effects' do
+    describe '#downcase effect' do
+      context 'all caps username input' do
+        it 'downcases username' do
+          kobe = build(:user, :male, username: 'KOBE')
+
+          kobe.valid?
+
+          expect(kobe.username).to eq('kobe')
+        end
+      end
+
+      context 'all caps email input' do
+        it 'downcases email' do
+          ricci = build(:user, :male, email: 'RICCI@gmail.com')
+
+          ricci.valid?
+
+          expect(ricci.email).to eq('ricci@gmail.com')
+        end
+      end
+    end
+
+    describe '#assign_profile_pic' do
+      it 'assigns profile pic to user' do
+        profile_img_url = rails_blob_path(gerard.profile_images.last, only_path: true)
+
+        gerard.update(username: 'gerry')
+
+        expect(gerard.profile_pic).to eq(profile_img_url)
+      end
+    end
+
+    describe '#assign_cover_pic' do
+      it 'assigns cover pic to user' do
+        cover_img_url = rails_blob_path(hunter.cover_images.last, only_path: true)
+
+        hunter.update(username: 'the-game')
+
+        expect(hunter.cover_pic).to eq(cover_img_url)
+      end
     end
   end
 

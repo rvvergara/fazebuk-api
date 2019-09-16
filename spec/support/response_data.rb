@@ -8,7 +8,7 @@ module Helpers
 
     def user_response_keys
       %w[
-        bio birthday created_at email first_name gender id last_name middle_name
+        bio birthday cover_pic created_at email first_name gender id last_name middle_name profile_pic
         updated_at username is_already_a_friend? friendship_id has_pending_sent_request_to?
         has_pending_received_request_from?
       ]

@@ -59,7 +59,7 @@ RSpec.describe 'Users', type: :request do
 
         expect(response).to have_http_status(:created)
 
-        expect(json_response['user']['token']).to eq(user_token)
+        expect(json_response['token']).to eq(user_token)
       end
     end
 
@@ -69,7 +69,8 @@ RSpec.describe 'Users', type: :request do
           expect do
             post user_route(nil),
                  params: user_params(invalid_user_attributes)
-          end.to_not change(User, :count)
+          end
+            .to_not change(User, :count)
 
           expect(json_response['message']).to match('Cannot create user')
         end

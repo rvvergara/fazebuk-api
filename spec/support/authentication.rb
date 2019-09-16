@@ -10,7 +10,7 @@ module Helpers
     end
 
     def user_token
-      JSON.parse(response.body)['user']['token']
+      JSON.parse(response.body)['token']
     end
 
     def authorization_header

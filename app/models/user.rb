@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class User < ApplicationRecord
+  include Rails.application.routes.url_helpers
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   devise :database_authenticatable, :registerable,
@@ -12,6 +13,7 @@ class User < ApplicationRecord
   validates :username, uniqueness: true
 
   before_validation :downcase
+  before_update :assign_profile_pic, :assign_cover_pic
 
   has_many :active_friendships, foreign_key: :active_friend_id, dependent: :destroy, class_name: 'Friendship'
   has_many :passive_friendships, foreign_key: :passive_friend_id, dependent: :destroy, class_name: 'Friendship'
@@ -144,5 +146,17 @@ class User < ApplicationRecord
 
     username.downcase!
     email.downcase!
+  end
+
+  def assign_profile_pic
+    return unless profile_images.attached?
+
+    self.profile_pic = rails_blob_path(profile_images.last, only_path: true)
+  end
+
+  def assign_cover_pic
+    return unless cover_images.attached?
+
+    self.profile_pic = rails_blob_path(cover_images.last, only_path: true)
   end
 end

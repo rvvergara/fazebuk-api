@@ -6,6 +6,9 @@ RSpec.describe 'Users', type: :request do
   let(:alfred) { create(:user, :male, first_name: 'Alfred') }
   let(:conrad) { create(:user, :male, first_name: 'Conrad') }
   let!(:friendship) { create(:friendship, :confirmed, active_friend: alfred, passive_friend: conrad) }
+  let(:image) do
+    fixture_file_upload(Rails.root.join('spec', 'support', 'assets', 'kayi.jpg'), 'image/jpg')
+  end
   let!(:login) { login_as(alfred) }
 
   describe 'unauthenticated user requests' do
@@ -128,6 +131,42 @@ RSpec.describe 'Users', type: :request do
 
             expect(alfred.username).to eq('alfred')
           end
+        end
+      end
+
+      context 'request for profile pic change' do
+        subject do
+          update_user(alfred.username, profile_images: [image])
+        end
+
+        it 'uploads a new image' do
+          expect { subject }.to change(ActiveStorage::Attachment, :count).from(0).to(1)
+        end
+
+        it "changes the user's profile_pic" do
+          subject
+          alfred.reload
+          expect(alfred.profile_pic).to eq(
+            rails_blob_path(alfred.profile_images.last)
+          )
+        end
+      end
+
+      context 'request for cover pic change' do
+        subject do
+          update_user(alfred.username, cover_images: [image])
+        end
+
+        it 'uploads image to db' do
+          expect { subject }.to change(ActiveStorage::Attachment, :count).from(0).to(1)
+        end
+
+        it "changes the user's cover pic" do
+          subject
+          alfred.reload
+          expect(alfred.cover_pic).to eq(
+            rails_blob_path(alfred.cover_images.last, only_path: true)
+          )
         end
       end
     end

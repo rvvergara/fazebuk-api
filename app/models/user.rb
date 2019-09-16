@@ -19,6 +19,8 @@ class User < ApplicationRecord
   has_many :authored_posts, foreign_key: :author_id, dependent: :destroy, class_name: 'Post'
   has_many :authored_comments, foreign_key: :commenter_id, dependent: :destroy, class_name: 'Comment'
   has_many :likes, foreign_key: :liker_id, dependent: :destroy
+  has_many_attached :profile_images
+  has_many_attached :cover_images
 
   def self.find_or_create_with_facebook(token)
     graph = Koala::Facebook::API.new(token)

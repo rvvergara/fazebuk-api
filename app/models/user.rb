@@ -157,6 +157,6 @@ class User < ApplicationRecord
   def assign_cover_pic
     return unless cover_images.attached?
 
-    self.profile_pic = rails_blob_path(cover_images.last, only_path: true)
+    self.cover_pic = rails_blob_path(cover_images.last, only_path: true)
   end
 end

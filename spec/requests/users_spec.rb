@@ -52,10 +52,8 @@ RSpec.describe 'Users', type: :request do
   describe 'POST /v1/users' do
     context 'valid params' do
       it 'creates & authenticates user' do
-        expect do
-          post user_route(nil),
-               params: user_params(valid_user_attributes)
-        end.to change(User, :count).by(1)
+        expect { create_user(valid_user_attributes) }
+          .to change(User, :count).by(1)
 
         expect(response).to have_http_status(:created)
 
@@ -66,10 +64,7 @@ RSpec.describe 'Users', type: :request do
     context 'invalid params' do
       context 'missing first_name' do
         it 'does not create a user' do
-          expect do
-            post user_route(nil),
-                 params: user_params(invalid_user_attributes)
-          end
+          expect { create_user(invalid_user_attributes) }
             .to_not change(User, :count)
 
           expect(json_response['message']).to match('Cannot create user')
@@ -79,8 +74,7 @@ RSpec.describe 'Users', type: :request do
       context 'duplicate username' do
         it 'does not create user' do
           expect do
-            post user_route(nil),
-                 params: user_params(valid_user_attributes.merge(username: conrad.username))
+            create_user(valid_user_attributes.merge(username: conrad.username))
           end
             .to_not change(User, :count)
 

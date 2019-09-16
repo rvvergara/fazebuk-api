@@ -39,18 +39,17 @@ RSpec.describe 'Likes', type: :request do
 
     context 'post exists' do
       context 'valid params' do
+        subject do
+          post post_likes_route(post_to_seth.id),
+               headers: authorization_header
+        end
+
         it 'adds like to the database' do
-          expect do
-            post post_likes_route(post_to_seth.id),
-                 headers: authorization_header
-          end
-            .to change(Like, :count).by(1)
+          expect { subject }.to change(Like, :count).by(1)
         end
 
         it 'sends a success message' do
-          post post_likes_route(post_to_seth.id),
-               headers: authorization_header
-
+          subject
           expect(response).to have_http_status(:created)
           expect(json_response['message']).to match('Successfully liked post')
         end
@@ -84,18 +83,17 @@ RSpec.describe 'Likes', type: :request do
 
     context 'comment exists' do
       context 'valid params' do
+        subject do
+          post comment_likes_route(comment_to_post.id),
+               headers: authorization_header
+        end
+
         it 'adds like to the database' do
-          expect do
-            post comment_likes_route(comment_to_post.id),
-                 headers: authorization_header
-          end
-            .to change(Like, :count).by(1)
+          expect { subject }.to change(Like, :count).by(1)
         end
 
         it 'sends a success response' do
-          post comment_likes_route(comment_to_post.id),
-               headers: authorization_header
-
+          subject
           expect(response).to have_http_status(:created)
           expect(json_response['message']).to match('Successfully liked comment')
         end

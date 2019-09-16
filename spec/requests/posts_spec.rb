@@ -30,7 +30,7 @@ RSpec.describe 'Posts', type: :request do
 
   describe 'GET /v1/posts/:id' do
     context 'post exists' do
-      let!(:visit) do
+      subject! do
         get post_route(post_to_karen.id),
             headers: authorization_header
       end
@@ -61,20 +61,18 @@ RSpec.describe 'Posts', type: :request do
 
   describe 'POST /v1/posts' do
     context 'complete and valid post params' do
-      it 'adds post to the database' do
-        expect do
-          post post_route,
-               headers: authorization_header,
-               params: valid_post_attributes(beng)
-        end
-          .to change(Post, :count).by(1)
-      end
-
-      it 'responds w/ data of created post' do
+      subject do
         post post_route,
              headers: authorization_header,
              params: valid_post_attributes(beng)
+      end
 
+      it 'adds post to the database' do
+        expect { subject }.to change(Post, :count).by(1)
+      end
+
+      it 'responds w/ data of created post' do
+        subject
         expect(response).to have_http_status(:created)
         expect(json_response.keys).to match(post_response_keys)
         expect(json_response['author']['username']).to eq(beng.username)
@@ -100,7 +98,7 @@ RSpec.describe 'Posts', type: :request do
 
     context 'post exists' do
       context 'valid post params' do
-        let!(:update) do
+        subject! do
           put post_route(post_to_karen.id),
               headers: authorization_header,
               params: valid_post_attributes(karen, content: updated_content)
@@ -120,7 +118,7 @@ RSpec.describe 'Posts', type: :request do
       end
 
       context 'invalid post params' do
-        let!(:update) do
+        subject! do
           put post_route(post_to_karen.id),
               headers: authorization_header,
               params: invalid_post_attributes(karen)
@@ -152,18 +150,17 @@ RSpec.describe 'Posts', type: :request do
 
   describe 'DELETE /v1/posts/:id' do
     context 'post exists' do
+      subject do
+        delete post_route(post_to_karen.id),
+               headers: authorization_header
+      end
+
       it 'removes post from db' do
-        expect do
-          delete post_route(post_to_karen.id),
-                 headers: authorization_header
-        end
-          .to change(Post, :count).by(-1)
+        expect { subject }.to change(Post, :count).by(-1)
       end
 
       it 'sends a success response' do
-        delete post_route(post_to_karen.id),
-               headers: authorization_header
-
+        subject
         expect(response).to have_http_status(:accepted)
         expect(json_response['message']).to match('Post deleted')
       end

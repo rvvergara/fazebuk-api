@@ -64,7 +64,9 @@ class V1::UsersController < ApplicationController
       :middle_name,
       :bio,
       :birthday,
-      :gender
+      :gender,
+      profile_images: [],
+      cover_images: []
     )
   end
 end

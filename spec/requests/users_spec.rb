@@ -184,18 +184,17 @@ RSpec.describe 'Users', type: :request do
 
   describe 'DELETE /v1/users/:username' do
     context 'user exists' do
+      subject do
+        delete user_route(alfred.username),
+               headers: authorization_header
+      end
+
       it 'removes user record from the db' do
-        expect do
-          delete user_route(alfred.username),
-                 headers: authorization_header
-        end
-          .to change(User, :count).by(-1)
+        expect { subject }.to change(User, :count).by(-1)
       end
 
       it 'sends a success response' do
-        delete user_route(alfred.username),
-               headers: authorization_header
-
+        subject
         expect(response).to have_http_status(:accepted)
         expect(json_response['message']).to match('Account deleted')
       end

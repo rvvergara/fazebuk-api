@@ -7,19 +7,39 @@ RSpec.describe Post, type: :model do
   let(:kyle) { create(:user, :male, first_name: 'Kyle') }
   let(:post) { build(:post, author: charlie, postable: kyle) }
   let!(:like) { create(:like, :for_post, likeable: post, liker: kyle) }
+  let!(:pic1) do
+    fixture_file_upload(Rails.root.join('spec', 'support', 'assets', 'icy-lake.jpg'), 'image/jpg')
+  end
+  let!(:pic2) do
+    fixture_file_upload(Rails.root.join('spec', 'support', 'assets', 'blue-red-lake.jpg'), 'image/jpg')
+  end
+
+  after :all do
+    remove_uploaded_files
+  end
 
   describe 'validation' do
-    context 'content present in post' do
-      it 'is valid' do
-        expect(post).to be_valid
+    context 'adding_or_purging_pic is false' do
+      context 'content present in post' do
+        it 'is valid' do
+          expect(post).to be_valid
+        end
+      end
+
+      context 'post has no content' do
+        it 'is invalid and has errors' do
+          post.content = nil
+          post.valid?
+          expect(post.errors['content']).to be_include("can't be blank")
+        end
       end
     end
 
-    context 'post has no content' do
-      it 'is invalid and has errors' do
+    context 'adding_or_purging_pic is true' do
+      it 'is valid' do
+        post.adding_or_purging_pic = true
         post.content = nil
-        post.valid?
-        expect(post.errors['content']).to be_include("can't be blank")
+        expect(post).to be_valid
       end
     end
   end

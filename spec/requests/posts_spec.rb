@@ -7,6 +7,16 @@ RSpec.describe 'Posts', type: :request do
   let(:karen) { create(:user, :female, first_name: 'Karen') }
   let!(:post_to_karen) { create(:post, author: beng, postable: karen) }
   let!(:login) { login_as(beng) }
+  let(:pic1) do
+    fixture_file_upload(Rails.root.join('spec', 'support', 'assets', 'icy-lake.jpg'), 'image/jpg')
+  end
+  let(:pic2) do
+    fixture_file_upload(Rails.root.join('spec', 'support', 'assets', 'blue-red-lake.jpg'), 'image/jpg')
+  end
+
+  after :all do
+    remove_uploaded_files
+  end
 
   describe 'requests by unauthenticated user' do
     it {
@@ -89,6 +99,31 @@ RSpec.describe 'Posts', type: :request do
         expect(response).to have_http_status(:unprocessable_entity)
         expect(json_response['message']).to match('Cannot create post')
         expect(json_response['errors']['content']).to include("can't be blank")
+      end
+    end
+
+    context 'post with pics' do
+      subject do
+        post post_route,
+             headers: authorization_header,
+             params: valid_post_attributes(beng, pics: [pic1])
+      end
+
+      it 'adds post to the database' do
+        expect { subject }.to change(Post, :count).by(1)
+      end
+
+      it 'adds ActiveStorage record' do
+        expect { subject }
+          .to change(ActiveStorage::Attachment, :count)
+          .from(0).to(1)
+      end
+
+      it 'sends the post data as response' do
+        subject
+        expect(response).to have_http_status(:created)
+        expect(json_response.keys).to match(post_response_keys)
+        expect(json_response['pics'].first['id']).to eq(beng.authored_posts.order_created.first.pics.first.id)
       end
     end
   end

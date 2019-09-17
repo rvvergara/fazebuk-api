@@ -7,10 +7,10 @@ RSpec.describe Post, type: :model do
   let(:kyle) { create(:user, :male, first_name: 'Kyle') }
   let(:post) { build(:post, author: charlie, postable: kyle) }
   let!(:like) { create(:like, :for_post, likeable: post, liker: kyle) }
-  let!(:pic1) do
+  let(:pic1) do
     fixture_file_upload(Rails.root.join('spec', 'support', 'assets', 'icy-lake.jpg'), 'image/jpg')
   end
-  let!(:pic2) do
+  let(:pic2) do
     fixture_file_upload(Rails.root.join('spec', 'support', 'assets', 'blue-red-lake.jpg'), 'image/jpg')
   end
 
@@ -55,6 +55,42 @@ RSpec.describe Post, type: :model do
     context 'user has not liked the post' do
       it 'returns nil' do
         expect(post.like_id(charlie)).to be(nil)
+      end
+    end
+  end
+
+  describe '#modified_update' do
+    context 'adding a pic to a saved post' do
+      before do
+        pics = [pic1]
+        post.save
+        post.modified_update(pics: pics)
+      end
+
+      it 'sets adding_or_purging to true' do
+        expect(post.adding_or_purging_pic).to be(true)
+      end
+
+      it 'updates the post w/ the new pic' do
+        expect(post.pics.count).to be(1)
+        expect(post.pics.first.filename).to eq(pic1.original_filename)
+      end
+    end
+
+    context 'deleting a pic from a saved post' do
+      before do
+        post.pics = [pic1, pic2]
+        post.save
+        purge_id = post.pics.first.id
+        post.modified_update(purge_pic: purge_id)
+      end
+
+      it 'sets adding_or_purging pic to true' do
+        expect(post.adding_or_purging_pic).to be(true)
+      end
+
+      it 'removes the pic from the updated post' do
+        expect(post.pics.count).to be(1)
       end
     end
   end

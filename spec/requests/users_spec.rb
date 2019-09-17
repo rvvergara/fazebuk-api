@@ -6,9 +6,22 @@ RSpec.describe 'Users', type: :request do
   let(:alfred) { create(:user, :male, first_name: 'Alfred') }
   let(:conrad) { create(:user, :male, first_name: 'Conrad') }
   let!(:friendship) { create(:friendship, :confirmed, active_friend: alfred, passive_friend: conrad) }
-  let(:image) do
+  let(:profile_pic1) do
     fixture_file_upload(Rails.root.join('spec', 'support', 'assets', 'kayi.jpg'), 'image/jpg')
   end
+
+  let(:profile_pic2) do
+    fixture_file_upload(Rails.root.join('spec', 'support', 'assets', 'male.jpg'), 'image/jpg')
+  end
+
+  let(:cover_pic1) do
+    fixture_file_upload(Rails.root.join('spec', 'support', 'assets', 'blue-red-lake.jpg'), 'image/jpg')
+  end
+
+  let(:cover_pic2) do
+    fixture_file_upload(Rails.root.join('spec', 'support', 'assets', 'icy-lake.jpg'), 'image/jpg')
+  end
+
   let!(:login) { login_as(alfred) }
 
   after :all do
@@ -134,38 +147,80 @@ RSpec.describe 'Users', type: :request do
       end
 
       context 'request for profile pic change' do
-        subject do
-          update_user(alfred.username, profile_images: [image])
+        context 'with new image upload' do
+          subject do
+            update_user(alfred.username, profile_images: [profile_pic1])
+          end
+
+          it 'uploads a new image' do
+            expect { subject }.to change(ActiveStorage::Attachment, :count).from(0).to(1)
+          end
+
+          it "changes the user's profile_pic" do
+            subject
+            alfred.reload
+            expect(alfred.profile_pic).to eq(
+              rails_blob_path(alfred.profile_images.last)
+            )
+          end
         end
 
-        it 'uploads a new image' do
-          expect { subject }.to change(ActiveStorage::Attachment, :count).from(0).to(1)
-        end
+        context 'referring to url of a previously uploaded image' do
+          subject! do
+            update_user(alfred.username, profile_images: [profile_pic1])
+            login_as(alfred)
+            update_user(alfred.username, profile_images: [profile_pic2])
+            login_as(alfred)
+            update_user(alfred.username, profile_pic: rails_blob_path(
+              alfred.ordered_profile_images.first, only_path: true
+            ))
+            alfred.reload
+          end
 
-        it "changes the user's profile_pic" do
-          subject
-          alfred.reload
-          expect(alfred.profile_pic).to eq(
-            rails_blob_path(alfred.profile_images.last)
-          )
+          it 'changes profile pic of user' do
+            pic_url = rails_blob_path(alfred.ordered_profile_images.first, only_path: true)
+            expect(alfred.profile_pic).to eq(pic_url)
+          end
         end
       end
 
       context 'request for cover pic change' do
-        subject do
-          update_user(alfred.username, cover_images: [image])
+        context 'with new image upload' do
+          subject do
+            update_user(alfred.username, cover_images: [cover_pic1])
+          end
+
+          it 'uploads image to db' do
+            expect { subject }.to change(ActiveStorage::Attachment, :count).from(0).to(1)
+          end
+
+          it "changes the user's cover pic" do
+            subject
+            alfred.reload
+            expect(alfred.cover_pic).to eq(
+              rails_blob_path(alfred.cover_images.last, only_path: true)
+            )
+          end
         end
 
-        it 'uploads image to db' do
-          expect { subject }.to change(ActiveStorage::Attachment, :count).from(0).to(1)
-        end
+        context 'referring to url of a previously uploaded image' do
+          subject! do
+            update_user(alfred.username, cover_images: [cover_pic1])
+            login_as(alfred)
+            update_user(alfred.username, cover_images: [cover_pic2])
+            login_as(alfred)
+            update_user(alfred.username, cover_pic: rails_blob_path(
+              alfred.ordered_cover_images.first, only_path: true
+            ))
+            alfred.reload
+          end
 
-        it "changes the user's cover pic" do
-          subject
-          alfred.reload
-          expect(alfred.cover_pic).to eq(
-            rails_blob_path(alfred.cover_images.last, only_path: true)
-          )
+          it 'changes cover pic for user' do
+            pic_url = rails_blob_path(
+              alfred.ordered_cover_images.first, only_path: true
+            )
+            expect(alfred.cover_pic).to eq(pic_url)
+          end
         end
       end
     end

@@ -24,7 +24,7 @@ class V1::UsersController < ApplicationController
   def update
     user = find_user
     return unless user
-    debugger
+
     authorize user
     if user.update(user_params)
 

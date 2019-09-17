@@ -26,7 +26,7 @@ class V1::PostsController < ApplicationController
     post = set_post
     authorize_post(post)
 
-    if post&.update(post_params)
+    if post&.modified_update(post_params)
       render :update, locals: { post: post }, status: :accepted
     elsif post
       process_error(post, 'Cannot update post')
@@ -43,7 +43,7 @@ class V1::PostsController < ApplicationController
   private
 
   def permitted_params
-    params.require(:post).permit(:content, :postable, pics: [])
+    params.require(:post).permit(:content, :postable, :purge_pic, pics: [])
   end
 
   def set_postable
@@ -52,8 +52,10 @@ class V1::PostsController < ApplicationController
 
   def post_params
     pics_params = { pics: permitted_params[:pics] }
+    purge_param = { purge_pic: permitted_params[:purge_pic] }
     sent_params = { content: permitted_params[:content], postable: set_postable }
-    pics_params[:pics].nil? ? sent_params : sent_params.merge(pics_params)
+    sent_params = pics_params[:pics].nil? ? sent_params : sent_params.merge(pics_params)
+    purge_param[:purge_pic].nil? ? sent_params : sent_params.merge(purge_param)
   end
 
   def set_post

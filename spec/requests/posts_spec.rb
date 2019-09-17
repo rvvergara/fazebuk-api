@@ -10,7 +10,7 @@ RSpec.describe 'Posts', type: :request do
   let(:pic1) do
     fixture_file_upload(Rails.root.join('spec', 'support', 'assets', 'icy-lake.jpg'), 'image/jpg')
   end
-  let(:pic2) do
+  let!(:pic2) do
     fixture_file_upload(Rails.root.join('spec', 'support', 'assets', 'blue-red-lake.jpg'), 'image/jpg')
   end
   let(:post_with_pic) { create(:post, author: beng, postable: beng, pics: [pic1, pic2]) }
@@ -198,7 +198,22 @@ RSpec.describe 'Posts', type: :request do
       end
 
       context 'deleting pic from post' do
-        
+        subject! do
+          put post_route(post_with_pic.id),
+              headers: authorization_header,
+              params: valid_post_attributes(beng, purge_pic: post_with_pic.pics.first.id)
+
+          post_with_pic.reload
+        end
+
+        it 'removes pic from post' do
+          expect(post_with_pic.pics.count).to be(1)
+        end
+
+        it 'sends updated post data as response' do
+          expect(response).to have_http_status(:accepted)
+          expect(json_response['pics'].first['id']).to eq(post_with_pic.pics.first.id)
+        end
       end
     end
 

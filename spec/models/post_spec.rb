@@ -58,5 +58,19 @@ RSpec.describe Post, type: :model do
         .with_foreign_key(:likeable_id)
         .dependent(:destroy)
     }
+    it {
+      should have_many(:pics_attachments)
+    }
+    context 'deleting a post with pics' do
+      it 'also deletes associated pics' do
+        post.pics = [pic1, pic2]
+        post.save
+        expect do
+          post.destroy
+        end
+          .to change(ActiveStorage::Attachment, :count)
+          .from(2).to(0)
+      end
+    end
   end
 end

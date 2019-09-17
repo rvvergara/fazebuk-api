@@ -11,6 +11,10 @@ RSpec.describe 'Users', type: :request do
   end
   let!(:login) { login_as(alfred) }
 
+  after :all do
+    remove_uploaded_files
+  end
+
   describe 'unauthenticated user requests' do
     it {
       get user_route(alfred.username)

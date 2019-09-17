@@ -32,6 +32,10 @@ RSpec.describe User, type: :model do
   let(:gerard) { create(:user, :male, :with_profile_images, first_name: 'Gerard') }
   let(:hunter) { create(:user, :male, :with_cover_images, first_name: 'Hunter') }
 
+  after :all do
+    remove_uploaded_files
+  end
+
   describe 'validations' do
     let(:joe) { build(:user, :male, first_name: 'Joe') }
     context 'complete basic info' do

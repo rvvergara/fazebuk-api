@@ -13,6 +13,7 @@ RSpec.describe 'Posts', type: :request do
   let(:pic2) do
     fixture_file_upload(Rails.root.join('spec', 'support', 'assets', 'blue-red-lake.jpg'), 'image/jpg')
   end
+  let(:post_with_pic) { create(:post, author: beng, postable: beng, pics: [pic1, pic2]) }
 
   after :all do
     remove_uploaded_files
@@ -168,6 +169,36 @@ RSpec.describe 'Posts', type: :request do
         it 'sends error response' do
           expect(json_response['errors']['content']).to include("can't be blank")
         end
+      end
+
+      context 'adding pics to post' do
+        subject do
+          put post_route(post_to_karen.id),
+              headers: authorization_header,
+              params: valid_post_attributes(karen, pics: [pic1])
+        end
+
+        it 'adds ActiveStorage::Attachment record' do
+          expect { subject }
+            .to change(ActiveStorage::Attachment, :count)
+            .by(1)
+        end
+
+        it 'adds picture to the post' do
+          subject
+          post_to_karen.reload
+          expect(post_to_karen.pics.first.filename).to eq(pic1.original_filename)
+        end
+
+        it 'sends updated post data' do
+          subject
+          expect(response).to have_http_status(:accepted)
+          expect(json_response['pics'].first['id']).to eq(post_to_karen.pics.first.id)
+        end
+      end
+
+      context 'deleting pic from post' do
+        
       end
     end
 

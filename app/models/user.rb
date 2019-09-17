@@ -140,11 +140,11 @@ class User < ApplicationRecord
 
   # Image uploads related methods
   def ordered_profile_images
-    profile_images.order(created_at: :asc)
+    profile_images.order(created_at: :desc)
   end
 
   def ordered_cover_images
-    cover_images.order(created_at: :asc)
+    cover_images.order(created_at: :desc)
   end
 
   def assign_profile_pic

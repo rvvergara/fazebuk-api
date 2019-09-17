@@ -160,7 +160,7 @@ RSpec.describe 'Users', type: :request do
             subject
             alfred.reload
             expect(alfred.profile_pic).to eq(
-              rails_blob_path(alfred.profile_images.last)
+              rails_blob_path(alfred.profile_images.first)
             )
           end
         end
@@ -172,13 +172,13 @@ RSpec.describe 'Users', type: :request do
             update_user(alfred.username, profile_images: [profile_pic2])
             login_as(alfred)
             update_user(alfred.username, profile_pic: rails_blob_path(
-              alfred.ordered_profile_images.first, only_path: true
+              alfred.ordered_profile_images.last, only_path: true
             ))
             alfred.reload
           end
 
           it 'changes profile pic of user' do
-            pic_url = rails_blob_path(alfred.ordered_profile_images.first, only_path: true)
+            pic_url = rails_blob_path(alfred.ordered_profile_images.last, only_path: true)
             expect(alfred.profile_pic).to eq(pic_url)
           end
         end
@@ -198,7 +198,7 @@ RSpec.describe 'Users', type: :request do
             subject
             alfred.reload
             expect(alfred.cover_pic).to eq(
-              rails_blob_path(alfred.cover_images.last, only_path: true)
+              rails_blob_path(alfred.cover_images.first, only_path: true)
             )
           end
         end
@@ -210,14 +210,14 @@ RSpec.describe 'Users', type: :request do
             update_user(alfred.username, cover_images: [cover_pic2])
             login_as(alfred)
             update_user(alfred.username, cover_pic: rails_blob_path(
-              alfred.ordered_cover_images.first, only_path: true
+              alfred.ordered_cover_images.last, only_path: true
             ))
             alfred.reload
           end
 
           it 'changes cover pic for user' do
             pic_url = rails_blob_path(
-              alfred.ordered_cover_images.first, only_path: true
+              alfred.ordered_cover_images.last, only_path: true
             )
             expect(alfred.cover_pic).to eq(pic_url)
           end

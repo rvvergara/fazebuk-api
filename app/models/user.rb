@@ -143,6 +143,10 @@ class User < ApplicationRecord
     profile_images.order(created_at: :asc)
   end
 
+  def ordered_cover_images
+    cover_images.order(created_at: :asc)
+  end
+
   def assign_profile_pic
     self.profile_pic = rails_blob_path(ordered_profile_images.last, only_path: true)
     save

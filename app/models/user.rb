@@ -13,7 +13,6 @@ class User < ApplicationRecord
   validates :username, uniqueness: true
 
   before_validation :downcase
-  # before_update :assign_profile_pic, :assign_cover_pic
 
   has_many :active_friendships, foreign_key: :active_friend_id, dependent: :destroy, class_name: 'Friendship'
   has_many :passive_friendships, foreign_key: :passive_friend_id, dependent: :destroy, class_name: 'Friendship'

@@ -43,7 +43,7 @@ class V1::PostsController < ApplicationController
   private
 
   def permitted_params
-    params.require(:post).permit(:content, :postable)
+    params.require(:post).permit(:content, :postable, pics: [])
   end
 
   def set_postable
@@ -51,7 +51,9 @@ class V1::PostsController < ApplicationController
   end
 
   def post_params
-    { content: permitted_params[:content], postable: set_postable }
+    pics_params = { pics: permitted_params[:pics] }
+    sent_params = { content: permitted_params[:content], postable: set_postable }
+    pics_params[:pics].nil? ? sent_params : sent_params.merge(pics_params)
   end
 
   def set_post

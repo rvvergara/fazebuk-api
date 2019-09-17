@@ -13,7 +13,6 @@ class User < ApplicationRecord
   validates :username, uniqueness: true
 
   before_validation :downcase
-  before_update :assign_profile_pic, :assign_cover_pic
 
   has_many :active_friendships, foreign_key: :active_friend_id, dependent: :destroy, class_name: 'Friendship'
   has_many :passive_friendships, foreign_key: :passive_friend_id, dependent: :destroy, class_name: 'Friendship'
@@ -139,6 +138,25 @@ class User < ApplicationRecord
     !likes.where('likeable_id=?', likeable.id).empty?
   end
 
+  # Image uploads related methods
+  def ordered_profile_images
+    profile_images.order(created_at: :asc)
+  end
+
+  def ordered_cover_images
+    cover_images.order(created_at: :asc)
+  end
+
+  def assign_profile_pic
+    self.profile_pic = rails_blob_path(ordered_profile_images.last, only_path: true)
+    save
+  end
+
+  def assign_cover_pic
+    self.cover_pic = rails_blob_path(cover_images.last, only_path: true)
+    save
+  end
+
   private
 
   def downcase
@@ -146,17 +164,5 @@ class User < ApplicationRecord
 
     username.downcase!
     email.downcase!
-  end
-
-  def assign_profile_pic
-    return unless profile_images.attached?
-
-    self.profile_pic = rails_blob_path(profile_images.last, only_path: true)
-  end
-
-  def assign_cover_pic
-    return unless cover_images.attached?
-
-    self.cover_pic = rails_blob_path(cover_images.last, only_path: true)
   end
 end

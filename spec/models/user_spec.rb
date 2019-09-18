@@ -91,8 +91,27 @@ RSpec.describe User, type: :model do
     end
 
     describe '#mutual_friends_with' do
-      it 'returns collection of friends common with another user' do
-        expect(ryto.mutual_friends_with(anna)).to include(george)
+      context 'user and other_user are different' do
+        context 'common friends exist between the two' do
+          it 'returns a non-empty collection' do
+            expect(ryto.mutual_friends_with(anna)).to_not be_empty
+          end
+          it 'includes the common friend' do
+            expect(ryto.mutual_friends_with(anna)).to include(george)
+          end
+        end
+
+        context 'no common friends between the two' do
+          it 'returns an empty collection' do
+            expect(ryto.mutual_friends_with(gerard)).to be_empty
+          end
+        end
+      end
+
+      context 'user and other_user the same' do
+        it 'returns an empty array' do
+          expect(ryto.mutual_friends_with(ryto)).to be_empty
+        end
       end
     end
 

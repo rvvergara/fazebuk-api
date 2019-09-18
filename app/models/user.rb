@@ -74,12 +74,16 @@ class User < ApplicationRecord
   end
 
   def mutual_friends_with(other_user)
+    return [] unless self != other_user
+
     friends
       .where(id: other_user.friends
           .pluck(:id))
   end
 
   def paginated_mutual_friends_with(other_user, page, per_page)
+    return [] unless self != other_user
+
     mutual_friends_with(other_user)
       .limit(per_page)
       .offset(Pagination.offset(page, per_page))

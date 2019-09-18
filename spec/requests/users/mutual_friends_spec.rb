@@ -72,5 +72,14 @@ RSpec.describe 'Users::Friends', type: :request do
         expect(json_response['message']).to match('Cannot find user')
       end
     end
+
+    context 'user is the same as current user' do
+      it 'sends a no mutual friends to show response' do
+        get mutual_friends_route(harry.username),
+            headers: authorization_header
+
+        expect(json_response['message']).to match('You do not have mutual friends with yourself')
+      end
+    end
   end
 end

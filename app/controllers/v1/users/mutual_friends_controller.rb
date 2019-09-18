@@ -24,6 +24,8 @@ class V1::Users::MutualFriendsController < ApplicationController
                page: page
              },
              status: :ok
+    elsif pundit_user == user
+      action_success('You do not have mutual friends with yourself', :ok)
     else
       action_success('No more mutual friends to show', :ok)
     end

@@ -29,8 +29,8 @@ RSpec.describe User, type: :model do
   let!(:post4) { create(:post, author: mike, postable: george) }
   let!(:post5) { create(:post, author: anna, postable: george) }
   let!(:post6) { create(:post, author: mike, postable: anna) }
-  let(:gerard) { create(:user, :male, :with_profile_images, first_name: 'Gerard') }
-  let(:hunter) { create(:user, :male, :with_cover_images, first_name: 'Hunter') }
+  let(:gerard) { create(:user, :male, :with_male_profile_images, first_name: 'Gerard') }
+  let(:hunter) { create(:user, :male, :with_icy_cover_images, first_name: 'Hunter') }
 
   after :all do
     remove_uploaded_files

@@ -18,5 +18,11 @@ FactoryBot.define do
     trait :invalid do
       body { nil }
     end
+
+    trait :with_pic do
+      pic do
+        Rack::Test::UploadedFile.new('spec/support/assets/icy-lake.jpg', 'image/jpg')
+      end
+    end
   end
 end

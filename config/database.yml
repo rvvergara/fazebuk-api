@@ -1,11 +1,10 @@
-
 default: &default
   adapter: postgresql
   encoding: unicode
   host: localhost
   timeout: 5000
-  username: rvvergara
-  password: password
+  username: <%= Rails.application.credentials.db[:username] %>
+  password: <%= Rails.application.credentials.db[:password] %>
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
 
 development:

@@ -165,7 +165,6 @@ class User < ApplicationRecord
     return false unless update(user_params)
 
     assign_profile_pic if user_params[:profile_images]
-
     assign_cover_pic if user_params[:cover_images]
     true
   end

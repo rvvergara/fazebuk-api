@@ -31,7 +31,6 @@ class V1::CommentsController < ApplicationController
     return unless comment
 
     comment.destroy
-
     action_success('Comment deleted')
   end
 
@@ -53,7 +52,6 @@ class V1::CommentsController < ApplicationController
 
   def set_comment
     comment = pundit_user.authored_comments.find_by(id: params[:id])
-
     return comment if comment
 
     find_error('comment')

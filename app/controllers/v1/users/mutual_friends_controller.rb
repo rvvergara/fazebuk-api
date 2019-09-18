@@ -10,9 +10,7 @@ class V1::Users::MutualFriendsController < ApplicationController
     return unless user
 
     records_per_page = 10
-
     total_mutual_friends_count = pundit_user.mutual_friends_with(user).count
-
     displayed_mutual_friends = pundit_user.paginated_mutual_friends_with(user, page, records_per_page)
 
     if set_max_in_page(page, total_mutual_friends_count, records_per_page)

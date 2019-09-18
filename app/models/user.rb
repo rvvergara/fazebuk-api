@@ -153,8 +153,17 @@ class User < ApplicationRecord
   end
 
   def assign_cover_pic
-    self.cover_pic = rails_blob_path(cover_images.last, only_path: true)
+    self.cover_pic = rails_blob_path(ordered_cover_images.last, only_path: true)
     save
+  end
+
+  def modified_update(user_params)
+    return false unless update(user_params)
+
+    assign_profile_pic if user_params[:profile_images]
+
+    assign_cover_pic if user_params[:cover_images]
+    true
   end
 
   private

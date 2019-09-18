@@ -19,11 +19,12 @@ class Post < ApplicationRecord
       purge_id = post_params[:purge_pic]
       pic = pics.find_by(id: purge_id)
       pic.purge_later
-      self.adding_or_purging_pic = true
+      self.adding_or_purging_pic = true unless pics.count.zero?
       save
     elsif post_params[:pics]
       self.adding_or_purging_pic = true
     end
     update(post_params)
+    self.adding_or_purging_pic = false
   end
 end

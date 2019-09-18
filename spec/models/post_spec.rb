@@ -67,10 +67,6 @@ RSpec.describe Post, type: :model do
         post.modified_update(pics: pics)
       end
 
-      it 'sets adding_or_purging to true' do
-        expect(post.adding_or_purging_pic).to be(true)
-      end
-
       it 'updates the post w/ the new pic' do
         expect(post.pics.count).to be(1)
         expect(post.pics.first.filename).to eq(pic1.original_filename)
@@ -85,12 +81,17 @@ RSpec.describe Post, type: :model do
         post.modified_update(purge_pic: purge_id)
       end
 
-      it 'sets adding_or_purging pic to true' do
-        expect(post.adding_or_purging_pic).to be(true)
-      end
-
       it 'removes the pic from the updated post' do
         expect(post.pics.count).to be(1)
+      end
+
+      context 'post w/ all pics removed' do
+        it 'is invalid w/o content' do
+          post.content = nil
+          post.modified_update(purge_pic: post.pics.first.id)
+
+          expect(post.errors['content']).to be_include("can't be blank")
+        end
       end
     end
   end

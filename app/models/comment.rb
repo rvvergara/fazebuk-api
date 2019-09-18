@@ -14,15 +14,20 @@ class Comment < ApplicationRecord
   validates :body, presence: true, unless: :adding_or_purging_pic?
 
   def modified_update(update_params)
+    adding_or_purging_pic_switch(update_params)
+    update_stat = update(update_params)
+    self.adding_or_purging_pic = false
+    update_stat
+  end
+
+  private
+
+  def adding_or_purging_pic_switch(update_params)
     if update_params[:pic]
       self.adding_or_purging_pic = true
     elsif update_params[:purge_pic]
       pic.purge
       save
     end
-
-    update_stat = update(update_params)
-    self.adding_or_purging_pic = false
-    update_stat
   end
 end

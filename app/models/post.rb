@@ -15,6 +15,15 @@ class Post < ApplicationRecord
   validates :content, presence: true, unless: :adding_or_purging_pic?
 
   def modified_update(post_params)
+    adding_or_purging_pic_switch(post_params)
+    update_stat = update(post_params)
+    self.adding_or_purging_pic = false
+    update_stat
+  end
+
+  private
+
+  def adding_or_purging_pic_switch(post_params)
     if post_params[:purge_pic]
       purge_id = post_params[:purge_pic]
       pic = pics.find_by(id: purge_id)
@@ -24,8 +33,5 @@ class Post < ApplicationRecord
     elsif post_params[:pics]
       self.adding_or_purging_pic = true
     end
-    update_stat = update(post_params)
-    self.adding_or_purging_pic = false
-    update_stat
   end
 end

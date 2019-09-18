@@ -19,10 +19,20 @@ RSpec.describe Comment, type: :model do
     end
 
     context 'body missing' do
-      it 'is invalid' do
-        comment.body = nil
-        comment.valid?
-        expect(comment.errors['body']).to include("can't be blank")
+      context 'pic also missing' do
+        it 'is invalid' do
+          comment.body = nil
+          comment.valid?
+          expect(comment.errors['body']).to include("can't be blank")
+        end
+      end
+      context 'pic is present' do
+        it 'is valid' do
+          comment.body = nil
+          comment.pic = pic
+          comment.adding_or_purging_pic = true
+          expect(comment).to be_valid
+        end
       end
     end
   end

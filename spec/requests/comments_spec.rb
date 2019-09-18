@@ -8,7 +8,15 @@ RSpec.describe 'Comments', type: :request do
   let!(:post_to_lisa) { create(:post, author: bart, postable: lisa) }
   let!(:comment) { create(:comment, :for_post, commenter: lisa, commentable: post_to_lisa) }
   let!(:reply) { create(:reply, :for_comment, commenter: bart, commentable: comment) }
+  let!(:reply_with_pic) { create(:reply, :for_comment, :with_pic, commenter: bart, commentable: comment) }
   let!(:updated_body) { 'Updated body' }
+  let(:pic) do
+    fixture_file_upload(Rails.root.join('spec', 'support', 'assets', 'icy-lake.jpg'), 'image/jpg')
+  end
+
+  after :all do
+    remove_uploaded_files
+  end
 
   describe 'unauthenticated user requests' do
     it {
@@ -61,7 +69,7 @@ RSpec.describe 'Comments', type: :request do
         it 'sends created comment as response' do
           subject
           expect(response).to have_http_status(:created)
-          expect(json_response.keys).to match(comment_response_keys)
+          expect(json_response.keys).to match(comment_response_keys(post_to_lisa.comments.last))
           expect(json_response['commenter']['username']).to eq(lisa.username)
         end
       end
@@ -74,6 +82,58 @@ RSpec.describe 'Comments', type: :request do
 
           expect(response).to have_http_status(:unprocessable_entity)
           expect(json_response['errors']['body']).to include("can't be blank")
+        end
+      end
+
+      context 'with comment pic' do
+        context 'with body' do
+          subject do
+            post post_comments_route(post_to_lisa.id),
+                 headers: authorization_header,
+                 params: valid_comment_attributes(:comment, pic: pic)
+          end
+
+          it 'adds attachment to the db' do
+            expect { subject }
+              .to change(ActiveStorage::Attachment, :count).by(1)
+          end
+
+          it 'adds comment to db' do
+            expect { subject }
+              .to change(Comment, :count).by(1)
+          end
+
+          it 'sends new comment data as response' do
+            subject
+            expect(response).to have_http_status(:created)
+            expect(json_response.keys).to match(comment_response_keys(Comment.last))
+            expect(json_response['pic']['id']).to eq(Comment.last.pic.id)
+          end
+        end
+
+        context 'without body' do
+          subject do
+            post post_comments_route(post_to_lisa.id),
+                 headers: authorization_header,
+                 params: valid_comment_attributes(:comment, pic: pic, body: nil)
+          end
+
+          it 'adds attachment to the db' do
+            expect { subject }
+              .to change(ActiveStorage::Attachment, :count).by(1)
+          end
+
+          it 'adds comment to the db' do
+            expect { subject }
+              .to change(Comment, :count).by(1)
+          end
+
+          it 'sends new comment data as response' do
+            subject
+            expect(response).to have_http_status(:created)
+            expect(json_response.keys).to match(comment_response_keys(post_to_lisa.comments.last))
+            expect(json_response['pic']['id']).to eq(Comment.last.pic.id)
+          end
         end
       end
     end
@@ -108,7 +168,7 @@ RSpec.describe 'Comments', type: :request do
         it 'sends created reply as response' do
           subject
           expect(response).to have_http_status(:created)
-          expect(json_response.keys).to match(comment_reply_response_keys)
+          expect(json_response.keys).to match(comment_reply_response_keys(comment.replies.last))
           expect(json_response['commenter']['username']).to eq(bart.username)
         end
       end
@@ -121,6 +181,58 @@ RSpec.describe 'Comments', type: :request do
 
           expect(response).to have_http_status(:unprocessable_entity)
           expect(json_response['errors']['body']).to include("can't be blank")
+        end
+      end
+
+      context 'with reply pic' do
+        context 'with body' do
+          subject do
+            post comment_replies_route(comment.id),
+                 headers: authorization_header,
+                 params: valid_comment_attributes(:reply, pic: pic)
+          end
+
+          it 'adds attachment to the db' do
+            expect { subject }
+              .to change(ActiveStorage::Attachment, :count).by(1)
+          end
+
+          it 'adds reply to the db' do
+            expect { subject }
+              .to change(Comment, :count).by(1)
+          end
+
+          it 'sends the new reply data as response' do
+            subject
+            expect(response).to have_http_status(:created)
+            expect(json_response.keys).to match(comment_reply_response_keys(comment.replies.last))
+            expect(json_response['pic']['id']).to eq(comment.replies.last.pic.id)
+          end
+        end
+
+        context 'without body' do
+          subject do
+            post comment_replies_route(comment.id),
+                 headers: authorization_header,
+                 params: valid_comment_attributes(:reply, pic: pic, body: nil)
+          end
+
+          it 'adds attachment to the db' do
+            expect { subject }
+              .to change(ActiveStorage::Attachment, :count).by(1)
+          end
+
+          it 'adds reply to the db' do
+            expect { subject }
+              .to change(Comment, :count).by(1)
+          end
+
+          it 'sends the new reply data as response' do
+            subject
+            expect(response).to have_http_status(:created)
+            expect(json_response.keys).to match(comment_reply_response_keys(comment.replies.last))
+            expect(json_response['pic']['id']).to eq(comment.replies.last.pic.id)
+          end
         end
       end
     end
@@ -177,6 +289,111 @@ RSpec.describe 'Comments', type: :request do
           expect(json_response['errors']['body']).to include("can't be blank")
         end
       end
+
+      context 'adding pic to existing comment' do
+        context 'with body in update' do
+          subject do
+            put comment_route(reply.id),
+                headers: authorization_header,
+                params: valid_comment_attributes('comment', body: updated_body, pic: pic)
+
+            reply.reload
+          end
+
+          it 'adds attachment to the db' do
+            expect { subject }
+              .to change(ActiveStorage::Attachment, :count).by(1)
+          end
+
+          it 'adds pic to the comment w/ updated comment' do
+            subject
+            expect(reply.pic.filename).to eq(pic.original_filename)
+            expect(reply.body).to eq(updated_body)
+          end
+
+          it 'sends the updated reply data as response' do
+            subject
+            expect(response).to have_http_status(:accepted)
+            expect(json_response.keys).to match(comment_reply_response_keys(reply))
+            expect(json_response['pic']['id']).to eq(reply.pic.id)
+          end
+        end
+
+        context 'without body in update' do
+          subject do
+            put comment_route(reply.id),
+                headers: authorization_header,
+                params: valid_comment_attributes('comment', body: nil, pic: pic)
+
+            reply.reload
+          end
+
+          it 'adds attachment to the db' do
+            expect { subject }
+              .to change(ActiveStorage::Attachment, :count).by(1)
+          end
+
+          it 'updates the reply' do
+            subject
+            expect(reply.pic.filename).to eq(pic.original_filename)
+            expect(reply.body).to eq('')
+          end
+        end
+      end
+
+      context 'removing pic from an existing comment' do
+        context 'with body in update' do
+          subject do
+            put comment_route(reply_with_pic.id),
+                headers: authorization_header,
+                params: valid_comment_attributes('comment', body: updated_body, purge_pic: '1')
+
+            reply_with_pic.reload
+          end
+
+          it 'removes attachment from db' do
+            expect { subject }
+              .to change(ActiveStorage::Attachment, :count).by(-1)
+          end
+
+          it 'removes pic from the comment' do
+            subject
+            expect(reply_with_pic.pic.attached?).to be(false)
+          end
+
+          it 'sends the updated comment as response' do
+            subject
+            expect(response).to have_http_status(:accepted)
+            expect(json_response.keys).to match(comment_reply_response_keys(reply_with_pic))
+          end
+        end
+
+        context 'without body in update' do
+          subject do
+            put comment_route(reply_with_pic.id),
+                headers: authorization_header,
+                params: valid_comment_attributes('comment', body: nil, purge_pic: '1')
+
+            reply_with_pic.reload
+          end
+
+          it 'removes attachment from db' do
+            expect { subject }
+              .to change(ActiveStorage::Attachment, :count).by(-1)
+          end
+
+          it 'removes pic from comment' do
+            subject
+            expect(reply_with_pic.pic.attached?).to be(false)
+          end
+
+          it 'sends an error message' do
+            subject
+            expect(response).to have_http_status(:unprocessable_entity)
+            expect(json_response['errors']['body']).to include("can't be blank")
+          end
+        end
+      end
     end
 
     context 'comment does not exist' do
@@ -201,7 +418,7 @@ RSpec.describe 'Comments', type: :request do
       end
 
       it 'removes comment (and replies) from db' do
-        expect { subject }.to change(Comment, :count).by(-2)
+        expect { subject }.to change(Comment, :count).by(-3)
       end
 
       it 'sends a success response' do

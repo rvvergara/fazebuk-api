@@ -31,6 +31,7 @@ RSpec.describe User, type: :model do
   let!(:post6) { create(:post, author: mike, postable: anna) }
   let(:gerard) { create(:user, :male, :with_male_profile_images, first_name: 'Gerard') }
   let(:hunter) { create(:user, :male, :with_icy_cover_images, first_name: 'Hunter') }
+  let(:pic) { fixture_file_upload(Rails.root.join('spec', 'support', 'assets', 'male.jpg'), 'image/jpg') }
 
   after :all do
     remove_uploaded_files
@@ -284,6 +285,43 @@ RSpec.describe User, type: :model do
       hunter.assign_cover_pic
 
       expect(hunter.cover_pic).to eq(cover_img_url)
+    end
+  end
+
+  describe '#modified_update' do
+    context 'invalid user_params' do
+      subject do
+        ryto.modified_update(username: nil, profile_images: [pic], cover_images: [pic])
+      end
+      it 'returns false' do
+        expect(subject).to be(false)
+      end
+
+      it 'does not change profile_pic or cover_pic' do
+        subject
+        expect(ryto.profile_pic).to be(nil)
+        expect(ryto.cover_pic).to be(nil)
+      end
+    end
+
+    context 'valid user_params' do
+      subject do
+        ryto.modified_update(first_name: 'Rytony', profile_images: [pic], cover_images: [pic])
+      end
+
+      it 'returns true' do
+        expect(subject).to be(true)
+      end
+
+      it 'changes profile_pic and cover_pic' do
+        subject
+        profile_pic = ryto.profile_images.first
+        cover_pic = ryto.cover_images.first
+        profile_pic_url = rails_blob_path(profile_pic, only_path: true)
+        cover_pic_url = rails_blob_path(cover_pic, only_path: true)
+        expect(ryto.profile_pic).to eq(profile_pic_url)
+        expect(ryto.cover_pic).to eq(cover_pic_url)
+      end
     end
   end
 

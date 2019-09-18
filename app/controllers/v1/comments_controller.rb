@@ -7,6 +7,7 @@ class V1::CommentsController < ApplicationController
     comment = build_comment
     return unless comment
 
+    comment.adding_or_purging_pic = true if comment_params[:pic]
     if comment.save
       render :create, locals: { comment: comment }, status: :created
     else
@@ -18,7 +19,7 @@ class V1::CommentsController < ApplicationController
     comment = set_comment
     return unless comment
 
-    if comment.update(update_params)
+    if comment.modified_update(update_params)
       render :update, locals: { comment: comment }, status: :accepted
     else
       render json: { message: 'Cannot update comment', errors: comment.errors }, status: :unprocessable_entity
@@ -30,7 +31,6 @@ class V1::CommentsController < ApplicationController
     return unless comment
 
     comment.destroy
-
     action_success('Comment deleted')
   end
 
@@ -47,12 +47,11 @@ class V1::CommentsController < ApplicationController
   end
 
   def update_params
-    params.require(:comment).permit(:body).merge(commenter: pundit_user)
+    params.require(:comment).permit(:body, :pic, :purge_pic).merge(commenter: pundit_user)
   end
 
   def set_comment
     comment = pundit_user.authored_comments.find_by(id: params[:id])
-
     return comment if comment
 
     find_error('comment')

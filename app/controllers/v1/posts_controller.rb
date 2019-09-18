@@ -5,7 +5,6 @@ class V1::PostsController < ApplicationController
 
   def show
     post = Post.find_by(id: params[:id])
-
     if post
       render :show, locals: { post: post }, status: :ok
     else
@@ -15,9 +14,7 @@ class V1::PostsController < ApplicationController
 
   def create
     post = pundit_user.authored_posts.build(post_params)
-
     post.adding_or_purging_pic = true if post_params[:pics]
-
     if post.save
       render :create, locals: { post: post }, status: :created
     else
@@ -28,7 +25,6 @@ class V1::PostsController < ApplicationController
   def update
     post = set_post
     authorize_post(post)
-
     if post&.modified_update(post_params)
       render :update, locals: { post: post }, status: :accepted
     elsif post
@@ -39,7 +35,6 @@ class V1::PostsController < ApplicationController
   def destroy
     post = set_post
     post&.destroy
-
     action_success('Post deleted') if post
   end
 
@@ -63,9 +58,7 @@ class V1::PostsController < ApplicationController
 
   def set_post
     post = pundit_user.authored_posts.find_by(id: params[:id])
-
     find_error('post') unless post
-
     post
   end
 

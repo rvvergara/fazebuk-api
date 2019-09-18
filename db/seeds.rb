@@ -125,6 +125,7 @@ ryto.authored_posts.each_with_index do |post, index|
   comment = FactoryBot.create(
     :comment,
     :for_post,
+    :with_pic,
     commentable: post,
     commenter: post.postable
   )
@@ -166,6 +167,7 @@ mike.received_posts.each_with_index do |post, index|
   reply = FactoryBot.create(
     :reply,
     :for_comment,
+    :with_pic,
     commentable: comment,
     commenter: mike.friends[index]
   )

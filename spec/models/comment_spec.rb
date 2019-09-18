@@ -7,6 +7,13 @@ RSpec.describe Comment, type: :model do
   let(:rolo) { create(:user, :male, first_name: 'Rolo') }
   let(:post) { create(:post, author: marge, postable: rolo) }
   let(:comment) { build(:comment, :for_post, commenter: rolo, commentable: post) }
+  let(:pic) do
+    fixture_file_upload(Rails.root.join('spec', 'support', 'assets', 'icy-lake.jpg'), 'image/jpg')
+  end
+
+  after :all do
+    remove_uploaded_files
+  end
 
   describe 'validations' do
     context 'body present' do
@@ -16,10 +23,20 @@ RSpec.describe Comment, type: :model do
     end
 
     context 'body missing' do
-      it 'is invalid' do
-        comment.body = nil
-        comment.valid?
-        expect(comment.errors['body']).to include("can't be blank")
+      context 'pic also missing' do
+        it 'is invalid' do
+          comment.body = nil
+          comment.valid?
+          expect(comment.errors['body']).to include("can't be blank")
+        end
+      end
+      context 'pic is present' do
+        it 'is valid' do
+          comment.body = nil
+          comment.pic = pic
+          comment.adding_or_purging_pic = true
+          expect(comment).to be_valid
+        end
       end
     end
   end
@@ -58,5 +75,22 @@ RSpec.describe Comment, type: :model do
         .with_foreign_key(:likeable_id)
         .dependent(:destroy)
     }
+    context 'attached pic' do
+      it {
+        should have_one(:pic_attachment)
+      }
+
+      context 'deleting a comment' do
+        it 'deletes the associated pic' do
+          comment.pic = pic
+          comment.save
+          expect do
+            comment.destroy
+          end
+            .to change(ActiveStorage::Attachment, :count)
+            .from(1).to(0)
+        end
+      end
+    end
   end
 end

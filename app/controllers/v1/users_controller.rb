@@ -38,7 +38,6 @@ class V1::UsersController < ApplicationController
     return unless user
 
     authorize user
-
     user.destroy
     action_success('Account deleted')
   end

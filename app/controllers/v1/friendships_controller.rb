@@ -6,7 +6,6 @@ class V1::FriendshipsController < ApplicationController
   def create
     passive_friend = User.find_by(username: params[:friend_requested])
     friendship = pundit_user.active_friendships.build(passive_friend: passive_friend)
-
     if friendship.save
       render :create, locals: { passive_friend: passive_friend }, status: :created
     else
@@ -33,7 +32,6 @@ class V1::FriendshipsController < ApplicationController
 
   def find_friendship
     friendship = Friendship.order_created.find_by(id: params[:id])
-
     if friendship
       authorize friendship
       return friendship

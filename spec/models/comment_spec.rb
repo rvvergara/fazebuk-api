@@ -7,6 +7,9 @@ RSpec.describe Comment, type: :model do
   let(:rolo) { create(:user, :male, first_name: 'Rolo') }
   let(:post) { create(:post, author: marge, postable: rolo) }
   let(:comment) { build(:comment, :for_post, commenter: rolo, commentable: post) }
+  let(:pic) do
+    fixture_file_upload(Rails.root.join('spec', 'support', 'assets', 'icy-lake.jpg'), 'image/jpg')
+  end
 
   describe 'validations' do
     context 'body present' do
@@ -58,5 +61,22 @@ RSpec.describe Comment, type: :model do
         .with_foreign_key(:likeable_id)
         .dependent(:destroy)
     }
+    context 'attached pic' do
+      it {
+        should have_one(:pic_attachment)
+      }
+
+      context 'deleting a comment' do
+        it 'deletes the associated pic' do
+          comment.pic = pic
+          comment.save
+          expect do
+            comment.destroy
+          end
+            .to change(ActiveStorage::Attachment, :count)
+            .from(1).to(0)
+        end
+      end
+    end
   end
 end

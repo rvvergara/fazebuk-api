@@ -27,3 +27,8 @@ json.likes do
 end
 json.liked? pundit_user.liked?(comment)
 json.like_id comment.like_id(pundit_user)
+if comment.pic.attached?
+  json.pic do
+    json.partial! '/v1/shared/pic', pic: comment.pic
+  end
+end

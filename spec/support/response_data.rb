@@ -45,12 +45,15 @@ module Helpers
       ]
     end
 
-    def comment_response_keys
-      %w[id commenter body created_at updated_at replies likes liked? like_id]
+    def comment_response_keys(comment)
+      keys = %w[id commenter body created_at updated_at replies likes liked? like_id]
+      keys.concat(%w[pic]) if comment.pic.attached?
+      keys
     end
 
-    def comment_reply_response_keys
-      %w[id commenter body created_at updated_at likes liked? like_id]
+    def comment_reply_response_keys(reply)
+      keys = %w[id commenter body created_at updated_at likes liked? like_id]
+      keys.concat(%w[pic]) if reply.pic.attached?
     end
   end
 end

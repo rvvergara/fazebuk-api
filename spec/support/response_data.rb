@@ -54,6 +54,7 @@ module Helpers
     def comment_reply_response_keys(reply)
       keys = %w[id commenter body created_at updated_at likes liked? like_id]
       keys.concat(%w[pic]) if reply.pic.attached?
+      keys
     end
   end
 end

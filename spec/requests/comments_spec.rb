@@ -167,7 +167,7 @@ RSpec.describe 'Comments', type: :request do
         it 'sends created reply as response' do
           subject
           expect(response).to have_http_status(:created)
-          expect(json_response.keys).to match(comment_reply_response_keys)
+          expect(json_response.keys).to match(comment_reply_response_keys(comment.replies.last))
           expect(json_response['commenter']['username']).to eq(bart.username)
         end
       end
@@ -180,6 +180,58 @@ RSpec.describe 'Comments', type: :request do
 
           expect(response).to have_http_status(:unprocessable_entity)
           expect(json_response['errors']['body']).to include("can't be blank")
+        end
+      end
+
+      context 'with reply pic' do
+        context 'with body' do
+          subject do
+            post comment_replies_route(comment.id),
+                 headers: authorization_header,
+                 params: valid_comment_attributes(:reply, pic: pic)
+          end
+
+          it 'adds attachment to the db' do
+            expect { subject }
+              .to change(ActiveStorage::Attachment, :count).by(1)
+          end
+
+          it 'adds reply to the db' do
+            expect { subject }
+              .to change(Comment, :count).by(1)
+          end
+
+          it 'sends the new reply data as response' do
+            subject
+            expect(response).to have_http_status(:created)
+            expect(json_response.keys).to match(comment_reply_response_keys(comment.replies.last))
+            expect(json_response['pic']['id']).to eq(comment.replies.last.pic.id)
+          end
+        end
+
+        context 'without body' do
+          subject do
+            post comment_replies_route(comment.id),
+                 headers: authorization_header,
+                 params: valid_comment_attributes(:reply, pic: pic, body: nil)
+          end
+
+          it 'adds attachment to the db' do
+            expect { subject }
+              .to change(ActiveStorage::Attachment,:count).by(1)
+          end
+
+          it 'adds reply to the db' do
+            expect { subject }
+              .to change(Comment, :count).by(1)
+          end
+
+          it 'sends the new reply data as response' do
+            subject
+            expect(response).to have_http_status(:created)
+            expect(json_response.keys).to match(comment_reply_response_keys(comment.replies.last))
+            expect(json_response['pic']['id']).to eq(comment.replies.last.pic.id)
+          end
         end
       end
     end

@@ -6,12 +6,15 @@ module Helpers
       JSON.parse(response.body)
     end
 
-    def user_response_keys
-      %w[
-        bio birthday cover_pic created_at email first_name gender id last_name middle_name profile_pic
+    def user_response_keys(user)
+      keys = %w[
+        bio birthday created_at email first_name gender id last_name middle_name
         updated_at username is_already_a_friend? friendship_id has_pending_sent_request_to?
         has_pending_received_request_from?
       ]
+      keys.concat(%w[cover_pic]) if user.cover_pic
+      keys.concat(%w[profile_pic]) if user.profile_pic
+      keys
     end
 
     def friends_response_keys

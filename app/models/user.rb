@@ -74,12 +74,16 @@ class User < ApplicationRecord
   end
 
   def mutual_friends_with(other_user)
+    return [] unless self != other_user
+
     friends
       .where(id: other_user.friends
           .pluck(:id))
   end
 
   def paginated_mutual_friends_with(other_user, page, per_page)
+    return [] unless self != other_user
+
     mutual_friends_with(other_user)
       .limit(per_page)
       .offset(Pagination.offset(page, per_page))
@@ -148,13 +152,22 @@ class User < ApplicationRecord
   end
 
   def assign_profile_pic
-    self.profile_pic = rails_blob_path(ordered_profile_images.last, only_path: true)
+    self.profile_pic = rails_blob_path(ordered_profile_images.first, only_path: true)
     save
   end
 
   def assign_cover_pic
-    self.cover_pic = rails_blob_path(cover_images.last, only_path: true)
+    self.cover_pic = rails_blob_path(ordered_cover_images.first, only_path: true)
     save
+  end
+
+  def modified_update(user_params)
+    return false unless update(user_params)
+
+    assign_profile_pic if user_params[:profile_images]
+
+    assign_cover_pic if user_params[:cover_images]
+    true
   end
 
   private

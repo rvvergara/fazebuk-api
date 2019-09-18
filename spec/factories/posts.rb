@@ -9,5 +9,11 @@ FactoryBot.define do
     trait :invalid do
       content { nil }
     end
+
+    trait :with_pics do
+      pics do
+        Rack::Test::UploadedFile.new('spec/support/assets/icy-lake.jpg', 'image/jpg')
+      end
+    end
   end
 end

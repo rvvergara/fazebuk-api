@@ -26,10 +26,7 @@ class V1::UsersController < ApplicationController
     return unless user
 
     authorize user
-    if user.update(user_params)
-
-      update_pics(user)
-
+    if user.modified_update(user_params)
       render :show, locals: { user: user }, status: :accepted
     else
       process_error(user, 'Cannot update user')
@@ -73,11 +70,5 @@ class V1::UsersController < ApplicationController
       profile_images: [],
       cover_images: []
     )
-  end
-
-  def update_pics(user)
-    user.assign_profile_pic unless user_params[:profile_images].nil?
-
-    user.assign_cover_pic unless user_params[:cover_images].nil?
   end
 end

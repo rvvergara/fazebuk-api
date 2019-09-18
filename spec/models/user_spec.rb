@@ -29,8 +29,8 @@ RSpec.describe User, type: :model do
   let!(:post4) { create(:post, author: mike, postable: george) }
   let!(:post5) { create(:post, author: anna, postable: george) }
   let!(:post6) { create(:post, author: mike, postable: anna) }
-  let(:gerard) { create(:user, :male, :with_profile_images, first_name: 'Gerard') }
-  let(:hunter) { create(:user, :male, :with_cover_images, first_name: 'Hunter') }
+  let(:gerard) { create(:user, :male, :with_male_profile_images, first_name: 'Gerard') }
+  let(:hunter) { create(:user, :male, :with_icy_cover_images, first_name: 'Hunter') }
 
   after :all do
     remove_uploaded_files
@@ -91,8 +91,27 @@ RSpec.describe User, type: :model do
     end
 
     describe '#mutual_friends_with' do
-      it 'returns collection of friends common with another user' do
-        expect(ryto.mutual_friends_with(anna)).to include(george)
+      context 'user and other_user are different' do
+        context 'common friends exist between the two' do
+          it 'returns a non-empty collection' do
+            expect(ryto.mutual_friends_with(anna)).to_not be_empty
+          end
+          it 'includes the common friend' do
+            expect(ryto.mutual_friends_with(anna)).to include(george)
+          end
+        end
+
+        context 'no common friends between the two' do
+          it 'returns an empty collection' do
+            expect(ryto.mutual_friends_with(gerard)).to be_empty
+          end
+        end
+      end
+
+      context 'user and other_user the same' do
+        it 'returns an empty array' do
+          expect(ryto.mutual_friends_with(ryto)).to be_empty
+        end
       end
     end
 

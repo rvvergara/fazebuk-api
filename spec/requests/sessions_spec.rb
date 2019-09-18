@@ -17,7 +17,7 @@ RSpec.describe 'Sessions', type: :request do
       end
 
       it 'renders a json with complete data' do
-        expect(json_response['data']['username']).to eq(john.username)
+        expect(json_response['username']).to eq(john.username)
         expect(json_response['token']).to_not be('')
       end
     end

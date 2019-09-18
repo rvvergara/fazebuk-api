@@ -1,15 +1,31 @@
 # frozen_string_literal: true
+include Rails.application.routes.url_helpers
+
+def pic_url(pic)
+  rails_blob_path(pic, only_path: true)
+end
+
+def add_profile_and_cover_pic(user)
+  user.update(
+    profile_pic: pic_url(user.profile_images.first),
+    cover_pic: pic_url(user.cover_images.first)
+  )
+end
 
 ryto = FactoryBot.create(
   :user,
   :male,
+  :with_male_profile_images,
+  :with_icy_cover_images,
   first_name: 'Ryto',
-  last_name: 'Verkar'
+  last_name: 'Verkar',
 )
 
 mike = FactoryBot.create(
   :user,
   :male,
+  :with_male_profile_images,
+  :with_blue_cover_images,
   first_name: 'Mike',
   last_name: 'Jordan'
 )
@@ -17,6 +33,8 @@ mike = FactoryBot.create(
 anna = FactoryBot.create(
   :user,
   :female,
+  :with_female_profile_images,
+  :with_icy_cover_images,
   first_name: 'Anna',
   last_name: 'Banana'
 )
@@ -24,9 +42,16 @@ anna = FactoryBot.create(
 george = FactoryBot.create(
   :user,
   :male,
+  :with_male_profile_images,
+  :with_blue_cover_images,
   first_name: 'George',
   last_name: 'Washington'
 )
+
+add_profile_and_cover_pic(ryto)
+add_profile_and_cover_pic(mike)
+add_profile_and_cover_pic(anna)
+add_profile_and_cover_pic(george)
 
 FactoryBot.create(:friendship, active_friend: ryto, passive_friend: anna, confirmed: true)
 FactoryBot.create(:friendship, active_friend: mike, passive_friend: ryto, confirmed: true)
@@ -81,6 +106,7 @@ end
 5.times do |n|
   FactoryBot.create(
     :post,
+    :with_pics,
     author: ryto,
     postable: ryto.friends[n]
   )
@@ -122,6 +148,7 @@ end
 4.times do |n|
   FactoryBot.create(
     :post,
+    :with_pics,
     author: mike.friends[n + 4],
     postable: mike
   )

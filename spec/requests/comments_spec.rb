@@ -9,6 +9,13 @@ RSpec.describe 'Comments', type: :request do
   let!(:comment) { create(:comment, :for_post, commenter: lisa, commentable: post_to_lisa) }
   let!(:reply) { create(:reply, :for_comment, commenter: bart, commentable: comment) }
   let!(:updated_body) { 'Updated body' }
+  let(:pic) do
+    fixture_file_upload(Rails.root.join('spec', 'support', 'assets', 'icy-lake.jpg'), 'image/jpg')
+  end
+
+  after :all do
+    remove_uploaded_files
+  end
 
   describe 'unauthenticated user requests' do
     it {
@@ -61,7 +68,7 @@ RSpec.describe 'Comments', type: :request do
         it 'sends created comment as response' do
           subject
           expect(response).to have_http_status(:created)
-          expect(json_response.keys).to match(comment_response_keys)
+          expect(json_response.keys).to match(comment_response_keys(post_to_lisa.comments.last))
           expect(json_response['commenter']['username']).to eq(lisa.username)
         end
       end
@@ -74,6 +81,58 @@ RSpec.describe 'Comments', type: :request do
 
           expect(response).to have_http_status(:unprocessable_entity)
           expect(json_response['errors']['body']).to include("can't be blank")
+        end
+      end
+
+      context 'with comment pic' do
+        context 'with body' do
+          subject do
+            post post_comments_route(post_to_lisa.id),
+                 headers: authorization_header,
+                 params: valid_comment_attributes(:comment, pic: pic)
+          end
+
+          it 'adds attachment to the db' do
+            expect { subject }
+              .to change(ActiveStorage::Attachment, :count).by(1)
+          end
+
+          it 'adds comment to db' do
+            expect { subject }
+              .to change(Comment, :count).by(1)
+          end
+
+          it 'sends new comment data as response' do
+            subject
+            expect(response).to have_http_status(:created)
+            expect(json_response.keys).to match(comment_response_keys(Comment.last))
+            expect(json_response['pic']['id']).to eq(Comment.last.pic.id)
+          end
+        end
+
+        context 'without body' do
+          subject do
+            post post_comments_route(post_to_lisa.id),
+                 headers: authorization_header,
+                 params: valid_comment_attributes(:comment, pic: pic, body: nil)
+          end
+
+          it 'adds attachment to the db' do
+            expect { subject }
+              .to change(ActiveStorage::Attachment, :count).by(1)
+          end
+
+          it 'adds comment to the db' do
+            expect { subject }
+              .to change(Comment, :count).by(1)
+          end
+
+          it 'sends new comment data as response' do
+            subject
+            expect(response).to have_http_status(:created)
+            expect(json_response.keys).to match(comment_response_keys(post_to_lisa.comments.last))
+            expect(json_response['pic']['id']).to eq(Comment.last.pic.id)
+          end
         end
       end
     end

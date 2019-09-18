@@ -11,6 +11,10 @@ RSpec.describe Comment, type: :model do
     fixture_file_upload(Rails.root.join('spec', 'support', 'assets', 'icy-lake.jpg'), 'image/jpg')
   end
 
+  after :all do
+    remove_uploaded_files
+  end
+
   describe 'validations' do
     context 'body present' do
       it 'is valid' do

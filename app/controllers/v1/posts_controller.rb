@@ -15,6 +15,9 @@ class V1::PostsController < ApplicationController
 
   def create
     post = pundit_user.authored_posts.build(post_params)
+
+    post.adding_or_purging_pic = true if post_params[:pics]
+
     if post.save
       render :create, locals: { post: post }, status: :created
     else

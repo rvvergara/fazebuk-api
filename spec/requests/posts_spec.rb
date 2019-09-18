@@ -104,27 +104,47 @@ RSpec.describe 'Posts', type: :request do
     end
 
     context 'post with pics' do
-      subject do
-        post post_route,
-             headers: authorization_header,
-             params: valid_post_attributes(beng, pics: [pic1])
+      context 'with text content' do
+        subject do
+          post post_route,
+               headers: authorization_header,
+               params: valid_post_attributes(beng, pics: [pic1])
+        end
+
+        it 'adds post to the database' do
+          expect { subject }.to change(Post, :count).by(1)
+        end
+
+        it 'adds ActiveStorage record' do
+          expect { subject }
+            .to change(ActiveStorage::Attachment, :count)
+            .from(0).to(1)
+        end
+
+        it 'sends the post data as response' do
+          subject
+          expect(response).to have_http_status(:created)
+          expect(json_response.keys).to match(post_response_keys)
+          expect(json_response['pics'].first['id']).to eq(beng.authored_posts.order_created.first.pics.first.id)
+        end
       end
 
-      it 'adds post to the database' do
-        expect { subject }.to change(Post, :count).by(1)
-      end
+      context 'without text content' do
+        subject do
+          post post_route,
+               headers: authorization_header,
+               params: valid_post_attributes(beng, pics: [pic1], content: nil)
+        end
 
-      it 'adds ActiveStorage record' do
-        expect { subject }
-          .to change(ActiveStorage::Attachment, :count)
-          .from(0).to(1)
-      end
+        it 'adds post to the database' do
+          expect { subject }.to change(Post, :count).by(1)
+        end
 
-      it 'sends the post data as response' do
-        subject
-        expect(response).to have_http_status(:created)
-        expect(json_response.keys).to match(post_response_keys)
-        expect(json_response['pics'].first['id']).to eq(beng.authored_posts.order_created.first.pics.first.id)
+        it 'adds ActiveStorage record' do
+          expect { subject }
+            .to change(ActiveStorage::Attachment, :count)
+            .from(0).to(1)
+        end
       end
     end
   end

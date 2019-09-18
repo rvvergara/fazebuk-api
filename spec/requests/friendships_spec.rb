@@ -44,7 +44,7 @@ RSpec.describe 'Friendships', type: :request do
       it 'sends passive_friend data as response' do
         subject
         expect(response).to have_http_status(:created)
-        expect(json_response['sent_request_to'].keys).to match(user_response_keys)
+        expect(json_response['sent_request_to'].keys).to match(user_response_keys(hermione))
         expect(json_response['sent_request_to']['username']).to eq(hermione.username)
       end
     end

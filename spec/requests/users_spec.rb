@@ -50,7 +50,7 @@ RSpec.describe 'Users', type: :request do
             headers: authorization_header
 
         expect(response).to have_http_status(:ok)
-        expect(json_response.keys).to match(user_response_keys)
+        expect(json_response.keys).to match(user_response_keys(conrad))
         expect(json_response['is_already_a_friend?']).to be(true)
       end
     end
@@ -115,7 +115,7 @@ RSpec.describe 'Users', type: :request do
 
         it 'sends updated user data as response' do
           expect(response).to have_http_status(:accepted)
-          expect(json_response.keys).to match(user_response_keys)
+          expect(json_response.keys).to match(user_response_keys(alfred))
           expect(json_response['first_name']).to eq('King')
         end
       end

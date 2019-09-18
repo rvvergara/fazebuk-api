@@ -24,7 +24,8 @@ class Post < ApplicationRecord
     elsif post_params[:pics]
       self.adding_or_purging_pic = true
     end
-    update(post_params)
+    update_stat = update(post_params)
     self.adding_or_purging_pic = false
+    update_stat
   end
 end

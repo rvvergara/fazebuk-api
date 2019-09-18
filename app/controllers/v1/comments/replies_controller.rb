@@ -15,7 +15,7 @@ class V1::Comments::RepliesController < V1::CommentsController
 
   def comment_params
     params.require(:reply)
-      .permit(:body)
+      .permit(:body, :pic)
       .merge(commenter: pundit_user)
   end
 end

@@ -7,6 +7,7 @@ class V1::CommentsController < ApplicationController
     comment = build_comment
     return unless comment
 
+    comment.adding_or_purging_pic = true if comment_params[:pic]
     if comment.save
       render :create, locals: { comment: comment }, status: :created
     else
@@ -47,7 +48,7 @@ class V1::CommentsController < ApplicationController
   end
 
   def update_params
-    params.require(:comment).permit(:body).merge(commenter: pundit_user)
+    params.require(:comment).permit(:body, :pic).merge(commenter: pundit_user)
   end
 
   def set_comment

@@ -148,12 +148,12 @@ class User < ApplicationRecord
   end
 
   def assign_profile_pic
-    self.profile_pic = rails_blob_path(ordered_profile_images.last, only_path: true)
+    self.profile_pic = rails_blob_path(ordered_profile_images.first, only_path: true)
     save
   end
 
   def assign_cover_pic
-    self.cover_pic = rails_blob_path(ordered_cover_images.last, only_path: true)
+    self.cover_pic = rails_blob_path(ordered_cover_images.first, only_path: true)
     save
   end
 

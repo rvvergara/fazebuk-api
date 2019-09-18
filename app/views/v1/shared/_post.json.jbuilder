@@ -28,3 +28,8 @@ json.likes do
 end
 json.liked? pundit_user.liked?(post)
 json.like_id post.like_id(pundit_user)
+json.pics do
+  json.array! post.pics do |pic|
+    json.partial! '/v1/shared/pic', pic: pic
+  end
+end

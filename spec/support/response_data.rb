@@ -27,7 +27,7 @@ module Helpers
     end
 
     def post_response_keys
-      %w[id content created_at updated_at author posted_to comments likes liked? like_id]
+      %w[id content created_at updated_at author posted_to comments likes liked? like_id pics]
     end
 
     def timeline_posts_response_keys

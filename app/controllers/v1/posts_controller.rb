@@ -15,6 +15,9 @@ class V1::PostsController < ApplicationController
 
   def create
     post = pundit_user.authored_posts.build(post_params)
+
+    post.adding_or_purging_pic = true if post_params[:pics]
+
     if post.save
       render :create, locals: { post: post }, status: :created
     else
@@ -26,7 +29,7 @@ class V1::PostsController < ApplicationController
     post = set_post
     authorize_post(post)
 
-    if post&.update(post_params)
+    if post&.modified_update(post_params)
       render :update, locals: { post: post }, status: :accepted
     elsif post
       process_error(post, 'Cannot update post')
@@ -43,7 +46,7 @@ class V1::PostsController < ApplicationController
   private
 
   def permitted_params
-    params.require(:post).permit(:content, :postable)
+    params.require(:post).permit(:content, :postable, :purge_pic, pics: [])
   end
 
   def set_postable
@@ -51,7 +54,11 @@ class V1::PostsController < ApplicationController
   end
 
   def post_params
-    { content: permitted_params[:content], postable: set_postable }
+    pics_params = { pics: permitted_params[:pics] }
+    purge_param = { purge_pic: permitted_params[:purge_pic] }
+    sent_params = { content: permitted_params[:content], postable: set_postable }
+    sent_params = pics_params[:pics].nil? ? sent_params : sent_params.merge(pics_params)
+    purge_param[:purge_pic].nil? ? sent_params : sent_params.merge(purge_param)
   end
 
   def set_post

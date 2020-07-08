@@ -11,7 +11,7 @@ gem 'jwt'
 gem 'koala', '>= 3.0.0'
 gem 'pg', '>= 0.18', '< 2.0'
 gem 'puma', '~> 3.12'
-gem 'pundit'
+gem 'pundit', '>= 2.1.0'
 gem 'rack-cors'
 gem 'rails', '~> 5.2.4', '>= 5.2.4.3'
 

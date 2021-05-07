@@ -5,7 +5,7 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 ruby '2.6.3'
 gem 'bootsnap', '>= 1.1.0', require: false
-gem 'devise', '>= 4.7.1'
+gem 'devise', '>= 4.7.2'
 gem 'jbuilder', '~> 2.9', '>= 2.9.1'
 gem 'jwt'
 gem 'koala', '>= 3.0.0'
@@ -13,15 +13,15 @@ gem 'pg', '>= 0.18', '< 2.0'
 gem 'puma', '~> 3.12'
 gem 'pundit', '>= 2.1.0'
 gem 'rack-cors'
-gem 'rails', '~> 5.2.4', '>= 5.2.4.3'
+gem 'rails', '~> 5.2.4', '>= 5.2.4.6'
 
 group :development, :test do
   gem 'byebug', platforms: %i[mri mingw x64_mingw]
-  gem 'factory_bot_rails', '>= 5.0.2'
+  gem 'factory_bot_rails', '>= 6.0.0'
   gem 'faker'
   gem 'hirb'
   gem 'pry-rails'
-  gem 'rspec-rails', '>= 3.8.2'
+  gem 'rspec-rails', '>= 4.0.1'
 end
 
 group :development do

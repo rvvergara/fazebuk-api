@@ -13,7 +13,7 @@ gem 'pg', '>= 0.18', '< 2.0'
 gem 'puma', '~> 4.3', '>= 4.3.9'
 gem 'pundit', '>= 2.1.0'
 gem 'rack-cors'
-gem 'rails', '~> 5.2.4', '>= 5.2.4.6'
+gem 'rails', '~> 5.2.6', '>= 5.2.6.3'
 
 group :development, :test do
   gem 'byebug', platforms: %i[mri mingw x64_mingw]

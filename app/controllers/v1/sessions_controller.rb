@@ -8,7 +8,7 @@ class V1::SessionsController < ApplicationController
       token = JsonWebToken.encode(data)
       render :user, locals: { user: user, token: token }, status: :ok
     else
-      render json: { "message": 'Invalid credentials' }, status: :unauthorized
+      render json: { message: 'Invalid credentials' }, status: :unauthorized
     end
   end
 end

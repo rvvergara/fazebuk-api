@@ -14,7 +14,7 @@ module Helpers
     end
 
     def authorization_header
-      { "Authorization": "Bearer #{user_token}" }
+      { Authorization: "Bearer #{user_token}" }
     end
   end
 end

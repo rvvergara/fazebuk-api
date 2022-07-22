@@ -21,7 +21,7 @@ FactoryBot.define do
 
     trait :with_pic do
       pic do
-        Rack::Test::UploadedFile.new("#{Rails.root}spec/support/assets/icy-lake.jpg", 'image/jpg')
+        Rack::Test::UploadedFile.new("#{Rails.root}/spec/support/assets/icy-lake.jpg", 'image/jpg')
       end
     end
   end

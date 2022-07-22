@@ -217,3 +217,17 @@ Layout/EmptyLines:
   Enabled: false
 Style/CommentedKeyword:
   Enabled: false
+Style/PerlBackrefs:
+  Enabled: false
+Layout/EmptyLinesAroundModuleBody:
+  Enabled: false
+Style/DefWithParentheses:
+  Enabled: false
+Style/TrailingCommaInArrayLiteral:
+  Enabled: false
+Layout/SpaceAroundEqualsInParameterDefault:
+  Enabled: false
+Layout/EmptyLineBetweenDefs:
+  Enabled: false
+Lint/UnusedMethodArgument:
+  Enabled: false

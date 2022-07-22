@@ -39,6 +39,7 @@ Metrics/AbcSize:
 Metrics/ClassLength:
   Max: 150
 Metrics/BlockLength:
+  Enabled: false
   IgnoredMethods: ['describe', 'context', 'define', 'factory']
 
 Style/Documentation:
@@ -196,3 +197,8 @@ Style/FormatStringToken:
   Enabled: false
 Metrics/CyclomaticComplexity:
   Enabled: false
+Style/GlobalVars:
+  Enabled: false
+Style/GuardClause:
+  Enabled: false
+

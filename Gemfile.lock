@@ -235,10 +235,9 @@ GEM
       unicode-display_width (>= 1.4.0, < 3.0)
     rubocop-ast (1.19.1)
       parser (>= 3.1.1.0)
-    rubocop-rails (2.15.2)
-      activesupport (>= 4.2.0)
-      rack (>= 1.1)
-      rubocop (>= 1.7.0, < 2.0)
+    rubocop-discourse (2.5.0)
+      rubocop (>= 1.1.0)
+      rubocop-rspec (>= 2.0.0)
     rubocop-rspec (2.12.1)
       rubocop (~> 1.31)
     ruby-progressbar (1.11.0)
@@ -297,8 +296,7 @@ DEPENDENCIES
   rails (~> 6.0.3, >= 6.0.3.5)
   rspec-rails (>= 4.0.1)
   rubocop
-  rubocop-rails
-  rubocop-rspec
+  rubocop-discourse
   shoulda-matchers (>= 4.0.1)
   spring
   spring-commands-rspec

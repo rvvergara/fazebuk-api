@@ -26,8 +26,7 @@ group :development, :test do
   gem 'pry-rails'
   gem 'rspec-rails', '>= 4.0.1'
   gem 'rubocop'
-  gem 'rubocop-rails'
-  gem 'rubocop-rspec'
+  gem 'rubocop-discourse'
 end
 
 group :development do

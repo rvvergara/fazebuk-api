@@ -13,7 +13,7 @@ RSpec.describe UserPolicy, type: :policy do
     it { is_expected.to permit_action(:destroy) }
   end
 
-  context "policy for a user tampering another's account" do
+  context "when policy for a user tampering another's account" do
     subject { described_class.new(jane, miri) }
 
     it { is_expected.not_to permit_action(:update) }

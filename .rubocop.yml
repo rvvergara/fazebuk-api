@@ -12,6 +12,22 @@ AllCops:
     - 'Rakefile'
   DisplayCopNames: true
 
+RSpec/NamedSubject:
+  Enabled: false
+RSpec/MultipleMemoizedHelpers:
+  Enabled: false
+RSpec/MultipleExpectations:
+  Enabled: false
+RSpec/NestedGroups:
+  Enabled: false
+RSpec/LetSetup:
+  Enabled: false
+RSpec/BeforeAfterAll:
+  Enabled: false
+RSpec/ExampleLength:
+  Enabled: false
+RSpec/FilePath:
+  Enabled: false
 Layout/LineLength:
   Max: 160
 Metrics/MethodLength:

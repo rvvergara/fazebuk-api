@@ -201,4 +201,19 @@ Style/GlobalVars:
   Enabled: false
 Style/GuardClause:
   Enabled: false
-
+Layout/IndentationWidth:
+  Enabled: false
+Layout/IndentationConsistency:
+  Enabled: false
+Style/AndOr:
+  Enabled: false
+Layout/LeadingCommentSpace:
+  Enabled: false
+Style/SpecialGlobalVars:
+  Enabled: false
+Layout/TrailingWhitespace:
+  Enabled: false
+Layout/EmptyLines:
+  Enabled: false
+Style/CommentedKeyword:
+  Enabled: false

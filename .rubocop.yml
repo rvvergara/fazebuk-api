@@ -196,5 +196,3 @@ Style/FormatStringToken:
   Enabled: false
 Metrics/CyclomaticComplexity:
   Enabled: false
-Lint/Syntax:
-  Enabled: false

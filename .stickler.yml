@@ -8,3 +8,4 @@ files:
     - 'config/*'
     - 'Guardfile'
     - 'Rakefile'
+    - 'Gemspec'

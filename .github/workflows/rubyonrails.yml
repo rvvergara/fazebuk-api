@@ -34,7 +34,6 @@ jobs:
         with:
           bundler-cache: true
           ruby-version: '2.7.5'
-        run: bundle update
       # Add or replace database setup steps here
       - name: Set up database schema
         env:

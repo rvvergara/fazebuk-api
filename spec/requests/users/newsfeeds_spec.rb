@@ -33,7 +33,7 @@ RSpec.describe 'Users::Newsfeeds', type: :request do
   describe 'GET /v1/newsfeed_posts' do
     let!(:login) { login_as(harry) }
 
-    context 'no page params included' do
+    context 'when no page params included' do
       it 'shows page 1 (10 posts)' do
         get newsfeed_route,
             headers: authorization_header
@@ -44,7 +44,7 @@ RSpec.describe 'Users::Newsfeeds', type: :request do
       end
     end
 
-    context 'page 2 in params' do
+    context 'when page 2 in params' do
       it 'shows page 2 (4 posts)' do
         get newsfeed_route(2),
             headers: authorization_header
@@ -55,7 +55,7 @@ RSpec.describe 'Users::Newsfeeds', type: :request do
       end
     end
 
-    context 'page 3 in params' do
+    context 'when page 3 in params' do
       it 'sends no posts' do
         get newsfeed_route(3),
             headers: authorization_header

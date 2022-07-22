@@ -6,7 +6,7 @@ RSpec.describe 'Sessions', type: :request do
   describe '#create' do
     let(:john) { create(:user, :male, first_name: 'John') }
 
-    context 'correct credentials' do
+    context 'when correct credentials' do
       subject! do
         post '/v1/sessions', params: {
           email: john.email,

@@ -6,7 +6,7 @@ RSpec.describe UserPolicy, type: :policy do
   let(:jane) { create(:user, :male, first_name: 'Jane') }
   let(:miri) { create(:user, :male, first_name: 'Miri') }
 
-  context 'policy for a user managing their own account' do
+  context 'when policy for a user managing their own account' do
     subject { described_class.new(jane, jane) }
 
     it { is_expected.to permit_action(:update) }

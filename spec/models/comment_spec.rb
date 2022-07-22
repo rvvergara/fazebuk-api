@@ -16,14 +16,14 @@ RSpec.describe Comment, type: :model do
   end
 
   describe 'validations' do
-    context 'body present' do
+    context 'when body present' do
       it 'is valid' do
         expect(comment).to be_valid
       end
     end
 
-    context 'body missing' do
-      context 'pic also missing' do
+    context 'when body missing' do
+      context 'when pic also missing' do
         it 'is invalid' do
           comment.body = nil
           comment.valid?
@@ -31,7 +31,7 @@ RSpec.describe Comment, type: :model do
         end
       end
 
-      context 'pic is present' do
+      context 'when pic is present' do
         it 'is valid' do
           comment.body = nil
           comment.pic = pic
@@ -45,14 +45,14 @@ RSpec.describe Comment, type: :model do
   describe 'inherited #like_id' do
     let!(:save) { comment.save }
 
-    context 'user has liked the comment' do
+    context 'when user has liked the comment' do
       it 'returns like id' do
         like = create(:like, :for_comment, likeable: comment, liker: marge)
         expect(comment.like_id(marge)).to eq(like.id)
       end
     end
 
-    context 'user has not liked the comment' do
+    context 'when user has not liked the comment' do
       it 'returns nil' do
         expect(comment.like_id(marge)).to be_nil
       end
@@ -80,12 +80,12 @@ RSpec.describe Comment, type: :model do
         .dependent(:destroy)
     }
 
-    context 'attached pic' do
+    context 'when attached pic' do
       it {
         expect(subject).to have_one(:pic_attachment)
       }
 
-      context 'deleting a comment' do
+      context 'when deleting a comment' do
         it 'deletes the associated pic' do
           comment.pic = pic
           comment.save

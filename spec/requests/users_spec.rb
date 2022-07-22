@@ -46,7 +46,7 @@ RSpec.describe 'Users', type: :request do
   end
 
   describe 'GET /v1/users/:username' do
-    context 'user exists' do
+    context 'when user exists' do
       it 'sends the user data as response' do
         get user_route(conrad.username),
             headers: authorization_header
@@ -57,7 +57,7 @@ RSpec.describe 'Users', type: :request do
       end
     end
 
-    context 'user does not exist' do
+    context 'when user does not exist' do
       it 'sends an error response' do
         get user_route('nobody'),
             headers: authorization_header
@@ -69,7 +69,7 @@ RSpec.describe 'Users', type: :request do
   end
 
   describe 'POST /v1/users' do
-    context 'valid params' do
+    context 'when valid params' do
       it 'creates & authenticates user' do
         expect { create_user(valid_user_attributes) }
           .to change(User, :count).by(1)
@@ -80,8 +80,8 @@ RSpec.describe 'Users', type: :request do
       end
     end
 
-    context 'invalid params' do
-      context 'missing first_name' do
+    context 'when invalid params' do
+      context 'when missing first_name' do
         it 'does not create a user' do
           expect { create_user(invalid_user_attributes) }
             .not_to change(User, :count)
@@ -90,7 +90,7 @@ RSpec.describe 'Users', type: :request do
         end
       end
 
-      context 'duplicate username' do
+      context 'when duplicate username' do
         it 'does not create user' do
           expect do
             create_user(valid_user_attributes.merge(username: conrad.username))
@@ -106,8 +106,8 @@ RSpec.describe 'Users', type: :request do
   describe 'PUT /v1/users/:username' do
     let!(:login) { login_as(alfred) }
 
-    context 'user exists' do
-      context 'valid params' do
+    context 'when user exists' do
+      context 'when valid params' do
         before { update_user(alfred.username, first_name: 'King') }
 
         it 'changes user record' do
@@ -122,8 +122,8 @@ RSpec.describe 'Users', type: :request do
         end
       end
 
-      context 'invalid params' do
-        context 'missing first name' do
+      context 'when invalid params' do
+        context 'when missing first name' do
           before { update_user(alfred.username, invalid_user_attributes) }
 
           it 'does not update user record' do
@@ -137,7 +137,7 @@ RSpec.describe 'Users', type: :request do
           end
         end
 
-        context 'duplicate username' do
+        context 'when duplicate username' do
           before { update_user(alfred.username, username: conrad.username) }
 
           it 'does not change user record' do
@@ -148,8 +148,8 @@ RSpec.describe 'Users', type: :request do
         end
       end
 
-      context 'request for profile pic change' do
-        context 'with new image upload' do
+      context 'when request for profile pic change' do
+        context 'when with new image upload' do
           subject do
             update_user(alfred.username, profile_images: [profile_pic1])
           end
@@ -167,7 +167,7 @@ RSpec.describe 'Users', type: :request do
           end
         end
 
-        context 'referring to url of a previously uploaded image' do
+        context 'when referring to url of a previously uploaded image' do
           subject! do
             update_user(alfred.username, profile_images: [profile_pic1])
             login_as(alfred)
@@ -186,8 +186,8 @@ RSpec.describe 'Users', type: :request do
         end
       end
 
-      context 'request for cover pic change' do
-        context 'with new image upload' do
+      context 'when request for cover pic change' do
+        context 'when with new image upload' do
           subject do
             update_user(alfred.username, cover_images: [cover_pic1])
           end
@@ -205,7 +205,7 @@ RSpec.describe 'Users', type: :request do
           end
         end
 
-        context 'referring to url of a previously uploaded image' do
+        context 'when referring to url of a previously uploaded image' do
           subject! do
             update_user(alfred.username, cover_images: [cover_pic1])
             login_as(alfred)
@@ -227,7 +227,7 @@ RSpec.describe 'Users', type: :request do
       end
     end
 
-    context 'user does not exist' do
+    context 'when user does not exist' do
       it 'sends an error response' do
         put user_route('nobody'),
             headers: authorization_header
@@ -239,7 +239,7 @@ RSpec.describe 'Users', type: :request do
   end
 
   describe 'DELETE /v1/users/:username' do
-    context 'user exists' do
+    context 'when user exists' do
       subject do
         delete user_route(alfred.username),
                headers: authorization_header
@@ -256,7 +256,7 @@ RSpec.describe 'Users', type: :request do
       end
     end
 
-    context 'user does not exist' do
+    context 'when user does not exist' do
       it 'sends an error response' do
         delete user_route('nobody'),
                headers: authorization_header

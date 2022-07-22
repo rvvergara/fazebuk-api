@@ -19,14 +19,14 @@ RSpec.describe Post, type: :model do
   end
 
   describe 'validation' do
-    context 'adding_or_purging_pic is false' do
-      context 'content present in post' do
+    context 'when adding_or_purging_pic is false' do
+      context 'when content present in post' do
         it 'is valid' do
           expect(post).to be_valid
         end
       end
 
-      context 'post has no content' do
+      context 'when post has no content' do
         it 'is invalid and has errors' do
           post.content = nil
           post.valid?
@@ -35,7 +35,7 @@ RSpec.describe Post, type: :model do
       end
     end
 
-    context 'adding_or_purging_pic is true' do
+    context 'when adding_or_purging_pic is true' do
       it 'is valid' do
         post.adding_or_purging_pic = true
         post.content = nil
@@ -47,13 +47,13 @@ RSpec.describe Post, type: :model do
   describe 'inherited #like_id' do
     let!(:save) { post.save }
 
-    context 'user has liked the post' do
+    context 'when user has liked the post' do
       it 'returns like id' do
         expect(post.like_id(kyle)).to eq(like.id)
       end
     end
 
-    context 'user has not liked the post' do
+    context 'when user has not liked the post' do
       it 'returns nil' do
         expect(post.like_id(charlie)).to be_nil
       end
@@ -61,7 +61,7 @@ RSpec.describe Post, type: :model do
   end
 
   describe '#modified_update' do
-    context 'adding a pic to a saved post' do
+    context 'when adding a pic to a saved post' do
       before do
         pics = [pic1]
         post.save
@@ -74,7 +74,7 @@ RSpec.describe Post, type: :model do
       end
     end
 
-    context 'deleting a pic from a saved post' do
+    context 'when deleting a pic from a saved post' do
       before do
         post.pics = [pic1, pic2]
         post.save
@@ -86,7 +86,7 @@ RSpec.describe Post, type: :model do
         expect(post.pics.count).to be(1)
       end
 
-      context 'post w/ all pics removed' do
+      context 'when post w/ all pics removed' do
         it 'is invalid w/o content' do
           post.content = nil
           post.modified_update(purge_pic: post.pics.first.id)
@@ -124,7 +124,7 @@ RSpec.describe Post, type: :model do
       expect(subject).to have_many(:pics_attachments)
     }
 
-    context 'deleting a post with pics' do
+    context 'when deleting a post with pics' do
       it 'also deletes associated pics' do
         post.pics = [pic1, pic2]
         post.save

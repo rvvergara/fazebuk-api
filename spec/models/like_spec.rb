@@ -10,14 +10,14 @@ RSpec.describe Like, type: :model do
   let!(:like) { create(:like, :for_post, likeable: post, liker: luke) }
 
   describe 'validation' do
-    context 'duplicate like' do
+    context 'when duplicate like' do
       it 'is invalid' do
         duplicate = build(:like, :for_post, liker: luke, likeable: post)
         duplicate.valid?
         expect(duplicate.errors['liker']).to include('cannot like the post twice')
       end
 
-      context 'unique like' do
+      context 'when unique like' do
         it 'is valid' do
           comment_like = build(:like, :for_comment, liker: mark, likeable: comment)
           expect(comment_like).to be_valid

@@ -15,6 +15,7 @@ gem 'pundit', '>= 2.1.0'
 gem 'rack-cors'
 gem 'rails', '~> 6.0.3', '>= 6.0.3.5'
 gem 'bundler-audit'
+gem 'brakeman'
 
 group :development, :test do
   gem 'byebug', platforms: %i[mri mingw x64_mingw]

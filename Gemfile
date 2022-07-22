@@ -25,7 +25,7 @@ group :development, :test do
   gem 'hirb'
   gem 'pry-rails'
   gem 'rspec-rails', '>= 4.0.1'
-  gem 'rubocop'
+  gem 'rubocop', require: false
   gem 'rubocop-discourse'
   gem 'rubocop-rspec'
   gem 'rubocop-rails'

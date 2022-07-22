@@ -14,6 +14,7 @@ gem 'puma', '~> 4.3', '>= 4.3.12'
 gem 'pundit', '>= 2.1.0'
 gem 'rack-cors'
 gem 'rails', '~> 6.0.3', '>= 6.0.3.5'
+gem 'bundler-audit'
 
 group :development, :test do
   gem 'byebug', platforms: %i[mri mingw x64_mingw]

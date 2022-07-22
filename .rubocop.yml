@@ -240,8 +240,6 @@ Layout/SpaceAroundOperators:
   Enabled: false
 Style/IfInsideElse:
   Enabled: false
-Gemspec/DateAssignment: # new in 1.10
-  Enabled: true
 RSpec/BeEq: # new in 2.9.0
   Enabled: true
 RSpec/BeNil: # new in 2.9.0

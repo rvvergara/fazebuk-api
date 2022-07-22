@@ -27,6 +27,8 @@ group :development, :test do
   gem 'rspec-rails', '>= 4.0.1'
   gem 'rubocop'
   gem 'rubocop-discourse'
+  gem 'rubocop-rspec'
+  gem 'rubocop-rails'
 end
 
 group :development do

@@ -1,5 +1,7 @@
 AllCops:
   NewCops: enable
+  Include:
+    - 'spec/**/*.rb'
   Exclude:
     - 'bin/*'
     - 'db/*'

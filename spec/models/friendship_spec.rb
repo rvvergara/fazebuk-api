@@ -35,7 +35,7 @@ RSpec.describe Friendship, type: :model do
       end
 
       it 'has nil combined_ids' do
-        expect(request_to_nil.combined_ids).to eq(nil)
+        expect(request_to_nil.combined_ids).to be_nil
       end
     end
   end
@@ -43,7 +43,7 @@ RSpec.describe Friendship, type: :model do
   describe '#confirm' do
     it 'confirms the friendship between james and ryto' do
       valid_request.confirm
-      expect(valid_request.confirmed).to eq(true)
+      expect(valid_request.confirmed).to be(true)
     end
   end
 end

@@ -24,26 +24,31 @@ RSpec.describe 'Comments', type: :request do
 
       expect(response).to have_http_status(:unauthorized)
     }
+
     it {
       post comment_replies_route(comment.id)
 
       expect(response).to have_http_status(:unauthorized)
     }
+
     it {
       put comment_route(comment.id)
 
       expect(response).to have_http_status(:unauthorized)
     }
+
     it {
       put comment_route(reply.id)
 
       expect(response).to have_http_status(:unauthorized)
     }
+
     it {
       delete comment_route(comment.id)
 
       expect(response).to have_http_status(:unauthorized)
     }
+
     it {
       delete comment_route(reply.id)
 
@@ -144,7 +149,7 @@ RSpec.describe 'Comments', type: :request do
              headers: authorization_header,
              params: { comment: attributes_for(:comment, :for_post) }
 
-        expect(response).to have_http_status(404)
+        expect(response).to have_http_status(:not_found)
         expect(json_response['message']).to match('Cannot find post')
       end
     end
@@ -243,7 +248,7 @@ RSpec.describe 'Comments', type: :request do
              headers: authorization_header,
              params: valid_comment_attributes(:reply)
 
-        expect(response).to have_http_status(404)
+        expect(response).to have_http_status(:not_found)
         expect(json_response['message']).to match('Cannot find comment')
       end
     end
@@ -251,6 +256,7 @@ RSpec.describe 'Comments', type: :request do
 
   describe 'PUT /v1/comments/:id' do
     let!(:login) { login_as(bart) }
+
     context 'comment exists' do
       context 'valid params' do
         subject! do
@@ -281,7 +287,7 @@ RSpec.describe 'Comments', type: :request do
         end
 
         it 'does not change reply body' do
-          expect(reply.body).to_not eq(updated_body)
+          expect(reply.body).not_to eq(updated_body)
         end
 
         it 'sends an error response' do
@@ -402,7 +408,7 @@ RSpec.describe 'Comments', type: :request do
             headers: authorization_header,
             params: valid_comment_attributes(:reply)
 
-        expect(response).to have_http_status(404)
+        expect(response).to have_http_status(:not_found)
         expect(json_response['message']).to match('Cannot find comment')
       end
     end
@@ -433,7 +439,7 @@ RSpec.describe 'Comments', type: :request do
         delete comment_route('nonExistentCommentId'),
                headers: authorization_header
 
-        expect(response).to have_http_status(404)
+        expect(response).to have_http_status(:not_found)
         expect(json_response['message']).to match('Cannot find comment')
       end
     end

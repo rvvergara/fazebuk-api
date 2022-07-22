@@ -33,10 +33,12 @@ RSpec.describe 'Users', type: :request do
       get user_route(alfred.username)
       expect(response).to have_http_status(:unauthorized)
     }
+
     it {
       put user_route(alfred.username)
       expect(response).to have_http_status(:unauthorized)
     }
+
     it {
       delete user_route(alfred.username)
       expect(response).to have_http_status(:unauthorized)
@@ -60,7 +62,7 @@ RSpec.describe 'Users', type: :request do
         get user_route('nobody'),
             headers: authorization_header
 
-        expect(response).to have_http_status(404)
+        expect(response).to have_http_status(:not_found)
         expect(json_response['message']).to match('Cannot find user')
       end
     end
@@ -82,7 +84,7 @@ RSpec.describe 'Users', type: :request do
       context 'missing first_name' do
         it 'does not create a user' do
           expect { create_user(invalid_user_attributes) }
-            .to_not change(User, :count)
+            .not_to change(User, :count)
 
           expect(json_response['message']).to match('Cannot create user')
         end
@@ -93,7 +95,7 @@ RSpec.describe 'Users', type: :request do
           expect do
             create_user(valid_user_attributes.merge(username: conrad.username))
           end
-            .to_not change(User, :count)
+            .not_to change(User, :count)
 
           expect(json_response['errors']['username']).to include('has already been taken')
         end
@@ -230,7 +232,7 @@ RSpec.describe 'Users', type: :request do
         put user_route('nobody'),
             headers: authorization_header
 
-        expect(response).to have_http_status(404)
+        expect(response).to have_http_status(:not_found)
         expect(json_response['message']).to match('Cannot find user')
       end
     end
@@ -259,7 +261,7 @@ RSpec.describe 'Users', type: :request do
         delete user_route('nobody'),
                headers: authorization_header
 
-        expect(response).to have_http_status(404)
+        expect(response).to have_http_status(:not_found)
         expect(json_response['message']).to match('Cannot find user')
       end
     end

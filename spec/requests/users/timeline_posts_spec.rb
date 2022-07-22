@@ -67,7 +67,7 @@ RSpec.describe 'Users::TimelinePosts', type: :request do
         get timeline_posts_route('nobody'),
             headers: authorization_header
 
-        expect(response).to have_http_status(404)
+        expect(response).to have_http_status(:not_found)
         expect(json_response['message']).to match('Cannot find user')
       end
     end

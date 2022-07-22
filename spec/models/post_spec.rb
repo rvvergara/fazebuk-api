@@ -52,9 +52,10 @@ RSpec.describe Post, type: :model do
         expect(post.like_id(kyle)).to eq(like.id)
       end
     end
+
     context 'user has not liked the post' do
       it 'returns nil' do
-        expect(post.like_id(charlie)).to be(nil)
+        expect(post.like_id(charlie)).to be_nil
       end
     end
   end
@@ -98,26 +99,31 @@ RSpec.describe Post, type: :model do
 
   describe 'associations' do
     it {
-      should belong_to(:postable)
+      expect(subject).to belong_to(:postable)
         .class_name('User')
     }
+
     it {
-      should belong_to(:author)
+      expect(subject).to belong_to(:author)
         .class_name('User')
     }
+
     it {
-      should have_many(:comments)
+      expect(subject).to have_many(:comments)
         .with_foreign_key(:commentable_id)
         .dependent(:destroy)
     }
+
     it {
-      should have_many(:likes)
+      expect(subject).to have_many(:likes)
         .with_foreign_key(:likeable_id)
         .dependent(:destroy)
     }
+
     it {
-      should have_many(:pics_attachments)
+      expect(subject).to have_many(:pics_attachments)
     }
+
     context 'deleting a post with pics' do
       it 'also deletes associated pics' do
         post.pics = [pic1, pic2]

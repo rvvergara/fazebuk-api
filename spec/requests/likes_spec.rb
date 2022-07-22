@@ -17,16 +17,19 @@ RSpec.describe 'Likes', type: :request do
 
       expect(response).to have_http_status(:unauthorized)
     }
+
     it {
       post comment_likes_route(comment_to_post.id)
 
       expect(response).to have_http_status(:unauthorized)
     }
+
     it {
       delete like_route(post_like.id)
 
       expect(response).to have_http_status(:unauthorized)
     }
+
     it {
       delete like_route(comment_like.id)
 
@@ -72,7 +75,7 @@ RSpec.describe 'Likes', type: :request do
         post post_likes_route('nonExistentPostId'),
              headers: authorization_header
 
-        expect(response).to have_http_status(404)
+        expect(response).to have_http_status(:not_found)
         expect(json_response['message']).to match('Cannot find post')
       end
     end
@@ -117,7 +120,7 @@ RSpec.describe 'Likes', type: :request do
         post comment_likes_route('someNonExistentCommentId'),
              headers: authorization_header
 
-        expect(response).to have_http_status(404)
+        expect(response).to have_http_status(:not_found)
         expect(json_response['message']).to match('Cannot find comment')
       end
     end
@@ -125,6 +128,7 @@ RSpec.describe 'Likes', type: :request do
 
   describe 'DELETE /v1/likes/:id' do
     let!(:login) { login_as(steve) }
+
     context 'like exists' do
       it 'removes like record from db' do
         delete like_route(comment_like.id),
@@ -140,7 +144,7 @@ RSpec.describe 'Likes', type: :request do
         delete like_route('nonExistentPostId'),
                headers: authorization_header
 
-        expect(response).to have_http_status(404)
+        expect(response).to have_http_status(:not_found)
         expect(json_response['message']).to match('Cannot find like record')
       end
     end

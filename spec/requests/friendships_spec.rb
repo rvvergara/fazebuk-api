@@ -14,14 +14,17 @@ RSpec.describe 'Friendships', type: :request do
       post friend_request_route(ron.username)
       expect(response).to have_http_status(:unauthorized)
     }
+
     it {
       put friendship_route(harry_ron_request.id)
       expect(response).to have_http_status(:unauthorized)
     }
+
     it {
       delete friendship_route(ron_hermione_friendship.id)
       expect(response).to have_http_status(:unauthorized)
     }
+
     it {
       delete friendship_route(harry_ron_request.id)
       expect(response).to have_http_status(:unauthorized)
@@ -67,7 +70,7 @@ RSpec.describe 'Friendships', type: :request do
             post friend_request_route(ron.username),
                  headers: authorization_header
           end
-            .to_not change(Friendship, :count)
+            .not_to change(Friendship, :count)
         end
 
         it 'sends an error response' do
@@ -87,8 +90,9 @@ RSpec.describe 'Friendships', type: :request do
             post friend_request_route(ron.username),
                  headers: authorization_header
           end
-            .to_not change(Friendship, :count)
+            .not_to change(Friendship, :count)
         end
+
         it 'sends an error response' do
           post friend_request_route(ron.username),
                headers: authorization_header
@@ -125,7 +129,7 @@ RSpec.describe 'Friendships', type: :request do
         put friendship_route('nonExistentFriendshipId'),
             headers: authorization_header
 
-        expect(response).to have_http_status(404)
+        expect(response).to have_http_status(:not_found)
         expect(json_response['message']).to match('Cannot find friendship or request')
       end
     end
@@ -139,6 +143,7 @@ RSpec.describe 'Friendships', type: :request do
           delete friendship_route(ron_hermione_friendship.id),
                  headers: authorization_header
         end
+
         it 'removes friendship record from db' do
           expect { subject }.to change(Friendship, :count).by(-1)
         end
@@ -178,7 +183,7 @@ RSpec.describe 'Friendships', type: :request do
         delete friendship_route('wrongFriendshipId'),
                headers: authorization_header
 
-        expect(response).to have_http_status(404)
+        expect(response).to have_http_status(:not_found)
         expect(json_response['message']).to match('Cannot find friendship or request')
       end
     end

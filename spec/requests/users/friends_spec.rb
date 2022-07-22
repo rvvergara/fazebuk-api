@@ -65,7 +65,7 @@ RSpec.describe 'Users::Friends', type: :request do
         get friends_route('nobody'),
             headers: authorization_header
 
-        expect(response).to have_http_status(404)
+        expect(response).to have_http_status(:not_found)
         expect(json_response['message']).to match('Cannot find user')
       end
     end

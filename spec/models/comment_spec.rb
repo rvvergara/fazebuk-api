@@ -30,6 +30,7 @@ RSpec.describe Comment, type: :model do
           expect(comment.errors['body']).to include("can't be blank")
         end
       end
+
       context 'pic is present' do
         it 'is valid' do
           comment.body = nil
@@ -53,31 +54,35 @@ RSpec.describe Comment, type: :model do
 
     context 'user has not liked the comment' do
       it 'returns nil' do
-        expect(comment.like_id(marge)).to eq(nil)
+        expect(comment.like_id(marge)).to be_nil
       end
     end
   end
 
   describe 'associations' do
     it {
-      should belong_to(:commenter)
+      expect(subject).to belong_to(:commenter)
         .class_name('User')
     }
-    it { should belong_to(:commentable) }
+
+    it { is_expected.to belong_to(:commentable) }
+
     it {
-      should have_many(:replies)
+      expect(subject).to have_many(:replies)
         .with_foreign_key(:commentable_id)
         .class_name('Comment')
         .dependent(:destroy)
     }
+
     it {
-      should have_many(:likes)
+      expect(subject).to have_many(:likes)
         .with_foreign_key(:likeable_id)
         .dependent(:destroy)
     }
+
     context 'attached pic' do
       it {
-        should have_one(:pic_attachment)
+        expect(subject).to have_one(:pic_attachment)
       }
 
       context 'deleting a comment' do

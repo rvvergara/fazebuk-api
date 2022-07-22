@@ -24,15 +24,18 @@ RSpec.describe 'Posts', type: :request do
       get post_route(post_to_karen.id)
       expect(response).to have_http_status(:unauthorized)
     }
+
     it {
       post post_route,
            params: valid_post_attributes(karen)
       expect(response).to have_http_status(:unauthorized)
     }
+
     it {
       put post_route(post_to_karen.id)
       expect(response).to have_http_status(:unauthorized)
     }
+
     it {
       delete post_route(post_to_karen.id)
       expect(response).to have_http_status(:unauthorized)
@@ -64,7 +67,7 @@ RSpec.describe 'Posts', type: :request do
         get post_route('nonExistentPostId'),
             headers: authorization_header
 
-        expect(response).to have_http_status(404)
+        expect(response).to have_http_status(:not_found)
         expect(json_response['message']).to match('Cannot find post')
       end
     end
@@ -183,7 +186,7 @@ RSpec.describe 'Posts', type: :request do
         end
 
         it 'does not change post in the db' do
-          expect(post_to_karen.content).to_not eq('')
+          expect(post_to_karen.content).not_to eq('')
         end
 
         it 'sends error response' do
@@ -243,7 +246,7 @@ RSpec.describe 'Posts', type: :request do
             headers: authorization_header,
             params: valid_post_attributes(beng)
 
-        expect(response).to have_http_status(404)
+        expect(response).to have_http_status(:not_found)
         expect(json_response['message']).to match('Cannot find post')
       end
     end
@@ -272,7 +275,7 @@ RSpec.describe 'Posts', type: :request do
         delete post_route('nonExistentPostId'),
                headers: authorization_header
 
-        expect(response).to have_http_status(404)
+        expect(response).to have_http_status(:not_found)
         expect(json_response['message']).to match('Cannot find post')
       end
     end

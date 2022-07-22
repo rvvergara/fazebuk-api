@@ -39,6 +39,7 @@ RSpec.describe User, type: :model do
 
   describe 'validations' do
     let(:joe) { build(:user, :male, first_name: 'Joe') }
+
     context 'complete basic info' do
       it 'is valid' do
         expect(joe).to be_valid
@@ -48,7 +49,7 @@ RSpec.describe User, type: :model do
     context 'first_name absent' do
       it 'is invalid' do
         joe.first_name = nil
-        expect(joe).to_not be_valid
+        expect(joe).not_to be_valid
       end
     end
 
@@ -95,8 +96,9 @@ RSpec.describe User, type: :model do
       context 'user and other_user are different' do
         context 'common friends exist between the two' do
           it 'returns a non-empty collection' do
-            expect(ryto.mutual_friends_with(anna)).to_not be_empty
+            expect(ryto.mutual_friends_with(anna)).not_to be_empty
           end
+
           it 'includes the common friend' do
             expect(ryto.mutual_friends_with(anna)).to include(george)
           end
@@ -122,6 +124,7 @@ RSpec.describe User, type: :model do
           expect(ryto.paginated_friends(1, 2)).to match([mike, george])
         end
       end
+
       context 'page 2 with 2 results per page' do
         it 'returns an empty collection' do
           expect(ryto.paginated_friends(2, 2).size).to be(0)
@@ -158,11 +161,11 @@ RSpec.describe User, type: :model do
     describe '#friendship_id_with' do
       context 'user has not sent to nor received friendship from user' do
         it 'returns nil' do
-          expect(ryto.friendship_id_with(douglas)).to be(nil)
+          expect(ryto.friendship_id_with(douglas)).to be_nil
         end
       end
 
-      context 'user is friends with other user ' do
+      context 'user is friends with other user' do
         it 'returns friendship id' do
           expect(ryto.friendship_id_with(mike)).to eq(ryto_mike_friendship.id)
         end
@@ -188,6 +191,7 @@ RSpec.describe User, type: :model do
         it {
           expect(ryto.timeline_posts.count).to be(2)
         }
+
         it {
           expect(ryto.timeline_posts).to match([post2, post1])
         }
@@ -197,6 +201,7 @@ RSpec.describe User, type: :model do
         it {
           expect(mike.timeline_posts.count).to be(4)
         }
+
         it {
           expect(mike.timeline_posts).to match([post6, post4, post3, post1])
         }
@@ -229,6 +234,7 @@ RSpec.describe User, type: :model do
       it {
         expect(ryto.newsfeed_posts).to match([post6, post5, post4, post3, post2, post1])
       }
+
       it {
         expect(ryto.newsfeed_posts.count).to be(6)
       }
@@ -262,6 +268,7 @@ RSpec.describe User, type: :model do
       it {
         expect(ryto.liked?(post3)).to be(true)
       }
+
       it {
         expect(ryto.liked?(post2)).to be(false)
       }
@@ -293,14 +300,15 @@ RSpec.describe User, type: :model do
       subject do
         ryto.modified_update(username: nil, profile_images: [pic], cover_images: [pic])
       end
+
       it 'returns false' do
         expect(subject).to be(false)
       end
 
       it 'does not change profile_pic or cover_pic' do
         subject
-        expect(ryto.profile_pic).to be(nil)
-        expect(ryto.cover_pic).to be(nil)
+        expect(ryto.profile_pic).to be_nil
+        expect(ryto.cover_pic).to be_nil
       end
     end
 
@@ -352,32 +360,37 @@ RSpec.describe User, type: :model do
   describe 'associations' do
     describe 'active_friendships and passive_friendships' do
       it {
-        should have_many(:active_friendships)
+        expect(subject).to have_many(:active_friendships)
           .dependent(:destroy)
           .with_foreign_key(:active_friend_id)
       }
+
       it {
-        should have_many(:passive_friendships)
+        expect(subject).to have_many(:passive_friendships)
           .dependent(:destroy)
           .with_foreign_key(:passive_friend_id)
       }
+
       it {
-        should have_many(:authored_posts)
+        expect(subject).to have_many(:authored_posts)
           .with_foreign_key(:author_id)
           .dependent(:destroy)
       }
+
       it {
-        should have_many(:received_posts)
+        expect(subject).to have_many(:received_posts)
           .with_foreign_key(:postable_id)
           .dependent(:destroy)
       }
+
       it {
-        should have_many(:authored_comments)
+        expect(subject).to have_many(:authored_comments)
           .with_foreign_key(:commenter_id)
           .dependent(:destroy)
       }
+
       it {
-        should have_many(:likes)
+        expect(subject).to have_many(:likes)
           .with_foreign_key(:liker_id)
           .dependent(:destroy)
       }

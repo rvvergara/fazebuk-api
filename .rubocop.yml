@@ -231,3 +231,13 @@ Layout/EmptyLineBetweenDefs:
   Enabled: false
 Lint/UnusedMethodArgument:
   Enabled: false
+Style/MethodCallWithoutArgsParentheses:
+  Enabled: false
+Style/SlicingWithRange:
+  Enabled: false
+Style/Dir:
+  Enabled: false
+Layout/SpaceAroundOperators:
+  Enabled: false
+Style/IfInsideElse:
+  Enabled: false

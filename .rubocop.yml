@@ -7,8 +7,8 @@ AllCops:
     - 'Rakefile'
   DisplayCopNames: true
 
-Metrics/LineLength:
-  Max: 120
+Layout/LineLength:
+  Max: 160
 Metrics/MethodLength:
   Include: ['app/controllers/*']
   Max: 20
@@ -18,7 +18,7 @@ Metrics/AbcSize:
 Metrics/ClassLength:
   Max: 150
 Metrics/BlockLength:
-  ExcludedMethods: ['describe', 'context', 'define', 'factory']
+  IgnoredMethods: ['describe', 'context', 'define', 'factory']
 
 Style/Documentation:
   Enabled: false

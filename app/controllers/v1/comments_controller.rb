@@ -39,9 +39,9 @@ class V1::CommentsController < ApplicationController
   def build_comment
     return unless set_commentable
 
-    if set_commentable.class == Post
+    if set_commentable.instance_of?(Post)
       set_commentable.comments.build(comment_params)
-    elsif set_commentable.class == Comment
+    elsif set_commentable.instance_of?(Comment)
       set_commentable.replies.build(comment_params)
     end
   end

@@ -3,6 +3,7 @@
 class Comment < ApplicationRecord
   attribute :adding_or_purging_pic, :boolean, default: false
   attr_accessor :purge_pic
+
   belongs_to :commenter, class_name: 'User'
   belongs_to :commentable, polymorphic: true
   has_many :replies, foreign_key: :commentable_id, class_name: 'Comment', as: :commentable, dependent: :destroy

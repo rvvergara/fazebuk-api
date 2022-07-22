@@ -16,16 +16,18 @@ gem 'rack-cors'
 gem 'rails', '~> 6.0.3', '>= 6.0.3.5'
 
 group :development, :test do
+  gem 'brakeman'
+  gem 'bundler-audit'
   gem 'byebug', platforms: %i[mri mingw x64_mingw]
   gem 'factory_bot_rails', '>= 6.0.0'
   gem 'faker'
+  gem 'figaro'
   gem 'hirb'
   gem 'pry-rails'
   gem 'rspec-rails', '>= 4.0.1'
-  gem 'figaro'
-  gem 'bundler-audit'
-  gem 'brakeman'
   gem 'rubocop'
+  gem 'rubocop-rails'
+  gem 'rubocop-rspec'
 end
 
 group :development do

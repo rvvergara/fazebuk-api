@@ -2,6 +2,7 @@
 
 class Post < ApplicationRecord
   attr_accessor :postable_param, :purge_pic
+
   attribute :adding_or_purging_pic, :boolean, default: false
 
   belongs_to :postable, class_name: 'User'

@@ -190,3 +190,11 @@ Style/CharacterLiteral:
   Enabled: false
 Layout/FirstArrayElementIndentation:
   Enabled: false
+Naming/MethodParameterName:
+  Enabled: false
+Style/FormatStringToken:
+  Enabled: false
+Metrics/CyclomaticComplexity:
+  Enabled: false
+Lint/Syntax:
+  Enabled: false

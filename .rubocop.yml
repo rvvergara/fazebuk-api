@@ -57,9 +57,9 @@ Layout/MultilineMethodCallIndentation:
 Gemspec/DeprecatedAttributeAssignment: # new in 1.30
   Enabled: true
 Gemspec/RequireMFA: # new in 1.23
-  Enabled: true
+  Enabled: false
 Layout/LineEndStringConcatenationIndentation: # new in 1.18
-  Enabled: true
+  Enabled: false
 Layout/SpaceBeforeBrackets: # new in 1.7
   Enabled: true
 Lint/AmbiguousAssignment: # new in 1.7
@@ -111,7 +111,7 @@ Lint/UselessRuby2Keywords: # new in 1.23
 Naming/BlockForwarding: # new in 1.24
   Enabled: true
 Security/CompoundHash: # new in 1.28
-  Enabled: true
+  Enabled: false
 Security/IoMethods: # new in 1.22
   Enabled: true
 Style/ArgumentsForwarding: # new in 1.1
@@ -129,49 +129,47 @@ Style/FetchEnvVar: # new in 1.28
 Style/FileRead: # new in 1.24
   Enabled: true
 Style/FileWrite: # new in 1.24
-  Enabled: true
+  Enabled: false
 Style/HashConversion: # new in 1.10
-  Enabled: true
+  Enabled: false
 Style/HashExcept: # new in 1.7
-  Enabled: true
+  Enabled: false
 Style/IfWithBooleanLiteralBranches: # new in 1.9
-  Enabled: true
-Style/InPatternThen: # new in 1.16
-  Enabled: true
+  Enabled: false
 Style/MapCompactWithConditionalBlock: # new in 1.30
-  Enabled: true
+  Enabled: false
 Style/MapToHash: # new in 1.24
-  Enabled: true
+  Enabled: false
 Style/MultilineInPatternThen: # new in 1.16
-  Enabled: true
+  Enabled: false
 Style/NegatedIfElseCondition: # new in 1.2
-  Enabled: true
+  Enabled: false
 Style/NestedFileDirname: # new in 1.26
-  Enabled: true
+  Enabled: false
 Style/NilLambda: # new in 1.3
-  Enabled: true
+  Enabled: false
 Style/NumberedParameters: # new in 1.22
   Enabled: true
 Style/NumberedParametersLimit: # new in 1.22
-  Enabled: true
+  Enabled: false
 Style/ObjectThen: # new in 1.28
-  Enabled: true
+  Enabled: false
 Style/OpenStructUse: # new in 1.23
-  Enabled: true
+  Enabled: false
 Style/QuotedSymbols: # new in 1.16
-  Enabled: true
+  Enabled: false
 Style/RedundantArgument: # new in 1.4
-  Enabled: true
+  Enabled: false
 Style/RedundantInitialize: # new in 1.27
-  Enabled: true
+  Enabled: false
 Style/RedundantSelfAssignmentBranch: # new in 1.19
-  Enabled: true
+  Enabled: false
 Style/SelectByRegexp: # new in 1.22
-  Enabled: true
+  Enabled: false
 Style/StringChars: # new in 1.12
-  Enabled: true
+  Enabled: false
 Style/SwapValues: # new in 1.1
-  Enabled: true
+  Enabled: false
 Style/FrozenStringLiteralComment:
   Enabled: false
 Layout/EmptyLineAfterMagicComment:
@@ -241,20 +239,32 @@ Layout/SpaceAroundOperators:
 Style/IfInsideElse:
   Enabled: false
 RSpec/BeEq: # new in 2.9.0
-  Enabled: true
+  Enabled: false
 RSpec/BeNil: # new in 2.9.0
-  Enabled: true
+  Enabled: false
 RSpec/ChangeByZero: # new in 2.11.0
-  Enabled: true
+  Enabled: false
 RSpec/ExcessiveDocstringSpacing: # new in 2.5
-  Enabled: true
+  Enabled: false
 RSpec/IdenticalEqualityAssertion: # new in 2.4
-  Enabled: true
+  Enabled: false
 RSpec/SubjectDeclaration: # new in 2.5
-  Enabled: true
+  Enabled: false
 RSpec/VerifiedDoubleReference: # new in 2.10.0
-  Enabled: true
+  Enabled: false
 RSpec/FactoryBot/SyntaxMethods: # new in 2.7
-  Enabled: true
+  Enabled: false
 RSpec/Rails/AvoidSetupHook: # new in 2.4
-  Enabled: true
+  Enabled: false
+Layout/LineContinuationLeadingSpace: # new in 1.31
+  Enabled: false
+Layout/LineContinuationSpacing: # new in 1.31
+  Enabled: false
+Lint/ConstantOverwrittenInRescue: # new in 1.31
+  Enabled: false
+Lint/NonAtomicFileOperation: # new in 1.31
+  Enabled: false
+RSpec/Capybara/SpecificMatcher: # new in 2.12
+  Enabled: false
+RSpec/Rails/HaveHttpStatus: # new in 2.12
+  Enabled: false

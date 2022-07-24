@@ -11,7 +11,7 @@ RSpec.describe Friendship, type: :model do
   let(:request_to_nil) { build(:request, active_friend: james, passive_friend: nil) }
 
   describe 'validations' do
-    context 'friend request to a friend' do
+    context 'when friend request to a friend' do
       it 'is invalid' do
         invalid_request.valid?
 
@@ -19,7 +19,7 @@ RSpec.describe Friendship, type: :model do
       end
     end
 
-    context 'friend request to self' do
+    context 'when friend request to self' do
       it 'is invalid' do
         request_to_self.valid?
 
@@ -27,7 +27,7 @@ RSpec.describe Friendship, type: :model do
       end
     end
 
-    context 'friend request to non-existent user' do
+    context 'when friend request to non-existent user' do
       let!(:validate) { request_to_nil.valid? }
 
       it 'is invalid' do
@@ -35,7 +35,7 @@ RSpec.describe Friendship, type: :model do
       end
 
       it 'has nil combined_ids' do
-        expect(request_to_nil.combined_ids).to eq(nil)
+        expect(request_to_nil.combined_ids).to be_nil
       end
     end
   end
@@ -43,7 +43,7 @@ RSpec.describe Friendship, type: :model do
   describe '#confirm' do
     it 'confirms the friendship between james and ryto' do
       valid_request.confirm
-      expect(valid_request.confirmed).to eq(true)
+      expect(valid_request.confirmed).to be(true)
     end
   end
 end

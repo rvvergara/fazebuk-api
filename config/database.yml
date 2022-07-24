@@ -3,9 +3,8 @@ default: &default
   encoding: unicode
   host: localhost
   timeout: 5000
-  username: <%= Rails.application.credentials.db[:username] %>
-  password: <%= Rails.application.credentials.db[:password] %>
-  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  username: <%= ENV['db_username'] %>
+  password: <%= ENV['db_password'] %>
 
 development:
   <<: *default

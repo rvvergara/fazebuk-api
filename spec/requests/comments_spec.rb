@@ -24,26 +24,31 @@ RSpec.describe 'Comments', type: :request do
 
       expect(response).to have_http_status(:unauthorized)
     }
+
     it {
       post comment_replies_route(comment.id)
 
       expect(response).to have_http_status(:unauthorized)
     }
+
     it {
       put comment_route(comment.id)
 
       expect(response).to have_http_status(:unauthorized)
     }
+
     it {
       put comment_route(reply.id)
 
       expect(response).to have_http_status(:unauthorized)
     }
+
     it {
       delete comment_route(comment.id)
 
       expect(response).to have_http_status(:unauthorized)
     }
+
     it {
       delete comment_route(reply.id)
 
@@ -54,8 +59,8 @@ RSpec.describe 'Comments', type: :request do
   describe 'POST /v1/posts/:post_id/comments' do
     let!(:login) { login_as(lisa) }
 
-    context 'post exists' do
-      context 'valid params' do
+    context 'when post exists' do
+      context 'when valid params' do
         subject do
           post post_comments_route(post_to_lisa.id),
                headers: authorization_header,
@@ -74,7 +79,7 @@ RSpec.describe 'Comments', type: :request do
         end
       end
 
-      context 'invalid params' do
+      context 'when invalid params' do
         it 'sends an error response' do
           post post_comments_route(post_to_lisa.id),
                headers: authorization_header,
@@ -85,8 +90,8 @@ RSpec.describe 'Comments', type: :request do
         end
       end
 
-      context 'with comment pic' do
-        context 'with body' do
+      context 'when with comment pic' do
+        context 'when with body' do
           subject do
             post post_comments_route(post_to_lisa.id),
                  headers: authorization_header,
@@ -111,7 +116,7 @@ RSpec.describe 'Comments', type: :request do
           end
         end
 
-        context 'without body' do
+        context 'when without body' do
           subject do
             post post_comments_route(post_to_lisa.id),
                  headers: authorization_header,
@@ -138,13 +143,13 @@ RSpec.describe 'Comments', type: :request do
       end
     end
 
-    context 'post does not exist' do
+    context 'when post does not exist' do
       it 'sends an error response' do
         post post_comments_route('nonExistentPostId'),
              headers: authorization_header,
              params: { comment: attributes_for(:comment, :for_post) }
 
-        expect(response).to have_http_status(404)
+        expect(response).to have_http_status(:not_found)
         expect(json_response['message']).to match('Cannot find post')
       end
     end
@@ -153,8 +158,8 @@ RSpec.describe 'Comments', type: :request do
   describe 'POST /v1/comments/:comment_id/replies' do
     let!(:login) { login_as(bart) }
 
-    context 'comment exists' do
-      context 'valid params' do
+    context 'when comment exists' do
+      context 'when valid params' do
         subject do
           post comment_replies_route(comment.id),
                headers: authorization_header,
@@ -173,7 +178,7 @@ RSpec.describe 'Comments', type: :request do
         end
       end
 
-      context 'invalid params' do
+      context 'when invalid params' do
         it 'sends an error response' do
           post comment_replies_route(comment.id),
                headers: authorization_header,
@@ -184,8 +189,8 @@ RSpec.describe 'Comments', type: :request do
         end
       end
 
-      context 'with reply pic' do
-        context 'with body' do
+      context 'when with reply pic' do
+        context 'when with body' do
           subject do
             post comment_replies_route(comment.id),
                  headers: authorization_header,
@@ -210,7 +215,7 @@ RSpec.describe 'Comments', type: :request do
           end
         end
 
-        context 'without body' do
+        context 'when without body' do
           subject do
             post comment_replies_route(comment.id),
                  headers: authorization_header,
@@ -237,13 +242,13 @@ RSpec.describe 'Comments', type: :request do
       end
     end
 
-    context 'comment does not exist' do
+    context 'when comment does not exist' do
       it 'sends an error response' do
         post comment_replies_route('nonExistentCommentId'),
              headers: authorization_header,
              params: valid_comment_attributes(:reply)
 
-        expect(response).to have_http_status(404)
+        expect(response).to have_http_status(:not_found)
         expect(json_response['message']).to match('Cannot find comment')
       end
     end
@@ -251,8 +256,9 @@ RSpec.describe 'Comments', type: :request do
 
   describe 'PUT /v1/comments/:id' do
     let!(:login) { login_as(bart) }
-    context 'comment exists' do
-      context 'valid params' do
+
+    context 'when comment exists' do
+      context 'when valid params' do
         subject! do
           put comment_route(reply.id),
               headers: authorization_header,
@@ -271,7 +277,7 @@ RSpec.describe 'Comments', type: :request do
         end
       end
 
-      context 'invalid params' do
+      context 'when invalid params' do
         let!(:update) do
           put comment_route(reply.id),
               headers: authorization_header,
@@ -281,7 +287,7 @@ RSpec.describe 'Comments', type: :request do
         end
 
         it 'does not change reply body' do
-          expect(reply.body).to_not eq(updated_body)
+          expect(reply.body).not_to eq(updated_body)
         end
 
         it 'sends an error response' do
@@ -290,8 +296,8 @@ RSpec.describe 'Comments', type: :request do
         end
       end
 
-      context 'adding pic to existing comment' do
-        context 'with body in update' do
+      context 'when adding pic to existing comment' do
+        context 'when with body in update' do
           subject do
             put comment_route(reply.id),
                 headers: authorization_header,
@@ -319,7 +325,7 @@ RSpec.describe 'Comments', type: :request do
           end
         end
 
-        context 'without body in update' do
+        context 'when without body in update' do
           subject do
             put comment_route(reply.id),
                 headers: authorization_header,
@@ -341,8 +347,8 @@ RSpec.describe 'Comments', type: :request do
         end
       end
 
-      context 'removing pic from an existing comment' do
-        context 'with body in update' do
+      context 'when removing pic from an existing comment' do
+        context 'when with body in update' do
           subject do
             put comment_route(reply_with_pic.id),
                 headers: authorization_header,
@@ -368,7 +374,7 @@ RSpec.describe 'Comments', type: :request do
           end
         end
 
-        context 'without body in update' do
+        context 'when without body in update' do
           subject do
             put comment_route(reply_with_pic.id),
                 headers: authorization_header,
@@ -396,13 +402,13 @@ RSpec.describe 'Comments', type: :request do
       end
     end
 
-    context 'comment does not exist' do
+    context 'when comment does not exist' do
       it 'sends an error response' do
         put comment_route('nonExistentCommentId'),
             headers: authorization_header,
             params: valid_comment_attributes(:reply)
 
-        expect(response).to have_http_status(404)
+        expect(response).to have_http_status(:not_found)
         expect(json_response['message']).to match('Cannot find comment')
       end
     end
@@ -411,7 +417,7 @@ RSpec.describe 'Comments', type: :request do
   describe 'DELETE /v1/comments/:id' do
     let!(:login) { login_as(lisa) }
 
-    context 'comment exists' do
+    context 'when comment exists' do
       subject do
         delete comment_route(comment.id),
                headers: authorization_header
@@ -428,12 +434,12 @@ RSpec.describe 'Comments', type: :request do
       end
     end
 
-    context 'comment does not exist' do
+    context 'when comment does not exist' do
       it 'sends an error response' do
         delete comment_route('nonExistentCommentId'),
                headers: authorization_header
 
-        expect(response).to have_http_status(404)
+        expect(response).to have_http_status(:not_found)
         expect(json_response['message']).to match('Cannot find comment')
       end
     end

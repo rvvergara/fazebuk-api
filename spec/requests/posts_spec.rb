@@ -24,15 +24,18 @@ RSpec.describe 'Posts', type: :request do
       get post_route(post_to_karen.id)
       expect(response).to have_http_status(:unauthorized)
     }
+
     it {
       post post_route,
            params: valid_post_attributes(karen)
       expect(response).to have_http_status(:unauthorized)
     }
+
     it {
       put post_route(post_to_karen.id)
       expect(response).to have_http_status(:unauthorized)
     }
+
     it {
       delete post_route(post_to_karen.id)
       expect(response).to have_http_status(:unauthorized)
@@ -40,7 +43,7 @@ RSpec.describe 'Posts', type: :request do
   end
 
   describe 'GET /v1/posts/:id' do
-    context 'post exists' do
+    context 'when post exists' do
       subject! do
         get post_route(post_to_karen.id),
             headers: authorization_header
@@ -59,19 +62,19 @@ RSpec.describe 'Posts', type: :request do
       end
     end
 
-    context 'post does not exist' do
+    context 'when post does not exist' do
       it 'sends an error response' do
         get post_route('nonExistentPostId'),
             headers: authorization_header
 
-        expect(response).to have_http_status(404)
+        expect(response).to have_http_status(:not_found)
         expect(json_response['message']).to match('Cannot find post')
       end
     end
   end
 
   describe 'POST /v1/posts' do
-    context 'complete and valid post params' do
+    context 'when complete and valid post params' do
       subject do
         post post_route,
              headers: authorization_header,
@@ -91,7 +94,7 @@ RSpec.describe 'Posts', type: :request do
       end
     end
 
-    context 'incomplete or invalid post params' do
+    context 'when incomplete or invalid post params' do
       it 'sends an error response' do
         post post_route,
              headers: authorization_header,
@@ -103,8 +106,8 @@ RSpec.describe 'Posts', type: :request do
       end
     end
 
-    context 'post with pics' do
-      context 'with text content' do
+    context 'when post with pics' do
+      context 'when with text content' do
         subject do
           post post_route,
                headers: authorization_header,
@@ -129,7 +132,7 @@ RSpec.describe 'Posts', type: :request do
         end
       end
 
-      context 'without text content' do
+      context 'when without text content' do
         subject do
           post post_route,
                headers: authorization_header,
@@ -152,8 +155,8 @@ RSpec.describe 'Posts', type: :request do
   describe 'PUT /v1/posts/:id' do
     let(:updated_content) { 'Updated content' }
 
-    context 'post exists' do
-      context 'valid post params' do
+    context 'when post exists' do
+      context 'when valid post params' do
         subject! do
           put post_route(post_to_karen.id),
               headers: authorization_header,
@@ -173,7 +176,7 @@ RSpec.describe 'Posts', type: :request do
         end
       end
 
-      context 'invalid post params' do
+      context 'when invalid post params' do
         subject! do
           put post_route(post_to_karen.id),
               headers: authorization_header,
@@ -183,7 +186,7 @@ RSpec.describe 'Posts', type: :request do
         end
 
         it 'does not change post in the db' do
-          expect(post_to_karen.content).to_not eq('')
+          expect(post_to_karen.content).not_to eq('')
         end
 
         it 'sends error response' do
@@ -191,7 +194,7 @@ RSpec.describe 'Posts', type: :request do
         end
       end
 
-      context 'adding pics to post' do
+      context 'when adding pics to post' do
         subject do
           put post_route(post_to_karen.id),
               headers: authorization_header,
@@ -217,7 +220,7 @@ RSpec.describe 'Posts', type: :request do
         end
       end
 
-      context 'deleting pic from post' do
+      context 'when deleting pic from post' do
         subject! do
           put post_route(post_with_pic.id),
               headers: authorization_header,
@@ -237,20 +240,20 @@ RSpec.describe 'Posts', type: :request do
       end
     end
 
-    context 'post does not exist' do
+    context 'when post does not exist' do
       it 'sends an error response' do
         put post_route('nonExistentPostId'),
             headers: authorization_header,
             params: valid_post_attributes(beng)
 
-        expect(response).to have_http_status(404)
+        expect(response).to have_http_status(:not_found)
         expect(json_response['message']).to match('Cannot find post')
       end
     end
   end
 
   describe 'DELETE /v1/posts/:id' do
-    context 'post exists' do
+    context 'when post exists' do
       subject do
         delete post_route(post_to_karen.id),
                headers: authorization_header
@@ -267,12 +270,12 @@ RSpec.describe 'Posts', type: :request do
       end
     end
 
-    context 'post does not exist' do
+    context 'when post does not exist' do
       it 'sends an error response' do
         delete post_route('nonExistentPostId'),
                headers: authorization_header
 
-        expect(response).to have_http_status(404)
+        expect(response).to have_http_status(:not_found)
         expect(json_response['message']).to match('Cannot find post')
       end
     end

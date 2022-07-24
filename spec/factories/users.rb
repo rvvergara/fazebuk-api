@@ -19,25 +19,25 @@ FactoryBot.define do
 
     trait :with_male_profile_images do
       profile_images do
-        Rack::Test::UploadedFile.new('spec/support/assets/male.jpg', 'image/jpg')
+        Rack::Test::UploadedFile.new("#{Rails.root}/spec/support/assets/male.jpg", 'image/jpg')
       end
     end
 
     trait :with_female_profile_images do
       profile_images do
-        Rack::Test::UploadedFile.new('spec/support/assets/female.png', 'image/png')
+        Rack::Test::UploadedFile.new("#{Rails.root}/spec/support/assets/female.png", 'image/png')
       end
     end
 
     trait :with_icy_cover_images do
       cover_images do
-        Rack::Test::UploadedFile.new('spec/support/assets/icy-lake.jpg', 'image/jpg')
+        Rack::Test::UploadedFile.new("#{Rails.root}/spec/support/assets/icy-lake.jpg", 'image/jpg')
       end
     end
 
     trait :with_blue_cover_images do
       cover_images do
-        Rack::Test::UploadedFile.new('spec/support/assets/blue-red-lake.jpg', 'image/jpg')
+        Rack::Test::UploadedFile.new("#{Rails.root}/spec/support/assets/blue-red-lake.jpg", 'image/jpg')
       end
     end
 

@@ -14,14 +14,17 @@ RSpec.describe 'Friendships', type: :request do
       post friend_request_route(ron.username)
       expect(response).to have_http_status(:unauthorized)
     }
+
     it {
       put friendship_route(harry_ron_request.id)
       expect(response).to have_http_status(:unauthorized)
     }
+
     it {
       delete friendship_route(ron_hermione_friendship.id)
       expect(response).to have_http_status(:unauthorized)
     }
+
     it {
       delete friendship_route(harry_ron_request.id)
       expect(response).to have_http_status(:unauthorized)
@@ -31,7 +34,7 @@ RSpec.describe 'Friendships', type: :request do
   describe 'POST /v1/friendships' do
     let!(:login) { login_as(harry) }
 
-    context 'valid request' do
+    context 'when valid request' do
       subject do
         post friend_request_route(hermione.username),
              headers: authorization_header
@@ -49,8 +52,8 @@ RSpec.describe 'Friendships', type: :request do
       end
     end
 
-    context 'invalid requests' do
-      context 'requested user does not exist' do
+    context 'when invalid requests' do
+      context 'when requested user does not exist' do
         it 'sends an error response' do
           post friend_request_route('norman'),
                headers: authorization_header
@@ -61,13 +64,13 @@ RSpec.describe 'Friendships', type: :request do
         end
       end
 
-      context 'duplicate friend request' do
+      context 'when duplicate friend request' do
         it 'does not add to the db record' do
           expect do
             post friend_request_route(ron.username),
                  headers: authorization_header
           end
-            .to_not change(Friendship, :count)
+            .not_to change(Friendship, :count)
         end
 
         it 'sends an error response' do
@@ -79,7 +82,7 @@ RSpec.describe 'Friendships', type: :request do
         end
       end
 
-      context 'request sent to existing friend' do
+      context 'when request sent to existing friend' do
         let!(:accept) { harry_ron_request.confirm }
 
         it 'does not create friendship record' do
@@ -87,8 +90,9 @@ RSpec.describe 'Friendships', type: :request do
             post friend_request_route(ron.username),
                  headers: authorization_header
           end
-            .to_not change(Friendship, :count)
+            .not_to change(Friendship, :count)
         end
+
         it 'sends an error response' do
           post friend_request_route(ron.username),
                headers: authorization_header
@@ -103,7 +107,7 @@ RSpec.describe 'Friendships', type: :request do
   describe 'PUT /v1/friendships/:id' do
     let!(:login) { login_as(ron) }
 
-    context 'friendship exists' do
+    context 'when friendship exists' do
       subject! do
         put friendship_route(harry_ron_request.id),
             headers: authorization_header
@@ -120,25 +124,26 @@ RSpec.describe 'Friendships', type: :request do
       end
     end
 
-    context 'friendship does not exist' do
+    context 'when friendship does not exist' do
       it 'sends an error response' do
         put friendship_route('nonExistentFriendshipId'),
             headers: authorization_header
 
-        expect(response).to have_http_status(404)
+        expect(response).to have_http_status(:not_found)
         expect(json_response['message']).to match('Cannot find friendship or request')
       end
     end
   end
 
   describe 'DESTROY /v1/friendships/:id' do
-    context 'friendship exists' do
-      context 'request to delete friendship' do
+    context 'when friendship exists' do
+      context 'when request to delete friendship' do
         subject do
           login_as(hermione)
           delete friendship_route(ron_hermione_friendship.id),
                  headers: authorization_header
         end
+
         it 'removes friendship record from db' do
           expect { subject }.to change(Friendship, :count).by(-1)
         end
@@ -150,7 +155,7 @@ RSpec.describe 'Friendships', type: :request do
         end
       end
 
-      context 'request to cancel request' do
+      context 'when request to cancel request' do
         it 'sends a cancelled request message' do
           login_as(harry)
           delete friendship_route(harry_ron_request.id),
@@ -160,7 +165,7 @@ RSpec.describe 'Friendships', type: :request do
         end
       end
 
-      context 'request to reject request' do
+      context 'when request to reject request' do
         it 'sends a rejected request message' do
           login_as(ron)
           delete friendship_route(harry_ron_request.id),
@@ -171,14 +176,14 @@ RSpec.describe 'Friendships', type: :request do
       end
     end
 
-    context 'friendship does not exist' do
+    context 'when friendship does not exist' do
       let!(:login) { login_as(harry) }
 
       it 'sends an error response' do
         delete friendship_route('wrongFriendshipId'),
                headers: authorization_header
 
-        expect(response).to have_http_status(404)
+        expect(response).to have_http_status(:not_found)
         expect(json_response['message']).to match('Cannot find friendship or request')
       end
     end

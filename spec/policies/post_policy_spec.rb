@@ -8,19 +8,19 @@ RSpec.describe PostPolicy, type: :policy do
   let(:post) { create(:post, author: james, postable: mario) }
 
   describe 'policy for a post update' do
-    subject { PostPolicy.new(james, post) }
+    subject { described_class.new(james, post) }
 
-    context 'updating the post on the right user timeline' do
+    context 'when updating the post on the right user timeline' do
       it do
         post.postable_param = mario
-        is_expected.to permit_action(:update)
+        expect(subject).to permit_action(:update)
       end
     end
 
-    context 'updating post on the wrong user timeline' do
+    context 'when updating post on the wrong user timeline' do
       it do
         post.postable_param = james
-        is_expected.to_not permit_action(:update)
+        expect(subject).not_to permit_action(:update)
       end
     end
   end

@@ -26,8 +26,8 @@ RSpec.describe 'Users::Friends', type: :request do
   describe 'GET /v1/users/:user_username/friends' do
     let!(:login) { login_as(harry) }
 
-    context 'user exists' do
-      context 'request without specified page' do
+    context 'when user exists' do
+      context 'when request without specified page' do
         it 'responds with first page (10 friends)' do
           get friends_route(harry.username),
               headers: authorization_header
@@ -38,7 +38,7 @@ RSpec.describe 'Users::Friends', type: :request do
         end
       end
 
-      context 'request for page 2' do
+      context 'when request for page 2' do
         it 'responds with second page (5 friends)' do
           get friends_route(harry.username, 2),
               headers: authorization_header
@@ -49,7 +49,7 @@ RSpec.describe 'Users::Friends', type: :request do
         end
       end
 
-      context 'request for page 3' do
+      context 'when request for page 3' do
         it 'sends a no more to display message' do
           get friends_route(harry.username, 3),
               headers: authorization_header
@@ -60,12 +60,12 @@ RSpec.describe 'Users::Friends', type: :request do
       end
     end
 
-    context 'user does not exist' do
+    context 'when user does not exist' do
       it 'sends an error response' do
         get friends_route('nobody'),
             headers: authorization_header
 
-        expect(response).to have_http_status(404)
+        expect(response).to have_http_status(:not_found)
         expect(json_response['message']).to match('Cannot find user')
       end
     end

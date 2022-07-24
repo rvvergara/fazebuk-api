@@ -28,8 +28,8 @@ RSpec.describe 'Users::TimelinePosts', type: :request do
   describe '/v1/users/username/:user_username/timeline_posts' do
     let!(:login) { login_as(harry) }
 
-    context 'user exists' do
-      context 'page params not included in request' do
+    context 'when user exists' do
+      context 'when page params not included in request' do
         it 'shows first page (10 posts)' do
           get timeline_posts_route(harry.username),
               headers: authorization_header
@@ -40,7 +40,7 @@ RSpec.describe 'Users::TimelinePosts', type: :request do
         end
       end
 
-      context 'page params is 2' do
+      context 'when page params is 2' do
         it 'displays page 2 (5 posts)' do
           get timeline_posts_route(harry.username, 2),
               headers: authorization_header
@@ -51,7 +51,7 @@ RSpec.describe 'Users::TimelinePosts', type: :request do
         end
       end
 
-      context 'page params is 3' do
+      context 'when page params is 3' do
         it 'shows no posts' do
           get timeline_posts_route(harry.username, 3),
               headers: authorization_header
@@ -62,12 +62,12 @@ RSpec.describe 'Users::TimelinePosts', type: :request do
       end
     end
 
-    context 'user does not exist' do
+    context 'when user does not exist' do
       it 'sends an error response' do
         get timeline_posts_route('nobody'),
             headers: authorization_header
 
-        expect(response).to have_http_status(404)
+        expect(response).to have_http_status(:not_found)
         expect(json_response['message']).to match('Cannot find user')
       end
     end

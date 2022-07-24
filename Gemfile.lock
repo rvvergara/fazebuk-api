@@ -59,7 +59,7 @@ GEM
       railties (>= 4.1.0)
       responders
       warden (~> 1.2.3)
-    diff-lcs (1.4.4)
+    diff-lcs (1.5.0)
     erubi (1.10.0)
     factory_bot (6.2.1)
       activesupport (>= 5.0.0)
@@ -76,7 +76,8 @@ GEM
     hirb (0.7.3)
     i18n (1.12.0)
       concurrent-ruby (~> 1.0)
-    jbuilder (2.10.0)
+    jbuilder (2.11.5)
+      actionview (>= 5.0.0)
       activesupport (>= 5.0.0)
     json (2.3.1)
     jwt (2.2.1)
@@ -114,7 +115,7 @@ GEM
     public_suffix (4.0.7)
     puma (4.3.12)
       nio4r (~> 2.0)
-    pundit (2.1.0)
+    pundit (2.2.0)
       activesupport (>= 3.0.0)
     pundit-matchers (1.6.0)
       rspec-rails (>= 3.0.0)
@@ -173,8 +174,8 @@ GEM
       rspec-support (~> 3.10)
     rspec-support (3.11.0)
     ruby_dep (1.5.0)
-    shoulda-matchers (4.3.0)
-      activesupport (>= 4.2.0)
+    shoulda-matchers (5.1.0)
+      activesupport (>= 5.2.0)
     spring (2.1.0)
     spring-commands-rspec (1.0.4)
       spring (>= 0.9.1)
@@ -192,8 +193,8 @@ GEM
     thread_safe (0.3.6)
     tzinfo (1.2.10)
       thread_safe (~> 0.1)
-    warden (1.2.8)
-      rack (>= 2.0.6)
+    warden (1.2.9)
+      rack (>= 2.0.9)
     websocket-driver (0.7.5)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
@@ -204,11 +205,11 @@ PLATFORMS
 DEPENDENCIES
   bootsnap (>= 1.1.0)
   byebug
-  devise (>= 4.7.2)
-  factory_bot_rails (>= 6.0.0)
+  devise (>= 4.8.1)
+  factory_bot_rails (>= 6.2.0)
   faker
   hirb
-  jbuilder (~> 2.9, >= 2.9.1)
+  jbuilder (~> 2.10, >= 2.10.0)
   jwt
   koala (>= 3.0.0)
   listen (>= 3.0.5, < 3.2)
@@ -219,8 +220,8 @@ DEPENDENCIES
   pundit-matchers (~> 1.6.0)
   rack-cors
   rails (~> 5.2.8, >= 5.2.8.1)
-  rspec-rails (>= 4.0.1)
-  shoulda-matchers (>= 4.0.1)
+  rspec-rails (>= 5.1.2)
+  shoulda-matchers (>= 4.3.0)
   spring
   spring-commands-rspec
   spring-watcher-listen (~> 2.0.0)

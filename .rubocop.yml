@@ -9,6 +9,7 @@ AllCops:
     - 'config/*'
     - 'Guardfile'
     - 'Rakefile'
+    - 'vendor/*'
   DisplayCopNames: true
 
 RSpec/NamedSubject:

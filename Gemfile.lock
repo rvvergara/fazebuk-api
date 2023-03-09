@@ -120,7 +120,7 @@ GEM
     pundit-matchers (1.6.0)
       rspec-rails (>= 3.0.0)
     racc (1.6.0)
-    rack (2.2.4)
+    rack (2.2.6.3)
     rack-cors (1.0.5)
       rack (>= 1.6.0)
     rack-test (2.0.2)

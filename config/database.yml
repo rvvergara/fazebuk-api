@@ -1,18 +1,21 @@
 default: &default
   adapter: postgresql
   encoding: unicode
-  host: localhost
+  host: db
   timeout: 5000
-  username: <%= Rails.application.credentials.db[:username] %>
-  password: <%= Rails.application.credentials.db[:password] %>
-  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  port: 5432
+  user: <%= ENV['POSTGRES_USER'] %>
+  password: <%= ENV['POSTGRES_PASSWORD'] %>
+  pool: 5
 
 development:
   <<: *default
   database: fazebuk_development
+
 test:
   <<: *default
   database: fazebuk_test
+
 production:
   <<: *default
   database: fazebuk_production

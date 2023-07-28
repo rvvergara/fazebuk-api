@@ -28,6 +28,7 @@ Previously I co-worked on a [project](https://github.com/dipto0321/facialbook) t
   - [Table of Contents](#table-of-contents)
   - [Technologies used](#main-technologies-used)
   - [Normal Install](#normal-install)
+  - [Install Using Docker](#install-using-docker)
   - [Usage](#usage)
   - [API](#api)
   - [Maintainers](#maintainers)
@@ -102,9 +103,20 @@ Follow these steps:
 - run the following:
 
 ```bash
-$ docker-compose up --build
+$ docker compose up --build
 ```
 This will build the image and run the container. The app will be available on `localhost:3000`
+
+**NOTE:**
+
+If it's the first time you're installing the app in your machine or you just finished clearing up volumes, you 
+need to first run the below command in the project root prior to `docker compose up`:
+
+```bash
+$ rm tmp/.db_initialized
+```
+
+This will ensure that the database will be set up and seeded when you run `docker compose up`.
 
 ## Usage
 

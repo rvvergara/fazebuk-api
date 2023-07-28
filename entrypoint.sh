@@ -1,16 +1,11 @@
 #!/bin/bash
 
-FLAG_FILE="/usr/src/app/tmp/.db_initialized"
-
 # Check if the flag file exists
-if [ ! -f "$FLAG_FILE" ]; then
-  # Run the setup tasks if the flag file doesn't exist
+if [ ! -f tmp/.db_initialized ]; then
+  # If the flag file does not exist, run the setup tasks
   bundle exec rails db:setup
-  bundle exec rails db:migrate
-  bundle exec rails db:seed
-
-  # Create the flag file to indicate that the setup tasks have been executed
-  touch "$FLAG_FILE"
+  # Create the flag file to indicate that the database has been initialized
+  touch tmp/.db_initialized
 fi
 
 # Remove any existing server.pid file

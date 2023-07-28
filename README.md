@@ -27,7 +27,7 @@ Previously I co-worked on a [project](https://github.com/dipto0321/facialbook) t
 - [fazebuk-api](#fazebuk-api)
   - [Table of Contents](#table-of-contents)
   - [Technologies used](#main-technologies-used)
-  - [Install](#install)
+  - [Normal Install](#normal-install)
   - [Usage](#usage)
   - [API](#api)
   - [Maintainers](#maintainers)
@@ -46,8 +46,9 @@ Previously I co-worked on a [project](https://github.com/dipto0321/facialbook) t
 - PG Search (for search capability)
 - RSpec
 - FactoryBot
+- Docker
 
-## Install
+## Normal Install
 
 Follow these steps:
 
@@ -84,12 +85,28 @@ Run:
 ```
 $ rails db:setup
 ```
-
-## Usage
-
 ```
 rails s
 ```
+
+## Install Using Docker
+
+Make sure you have Docker installed on your system. If not, follow the instructions [here](https://docs.docker.com/install/).
+
+For this installation, you don't need to even have Ruby or PostgreSQL installed on your system. Docker will take care of that for you.
+
+Follow these steps:
+
+- clone this repo
+- `cd fazebuk-api`
+- run the following:
+
+```bash
+$ docker-compose up --build
+```
+This will build the image and run the container. The app will be available on `localhost:3000`
+
+## Usage
 
 Goto `localhost:3000`
 

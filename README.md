@@ -27,7 +27,8 @@ Previously I co-worked on a [project](https://github.com/dipto0321/facialbook) t
 - [fazebuk-api](#fazebuk-api)
   - [Table of Contents](#table-of-contents)
   - [Technologies used](#main-technologies-used)
-  - [Install](#install)
+  - [Normal Install](#normal-install)
+  - [Install Using Docker](#install-using-docker)
   - [Usage](#usage)
   - [API](#api)
   - [Maintainers](#maintainers)
@@ -46,8 +47,9 @@ Previously I co-worked on a [project](https://github.com/dipto0321/facialbook) t
 - PG Search (for search capability)
 - RSpec
 - FactoryBot
+- Docker
 
-## Install
+## Normal Install
 
 Follow these steps:
 
@@ -84,12 +86,39 @@ Run:
 ```
 $ rails db:setup
 ```
-
-## Usage
-
 ```
 rails s
 ```
+
+## Install Using Docker
+
+Make sure you have Docker installed on your system. If not, follow the instructions [here](https://docs.docker.com/install/).
+
+For this installation, you don't need to even have Ruby or PostgreSQL installed on your system. Docker will take care of that for you.
+
+Follow these steps:
+
+- clone this repo
+- `cd fazebuk-api`
+- run the following:
+
+```bash
+$ docker compose up --build
+```
+This will build the image and run the container. The app will be available on `localhost:3000`
+
+**NOTE:**
+
+If it's the first time you're installing the app in your machine or you just finished clearing up volumes, you 
+need to first run the below command in the project root prior to `docker compose up`:
+
+```bash
+$ rm tmp/.db_initialized
+```
+
+This will ensure that the database will be set up and seeded when you run `docker compose up`.
+
+## Usage
 
 Goto `localhost:3000`
 

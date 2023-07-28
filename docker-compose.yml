@@ -1,0 +1,34 @@
+services:
+  db:
+    image: postgres:9.6-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - fazebuk-data:/var/lib/postgresql/data
+    networks:
+      - fazebuk_network
+
+  fazebuk_api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    command: bash -c "./entrypoint.sh"
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/usr/src/app
+    networks:
+        - fazebuk_network
+    depends_on:
+      - db
+
+volumes:
+    fazebuk-data:
+networks:
+    fazebuk_network:

@@ -11,6 +11,8 @@ COPY Gemfile Gemfile.lock ./
 
 RUN bundle install
 
+COPY entrypoint.sh /usr/src/app/
+
 EXPOSE 3000
 
 COPY . .

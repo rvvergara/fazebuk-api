@@ -17,7 +17,7 @@ gem 'rails', '~> 5.2.8', '>= 5.2.8.1'
 
 group :development, :test do
   gem 'byebug', platforms: %i[mri mingw x64_mingw]
-  gem 'factory_bot_rails', '>= 6.2.0'
+  gem 'factory_bot_rails', '>= 6.3.0'
   gem 'faker'
   gem 'hirb'
   gem 'pry-rails'

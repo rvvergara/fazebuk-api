@@ -32,7 +32,7 @@ group :development do
 end
 
 group :test do
-  gem 'pundit-matchers', '~> 1.6.0'
+  gem 'pundit-matchers', '~> 3.0.0'
   gem 'shoulda-matchers', '>= 4.3.0'
 end
 

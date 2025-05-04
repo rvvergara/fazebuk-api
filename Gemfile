@@ -21,7 +21,7 @@ group :development, :test do
   gem 'faker'
   gem 'hirb'
   gem 'pry-rails'
-  gem 'rspec-rails', '>= 5.1.2'
+  gem 'rspec-rails', '>= 8.0.0'
 end
 
 group :development do

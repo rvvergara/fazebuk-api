@@ -12,7 +12,7 @@ gem 'koala', '>= 3.0.0'
 gem 'pg', '>= 0.18', '< 2.0'
 gem 'puma', '~> 4.3', '>= 4.3.12'
 gem 'pundit', '>= 2.1.0'
-gem 'rack-cors'
+gem 'rack-cors', '>= 3.0.0'
 gem 'rails', '~> 5.2.8', '>= 5.2.8.1'
 
 group :development, :test do
